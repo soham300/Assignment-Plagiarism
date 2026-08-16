@@ -1,0 +1,23 @@
+# 1. Ignore standard environment/package folders
+node_modules/
+package-lock.json
+package.json
+
+# 2. Ignore local database files
+db.json
+
+# 3. Ignore all files inside Backend but keep the folder structure
+src/Backend/*
+!src/Backend/.gitkeep
+
+# 4. Ignore all files inside Frontend subfolders but keep the folder structure
+src/Frontend/Scripts/*
+!src/Frontend/Scripts/.gitkeep
+
+src/Frontend/Templates/*
+!src/Frontend/Templates/.gitkeep
+
+src/Frontend/styles/*
+!src/Frontend/styles/.gitkeep
+
+
