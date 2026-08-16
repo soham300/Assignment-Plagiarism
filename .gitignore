@@ -2,6 +2,7 @@
 node_modules/
 package-lock.json
 package.json
+.gitignore
 
 # 2. Ignore local database files
 db.json
