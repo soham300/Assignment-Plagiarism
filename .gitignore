@@ -11,6 +11,7 @@ db.json
 src/Backend/*
 !src/Backend/.gitkeep
 
+
 # 4. Ignore all files inside Frontend subfolders but keep the folder structure
 src/Frontend/Scripts/*
 !src/Frontend/Scripts/.gitkeep
@@ -19,6 +20,7 @@ src/Frontend/Scripts/*
 
 src/Frontend/Templates/*
 !src/Frontend/Templates/.gitkeep
+!src/Frontend/Templates/index.html
 
 src/Frontend/styles/*
 !src/Frontend/styles/.gitkeep
