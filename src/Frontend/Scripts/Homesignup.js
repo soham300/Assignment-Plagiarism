@@ -1,112 +1,163 @@
-// =========================================
-// JSON SERVER API
-// =========================================
-const API_URL = "http://localhost:3000/users";
-
 import {
+    handleLogin,
+    handleSignup,
+    resetPassword,
     togglePassword,
-    toggleConfirmPassword,
-    checkPasswordStrength,
-    handleSignup
+    logoutUser,
+    updateNavbar,
+    closeAuth
 } from "../../Backend/HomeBackend.js";
 
 
 // =========================================
-// GET ELEMENTS
-// =========================================
-const signupForm = document.getElementById("signupForm");
-const fullName = document.getElementById("fullName");
-const email = document.getElementById("email");
-const password = document.getElementById("password");
-const confirmPassword = document.getElementById("confirmPassword");
-const signupBtn = document.getElementById("signupBtn");
-const buttonText = document.getElementById("buttonText");
-const message = document.getElementById("message");
-const strengthFill = document.getElementById("strengthFill");
-const strengthText = document.getElementById("strengthText");
-
-// =========================================
-// REQUIREMENT ELEMENTS
-// =========================================
-const lengthReq = document.getElementById("lengthReq");
-const uppercaseReq = document.getElementById("uppercaseReq");
-const numberReq = document.getElementById("numberReq");
-const specialReq = document.getElementById("specialReq");
-
-// =========================================
-// SHOW MESSAGE
-// =========================================
-function showMessage(text, type) {
-    message.textContent = text;
-    message.className = "message " + type;
-}
-
-// =========================================
-// CLEAR MESSAGE
-// =========================================
-function clearMessage() {
-    message.textContent = "";
-    message.className = "message";
-}
-
-// =========================================
-// PASSWORD TOGGLE
+// LOGIN FORM
 // =========================================
 
+const loginForm =
+    document.getElementById("loginForm");
 
-document
-    .getElementById("togglePassword")
-    .addEventListener("click", togglePassword);
+if (loginForm !== null) {
 
-document
-    .getElementById("toggleConfirmPassword")
-    .addEventListener("click", toggleConfirmPassword);
-
-
-
-
-password.addEventListener("input", checkPasswordStrength);
-
-// =========================================
-// REDIRECT TO LOGIN
-// =========================================
-
-
-signupForm.addEventListener(
-    "submit",
-    handleSignup
-);
-
-// =========================================
-// GOOGLE BUTTON
-// =========================================
-function handleGoogleLogin() {
-    showMessage(
-        "Google Sign-In is currently unavailable in this demo.",
-        "error"
+    loginForm.addEventListener(
+        "submit",
+        handleLogin
     );
 }
 
-document
-    .getElementById("googleBtn")
-    .addEventListener(
+
+// =========================================
+// SIGNUP FORM
+// =========================================
+
+const signupForm =
+    document.getElementById("signupForm");
+
+if (signupForm !== null) {
+
+    signupForm.addEventListener(
+        "submit",
+        handleSignup
+    );
+}
+
+
+// =========================================
+// RESET PASSWORD FORM
+// =========================================
+
+const resetForm =
+    document.getElementById("resetForm");
+
+if (resetForm !== null) {
+
+    resetForm.addEventListener(
+        "submit",
+        resetPassword
+    );
+}
+
+
+// =========================================
+// FORGOT PASSWORD
+// =========================================
+
+const forgotLink =
+    document.getElementById("forgotLink");
+
+if (forgotLink !== null) {
+
+    forgotLink.addEventListener(
         "click",
-        handleGoogleLogin
-    );
+        function(event) {
 
-// =========================================
-// GITHUB BUTTON
-// =========================================
-function handleGithubLogin() {
-    showMessage(
-        "GitHub Sign-In is currently unavailable in this demo.",
-        "error"
+            event.preventDefault();
+
+            document.getElementById("loginPanel")
+                .classList.remove("active");
+
+            document.getElementById("resetPanel")
+                .classList.add("active");
+
+        }
     );
 }
 
-document
-    .getElementById("githubBtn")
-    .addEventListener(
+
+// =========================================
+// PASSWORD SHOW / HIDE
+// =========================================
+
+const passwordButtons =
+    document.querySelectorAll(".pw-toggle");
+
+passwordButtons.forEach(function(button) {
+
+    button.addEventListener(
         "click",
-        handleGithubLogin
+        function() {
+
+            const inputId =
+                button.getAttribute("data-target");
+
+            togglePassword(
+                inputId,
+                button
+            );
+
+        }
     );
+
+});
+
+
+// =========================================
+// NAVBAR LOGIN / LOGOUT
+// =========================================
+
+const authButtons =
+    document.querySelectorAll(".js-auth-open");
+
+authButtons.forEach(function(button) {
+
+    button.addEventListener(
+        "click",
+        function(event) {
+
+            event.preventDefault();
+
+            const action =
+                button.getAttribute("data-auth");
+
+            if (action === "logout") {
+
+                logoutUser();
+
+                return;
+            }
+
+            if (action === "login") {
+
+                document.getElementById("signupPanel")
+                    .classList.remove("active");
+
+                document.getElementById("resetPanel")
+                    .classList.remove("active");
+
+                document.getElementById("loginPanel")
+                    .classList.add("active");
+
+                document.getElementById("authModal")
+                    .classList.add("open");
+            }
+
+        }
+    );
+
+});
+
+
+// =========================================
+// UPDATE NAVBAR WHEN PAGE LOADS
+// =========================================
+
+updateNavbar();

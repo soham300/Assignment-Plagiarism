@@ -863,6 +863,7 @@ body.modal-open{overflow:hidden}
                     color:var(--primary);margin-left:6px;transition:color .2s}
 .auth-switch button:hover{color:var(--primary-dark);text-decoration:underline}
 .auth-note{margin-top:18px;text-align:center;font-size:12px;color:var(--muted-light)}
+.auth-panel#resetPanel .auth-sub{margin-bottom:24px}
 
 /* ==========================================================================
    21. RESPONSIVE
@@ -1768,8 +1769,8 @@ body.modal-open{overflow:hidden}
     </div>
     <div class="foot-col">
       <h6>Account</h6>
-      <a href="#" class="js-auth-open" data-auth="login">Login</a>
-      <a href="#" class="js-auth-open" data-auth="signup">Sign Up</a>
+      <a href="#" data-auth="login">Login</a>
+      <a href="#" data-auth="signup">Sign Up</a>
       <a href="#" data-demo>Dashboard</a>
     </div>
   </div>
@@ -1833,7 +1834,7 @@ body.modal-open{overflow:hidden}
       <div class="auth-switch">
         Don't have an account?<button type="button" data-switch="signup">Sign Up</button>
       </div>
-      <p class="auth-note">Frontend preview — authentication connects with the backend later.</p>
+      <p class="auth-note">Authentication is ready for this frontend demo.</p>
     </div>
 
     <!-- ============ SIGN UP PANEL ============ -->
@@ -1896,7 +1897,62 @@ body.modal-open{overflow:hidden}
       <div class="auth-switch">
         Already have an account?<button type="button" data-switch="login">Login</button>
       </div>
-      <p class="auth-note">Frontend preview — authentication connects with the backend later.</p>
+      <p class="auth-note">Authentication is ready for this frontend demo.</p>
+    </div>
+
+    <!-- ============ RESET PASSWORD PANEL ============ -->
+    <div class="auth-panel" id="resetPanel">
+      <div class="auth-brand" aria-hidden="true">
+        <svg viewBox="0 0 40 40">
+          <rect x="2" y="2" width="36" height="36" rx="11" fill="#4f46e5"/>
+          <path d="M14.5 9.5h7l6 6v13a1.6 1.6 0 0 1-1.6 1.6H14.5a1.6 1.6 0 0 1-1.6-1.6V11.1a1.6 1.6 0 0 1 1.6-1.6z" fill="#fff"/>
+          <path d="M21.5 9.5v4.9a1.1 1.1 0 0 0 1.1 1.1h4.9" fill="#c9caf5"/>
+          <path d="M16.6 22.6l2.9 2.9 5.6-6" stroke="#4f46e5" stroke-width="2.6" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </div>
+      <h3 id="authTitleReset">Reset Your Password</h3>
+      <p class="auth-sub">Enter your email and create a new password.</p>
+
+      <form class="auth-form" id="resetForm" novalidate>
+        <div class="auth-field" id="resetEmailField">
+          <label for="resetEmail">Email Address</label>
+          <div class="input-wrap">
+            <input type="email" id="resetEmail" placeholder="Enter your registered email" autocomplete="email" />
+          </div>
+          <span class="field-msg">Please enter a valid email address.</span>
+        </div>
+
+        <div class="auth-field has-toggle" id="resetPasswordField">
+          <label for="resetPassword">New Password</label>
+          <div class="input-wrap">
+            <input type="password" id="resetPassword" placeholder="Create a new password" autocomplete="new-password" />
+            <button type="button" class="pw-toggle" data-target="resetPassword" aria-label="Show password">
+              <svg class="ic ic-on"><use href="#i-eye"/></svg>
+              <svg class="ic ic-off"><use href="#i-eye-off"/></svg>
+            </button>
+          </div>
+          <span class="field-msg">Password must be at least 6 characters.</span>
+        </div>
+
+        <div class="auth-field has-toggle" id="resetConfirmField">
+          <label for="resetConfirm">Confirm New Password</label>
+          <div class="input-wrap">
+            <input type="password" id="resetConfirm" placeholder="Confirm your new password" autocomplete="new-password" />
+            <button type="button" class="pw-toggle" data-target="resetConfirm" aria-label="Show password">
+              <svg class="ic ic-on"><use href="#i-eye"/></svg>
+              <svg class="ic ic-off"><use href="#i-eye-off"/></svg>
+            </button>
+          </div>
+          <span class="field-msg">Passwords do not match.</span>
+        </div>
+
+        <button type="submit" class="btn btn-primary btn-block">Reset Password</button>
+      </form>
+
+      <div class="auth-switch">
+        Remember your password?<button type="button" data-switch="login">Back to Login</button>
+      </div>
+      <p class="auth-note">Password recovery is available in this frontend demo.</p>
     </div>
   </div>
 </div>
@@ -2266,143 +2322,77 @@ $$('[data-demo]').forEach(el => el.addEventListener('click', e => {
 }));
 
 /* =========================================================================
-   AUTH MODAL (Login / Sign Up) — frontend prototype only.
-   No real authentication, no API calls, no backend.
+   AUTH MODAL — open, close and switch panels
    ========================================================================= */
-const authModal   = $('#authModal');
-const authCard    = $('#authCard');
-const loginPanel  = $('#loginPanel');
-const signupPanel = $('#signupPanel');
-let lastFocusedEl = null;
+const authModal = $('#authModal');
+const authClose = $('#authClose');
 
-/* ---- open / close ------------------------------------------------------ */
-function openAuth(mode = 'login') {
-  lastFocusedEl = document.activeElement;
-  setAuthMode(mode);
-  authModal.classList.add('open');
-  authModal.setAttribute('aria-hidden', 'false');
-  document.body.classList.add('modal-open');
-  navbar.classList.remove('open'); /* close mobile menu if it was open */
-  setTimeout(() => {
-    const first = mode === 'signup' ? $('#signupName') : $('#loginEmail');
-    if (first) first.focus();
-  }, 120);
+function openAuthPanel(panelName) {
+  $$('.auth-panel').forEach(panel => panel.classList.remove('active'));
+
+  const panel = document.getElementById(panelName + 'Panel');
+  if (panel) panel.classList.add('active');
+
+  if (authModal) {
+    authModal.classList.add('open');
+    authModal.setAttribute('aria-hidden', 'false');
+    document.body.classList.add('modal-open');
+  }
 }
 
-function closeAuth() {
+function closeAuthModal() {
+  if (!authModal) return;
+
   authModal.classList.remove('open');
   authModal.setAttribute('aria-hidden', 'true');
   document.body.classList.remove('modal-open');
-  clearAuthErrors();
-  if (lastFocusedEl && lastFocusedEl.focus) lastFocusedEl.focus();
 }
 
-/* ---- login <-> signup switching (same dialog) --------------------------- */
-function setAuthMode(mode) {
-  const isSignup = mode === 'signup';
-  loginPanel.classList.toggle('active', !isSignup);
-  signupPanel.classList.toggle('active', isSignup);
-  authCard.setAttribute('aria-labelledby', isSignup ? 'authTitleSignup' : 'authTitleLogin');
+/* Login button from the navbar */
+$$('.js-auth-open').forEach(button => {
+  /* Homesignup.js handles the navbar login/logout buttons. */
+  if (button.closest('.nav-actions') || button.closest('.mobile-cta')) return;
+});
+
+/* Login / Sign Up buttons inside the auth dialog */
+$$('[data-switch]').forEach(button => {
+  button.addEventListener('click', function() {
+    openAuthPanel(this.getAttribute('data-switch'));
+  });
+});
+
+/* Close button */
+if (authClose) {
+  authClose.addEventListener('click', closeAuthModal);
 }
 
-$$('.js-auth-open').forEach(el => el.addEventListener('click', e => {
-  e.preventDefault();
-  openAuth(el.dataset.auth || 'login');
-}));
-
-$$('[data-switch]').forEach(btn => btn.addEventListener('click', () => {
-  setAuthMode(btn.dataset.switch);
-  clearAuthErrors();
-  const target = btn.dataset.switch === 'signup' ? $('#signupName') : $('#loginEmail');
-  setTimeout(() => target.focus(), 80);
-}));
-
-/* ---- close triggers: × button, outside click, Escape -------------------- */
-$('#authClose').addEventListener('click', closeAuth);
-authModal.addEventListener('click', e => { if (e.target === authModal) closeAuth(); });
-document.addEventListener('keydown', e => {
-  if (e.key === 'Escape' && authModal.classList.contains('open')) closeAuth();
-});
-
-/* ---- keyboard focus trap inside the dialog ------------------------------ */
-authCard.addEventListener('keydown', e => {
-  if (e.key !== 'Tab') return;
-  const focusables = $$('button, input, a[href]', authCard)
-    .filter(el => !el.disabled && el.offsetParent !== null);
-  if (!focusables.length) return;
-  const first = focusables[0];
-  const last  = focusables[focusables.length - 1];
-  if (e.shiftKey && document.activeElement === first) { e.preventDefault(); last.focus(); }
-  else if (!e.shiftKey && document.activeElement === last) { e.preventDefault(); first.focus(); }
-});
-
-/* ---- password visibility toggles ---------------------------------------- */
-$$('.pw-toggle').forEach(btn => btn.addEventListener('click', () => {
-  const input = $('#' + btn.dataset.target);
-  const show  = input.type === 'password';
-  input.type  = show ? 'text' : 'password';
-  btn.classList.toggle('showing', show);
-  btn.setAttribute('aria-label', show ? 'Hide password' : 'Show password');
-  input.focus();
-}));
-
-/* ---- frontend validation helpers ---------------------------------------- */
-function setError(fieldEl, msg) {
-  fieldEl.classList.add('error');
-  if (msg) $('.field-msg', fieldEl).textContent = msg;
+/* Close when clicking the dark area outside the card */
+if (authModal) {
+  authModal.addEventListener('click', function(event) {
+    if (event.target === authModal) {
+      closeAuthModal();
+    }
+  });
 }
-function clearAuthErrors() { $$('.auth-field', authModal).forEach(f => f.classList.remove('error')); }
-const emailValid = v => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v);
 
-/* clear error state while typing */
-$$('.auth-field input', authModal).forEach(input =>
-  input.addEventListener('input', () =>
-    input.closest('.auth-field').classList.remove('error'))
-);
-
-/* ---- login form (demo submit) -------------------------------------------- */
-$('#loginForm').addEventListener('submit', e => {
-  e.preventDefault();
-  clearAuthErrors();
-  let ok = true;
-  const email = $('#loginEmail').value.trim();
-  const pw    = $('#loginPassword').value;
-
-  if (!email)                 { setError($('#loginEmailField'), 'Please enter your email address.'); ok = false; }
-  else if (!emailValid(email)){ setError($('#loginEmailField'), 'Please enter a valid email address.'); ok = false; }
-  if (!pw)                    { setError($('#loginPasswordField'), 'Please enter your password.'); ok = false; }
-  if (!ok) return;
-
-  showToast('Login functionality will be connected to the backend.');
+/* Escape key closes the dialog */
+document.addEventListener('keydown', function(event) {
+  if (event.key === 'Escape') {
+    closeAuthModal();
+  }
 });
 
-/* ---- sign up form (demo submit) ------------------------------------------ */
-$('#signupForm').addEventListener('submit', e => {
-  e.preventDefault();
-  clearAuthErrors();
-  let ok = true;
-  const name    = $('#signupName').value.trim();
-  const email   = $('#signupEmail').value.trim();
-  const pw      = $('#signupPassword').value;
-  const confirm = $('#signupConfirm').value;
-
-  if (!name)                  { setError($('#signupNameField'), 'Please enter your full name.'); ok = false; }
-  if (!email)                 { setError($('#signupEmailField'), 'Please enter your email address.'); ok = false; }
-  else if (!emailValid(email)){ setError($('#signupEmailField'), 'Please enter a valid email address.'); ok = false; }
-  if (!pw)                    { setError($('#signupPasswordField'), 'Please create a password.'); ok = false; }
-  else if (pw.length < 6)     { setError($('#signupPasswordField'), 'Password must be at least 6 characters.'); ok = false; }
-  if (!confirm)               { setError($('#signupConfirmField'), 'Please confirm your password.'); ok = false; }
-  else if (pw && confirm !== pw){ setError($('#signupConfirmField'), 'Passwords do not match.'); ok = false; }
-  if (!ok) return;
-
-  showToast('Sign-up functionality will be connected to the backend.');
+/* Footer account links */
+$$('.foot-col a[data-auth]').forEach(link => {
+  link.addEventListener('click', function(event) {
+    event.preventDefault();
+    openAuthPanel(this.getAttribute('data-auth'));
+  });
 });
 
-/* ---- forgot password link (placeholder) ---------------------------------- */
-$('#forgotLink').addEventListener('click', e => {
-  e.preventDefault();
-  showToast('Password reset will arrive with the backend.');
-});
 </script>
+
+<script type="module" src="../Scripts/Homesignup.js"></script>
+
 </body>
 </html>
