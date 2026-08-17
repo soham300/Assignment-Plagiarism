@@ -133,3 +133,4 @@ submitbutton.addEventListener("click", async function extractTextFromFile() {
 
 
 
+
