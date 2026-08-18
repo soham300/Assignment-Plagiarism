@@ -62,11 +62,7 @@ async function addfiles(event,filelist){
             
         `
         // now make form data object which is used for transmit the data inside the files
-          obj={
-            filename:filelist[a].name,
-            filesize:fileList[a].size,
-            file:filelist[a]
-          }
+          
 
         
         // let hwlll=document.getElementById("hwlll");
@@ -77,11 +73,7 @@ async function addfiles(event,filelist){
         
         itemstosave.appendChild(fileDiv);
         
-        await fetch("http://localhost:3000/users",{
-            method:"POST",
-            headers:{'Content-Type':'application/json'},
-            body:JSON.stringify(obj)
-        })
+        
 
 
 
@@ -120,17 +112,96 @@ async function processEntry(entry, fileList) {
 let submitbutton = document.getElementById("submit-btn");
 submitbutton.addEventListener("click", async function extractTextFromFile() {
     for (let i = 0; i < fileList.length; i++) {
+
+       
+        let arrresult=[];
         const file = fileList[i];
         const fileName = file.name.toLowerCase(); // Use .name instead of .originalname
         
         if (fileName.endsWith('.txt')) {
             // Use .text() to read the file content in the browser
             const fileContent = await file.text(); 
-            console.log("Text file content:", fileContent);
+            // console.log("Text file content:", fileContent);
+            arrresult=createChunksLinear(fileContent);
+            for(let x=0;x<arrresult.length;x++){
+              gramsfinal=buildthegrams(arrresult[x]);
+              arrresult[x].grams=gramsfinal;
+            }
+            
+            // console.log(gramsfinal);
+            // console.log(arrresult);
+            // console.log(fileContent.length);
+            // console.log(typeof fileContent)
+
         }
+
+        obj={
+            filename:fileList[i].name,
+            filesize:fileList[i].size,
+            chunks:arrresult
+        }
+
+        await fetch("http://localhost:3000/users",{
+            method:"POST",
+            headers:{'Content-Type':'application/json'},
+            body:JSON.stringify(obj)
+        }) 
     }
 });
 
 
+function createChunksLinear(text, wordsPerChunk = 100) {
+  const words = text.trim().split(/\s+/);
+  const totalWords = words.length;
 
+  if (totalWords === 0 || words[0] === "") return [];
+
+  const chunks = [];
+  let chunkIndex = 0;
+
+  for (let i = 0; i < totalWords; i += wordsPerChunk) {
+    const chunkWords = words.slice(i, i + wordsPerChunk);
+    
+    chunks.push({
+      chunkIndex: chunkIndex,
+      text: chunkWords.join(" "),
+      wordCount: chunkWords.length
+    });
+
+    chunkIndex++;
+  }
+
+  return chunks;
+
+}
+
+
+// siliding window of size 4
+function buildthegrams(chunk, n = 4) {
+
+  const text = typeof chunk === 'string' ? chunk : chunk.text;
+
+  if (!text) return [];
+
+  const words = text
+    .toLowerCase()
+    .replace(/[^a-z0-9 ]/g, "") 
+    .trim()
+    .split(/\s+/);
+
+
+  const noofgrams = words.length - n + 1;
+
+  if (noofgrams <= 0) return [];
+
+  const grams = [];
+
+
+  for (let i = 0; i < noofgrams; i++) {
+    const gramvalue = words.slice(i, i + n);
+    grams.push(gramvalue.join(" "));
+  }
+
+  return grams;
+}
 
