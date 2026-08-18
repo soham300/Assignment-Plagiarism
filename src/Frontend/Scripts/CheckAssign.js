@@ -62,11 +62,7 @@ async function addfiles(event,filelist){
             
         `
         // now make form data object which is used for transmit the data inside the files
-          obj={
-            filename:filelist[a].name,
-            filesize:fileList[a].size,
-            file:filelist[a]
-          }
+          
 
         
         // let hwlll=document.getElementById("hwlll");
@@ -77,11 +73,7 @@ async function addfiles(event,filelist){
         
         itemstosave.appendChild(fileDiv);
         
-        await fetch("http://localhost:3000/users",{
-            method:"POST",
-            headers:{'Content-Type':'application/json'},
-            body:JSON.stringify(obj)
-        })
+        
 
 
 
@@ -120,17 +112,60 @@ async function processEntry(entry, fileList) {
 let submitbutton = document.getElementById("submit-btn");
 submitbutton.addEventListener("click", async function extractTextFromFile() {
     for (let i = 0; i < fileList.length; i++) {
+
+       
+        let arrresult=[];
         const file = fileList[i];
         const fileName = file.name.toLowerCase(); // Use .name instead of .originalname
         
         if (fileName.endsWith('.txt')) {
             // Use .text() to read the file content in the browser
             const fileContent = await file.text(); 
-            console.log("Text file content:", fileContent);
+            // console.log("Text file content:", fileContent);
+            arrresult=createChunksLinear(fileContent);
+            console.log(arrresult);
+            console.log(fileContent.length);
+            console.log(typeof fileContent)
+
         }
+
+        obj={
+            filename:fileList[i].name,
+            filesize:fileList[i].size,
+            chunks:arrresult
+        }
+
+        await fetch("http://localhost:3000/users",{
+            method:"POST",
+            headers:{'Content-Type':'application/json'},
+            body:JSON.stringify(obj)
+        }) 
     }
 });
 
 
+function createChunksLinear(text, wordsPerChunk = 100) {
+  const words = text.trim().split(/\s+/);
+  const totalWords = words.length;
+
+  if (totalWords === 0 || words[0] === "") return [];
+
+  const chunks = [];
+  let chunkIndex = 0;
+
+  for (let i = 0; i < totalWords; i += wordsPerChunk) {
+    const chunkWords = words.slice(i, i + wordsPerChunk);
+    
+    chunks.push({
+      chunkIndex: chunkIndex,
+      text: chunkWords.join(" "),
+      wordCount: chunkWords.length
+    });
+
+    chunkIndex++;
+  }
+
+  return chunks; 
+}
 
 
