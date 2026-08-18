@@ -123,9 +123,15 @@ submitbutton.addEventListener("click", async function extractTextFromFile() {
             const fileContent = await file.text(); 
             // console.log("Text file content:", fileContent);
             arrresult=createChunksLinear(fileContent);
-            console.log(arrresult);
-            console.log(fileContent.length);
-            console.log(typeof fileContent)
+            for(let x=0;x<arrresult.length;x++){
+              gramsfinal=buildthegrams(arrresult[x]);
+              arrresult[x].grams=gramsfinal;
+            }
+            
+            // console.log(gramsfinal);
+            // console.log(arrresult);
+            // console.log(fileContent.length);
+            // console.log(typeof fileContent)
 
         }
 
@@ -165,7 +171,37 @@ function createChunksLinear(text, wordsPerChunk = 100) {
     chunkIndex++;
   }
 
-  return chunks; 
+  return chunks;
+
 }
 
+
+// siliding window of size 4
+function buildthegrams(chunk, n = 4) {
+
+  const text = typeof chunk === 'string' ? chunk : chunk.text;
+
+  if (!text) return [];
+
+  const words = text
+    .toLowerCase()
+    .replace(/[^a-z0-9 ]/g, "") 
+    .trim()
+    .split(/\s+/);
+
+
+  const noofgrams = words.length - n + 1;
+
+  if (noofgrams <= 0) return [];
+
+  const grams = [];
+
+
+  for (let i = 0; i < noofgrams; i++) {
+    const gramvalue = words.slice(i, i + n);
+    grams.push(gramvalue.join(" "));
+  }
+
+  return grams;
+}
 
