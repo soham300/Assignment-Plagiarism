@@ -3,267 +3,320 @@
 // =========================================
 
 export function handleLogin(event) {
+  event.preventDefault();
 
-    event.preventDefault();
+  const email = document
+    .getElementById("loginEmail")
+    .value.trim()
+    .toLowerCase();
 
-    const email = document.getElementById("loginEmail").value.trim().toLowerCase();
-    const password = document.getElementById("loginPassword").value;
+  const password = document.getElementById("loginPassword").value;
 
-    if (email === "" || password === "") {
-        alert("Please enter email and password.");
-        return;
-    }
+  if (email === "" || password === "") {
+    alert("Please enter email and password.");
+    return;
+  }
 
-    const savedUser = localStorage.getItem("user");
+  const savedUser = localStorage.getItem("user");
 
-    if (savedUser === null) {
-        alert("No account found. Please sign up first.");
-        return;
-    }
+  if (savedUser === null) {
+    alert("No account found. Please sign up first.");
+    return;
+  }
 
-    const user = JSON.parse(savedUser);
+  const user = JSON.parse(savedUser);
 
-    if (email === user.email && password === user.password) {
+  if (email === user.email && password === user.password) {
+    localStorage.setItem("loggedIn", "true");
 
-        localStorage.setItem("loggedIn", "true");
+    alert("Login successful!");
 
-        alert("Login successful!");
+    updateNavbar();
 
-        updateNavbar();
-
-        closeAuth();
-
-    } else {
-
-        alert("Invalid email or password.");
-
-    }
+    closeAuth();
+  } else {
+    alert("Invalid email or password.");
+  }
 }
-
 
 // =========================================
 // SIGN UP
 // =========================================
 
 export function handleSignup(event) {
+  event.preventDefault();
 
-    event.preventDefault();
+  const name = document.getElementById("signupName").value.trim();
 
-    const name = document.getElementById("signupName").value.trim();
-    const email = document.getElementById("signupEmail").value.trim().toLowerCase();
-    const password = document.getElementById("signupPassword").value;
-    const confirmPassword = document.getElementById("signupConfirm").value;
+  const email = document
+    .getElementById("signupEmail")
+    .value.trim()
+    .toLowerCase();
 
-    if (
-        name === "" ||
-        email === "" ||
-        password === "" ||
-        confirmPassword === ""
-    ) {
-        alert("Please fill all fields.");
-        return;
+  const password = document.getElementById("signupPassword").value;
+
+  const confirmPassword = document.getElementById("signupConfirm").value;
+
+  if (
+    name === "" ||
+    email === "" ||
+    password === "" ||
+    confirmPassword === ""
+  ) {
+    alert("Please fill all fields.");
+    return;
+  }
+
+  if (password.length < 6) {
+    alert("Password must contain at least 6 characters.");
+    return;
+  }
+
+  if (password !== confirmPassword) {
+    alert("Passwords do not match.");
+    return;
+  }
+
+  const savedUser = localStorage.getItem("user");
+
+  if (savedUser !== null) {
+    const oldUser = JSON.parse(savedUser);
+
+    if (oldUser.email === email) {
+      alert("An account with this email already exists.");
+      return;
     }
+  }
 
-    if (password.length < 6) {
-        alert("Password must contain at least 6 characters.");
-        return;
-    }
+  const newUser = {
+    name: name,
+    email: email,
+    password: password,
+  };
 
-    if (password !== confirmPassword) {
-        alert("Passwords do not match.");
-        return;
-    }
+  localStorage.setItem("user", JSON.stringify(newUser));
 
-    const savedUser = localStorage.getItem("user");
+  // Make sure user is NOT automatically logged in
+  localStorage.removeItem("loggedIn");
 
-    if (savedUser !== null) {
+  alert("Account created successfully! Please login.");
 
-        const user = JSON.parse(savedUser);
+  document.getElementById("signupForm").reset();
 
-        if (user.email === email) {
-            alert("An account with this email already exists.");
-            return;
-        }
-    }
+  // Close signup
+  document.getElementById("signupPanel").classList.remove("active");
 
-    const newUser = {
-        name: name,
-        email: email,
-        password: password
-    };
-
-    localStorage.setItem(
-        "user",
-        JSON.stringify(newUser)
-    );
-
-    alert("Account created successfully! Please login.");
-
-    document.getElementById("signupForm").reset();
-
-    // Open login panel
-    document.getElementById("signupPanel")
-        .classList.remove("active");
-
-    document.getElementById("loginPanel")
-        .classList.add("active");
+  // Open login
+  document.getElementById("loginPanel").classList.add("active");
 }
 
-
 // =========================================
-// FORGOT / RESET PASSWORD
+// RESET PASSWORD
 // =========================================
 
 export function resetPassword(event) {
+  event.preventDefault();
 
-    event.preventDefault();
+  const email = document
+    .getElementById("resetEmail")
+    .value.trim()
+    .toLowerCase();
 
-    const email = document.getElementById("resetEmail").value.trim().toLowerCase();
-    const newPassword = document.getElementById("resetPassword").value;
-    const confirmPassword = document.getElementById("resetConfirm").value;
+  const newPassword = document.getElementById("resetPassword").value;
 
-    if (
-        email === "" ||
-        newPassword === "" ||
-        confirmPassword === ""
-    ) {
-        alert("Please fill all fields.");
-        return;
-    }
+  const confirmPassword = document.getElementById("resetConfirm").value;
 
-    const savedUser = localStorage.getItem("user");
+  if (email === "" || newPassword === "" || confirmPassword === "") {
+    alert("Please fill all fields.");
+    return;
+  }
 
-    if (savedUser === null) {
-        alert("No account found.");
-        return;
-    }
+  const savedUser = localStorage.getItem("user");
 
-    const user = JSON.parse(savedUser);
+  if (savedUser === null) {
+    alert("No account found.");
+    return;
+  }
 
-    if (email !== user.email) {
-        alert("No account found with this email.");
-        return;
-    }
+  const user = JSON.parse(savedUser);
 
-    if (newPassword.length < 6) {
-        alert("Password must contain at least 6 characters.");
-        return;
-    }
+  if (email !== user.email) {
+    alert("No account found with this email.");
+    return;
+  }
 
-    if (newPassword !== confirmPassword) {
-        alert("Passwords do not match.");
-        return;
-    }
+  if (newPassword.length < 6) {
+    alert("Password must contain at least 6 characters.");
+    return;
+  }
 
-    user.password = newPassword;
+  if (newPassword !== confirmPassword) {
+    alert("Passwords do not match.");
+    return;
+  }
 
-    localStorage.setItem(
-        "user",
-        JSON.stringify(user)
-    );
+  user.password = newPassword;
 
-    alert("Password reset successfully! Please login.");
+  localStorage.setItem("user", JSON.stringify(user));
 
-    document.getElementById("resetForm").reset();
+  alert("Password reset successfully! Please login.");
 
-    document.getElementById("resetPanel")
-        .classList.remove("active");
+  document.getElementById("resetForm").reset();
 
-    document.getElementById("loginPanel")
-        .classList.add("active");
+  document.getElementById("resetPanel").classList.remove("active");
+
+  document.getElementById("loginPanel").classList.add("active");
 }
 
-
 // =========================================
-// PASSWORD VISIBILITY
+// SHOW / HIDE PASSWORD
 // =========================================
 
 export function togglePassword(inputId, button) {
+  const passwordInput = document.getElementById(inputId);
 
-    const passwordInput =
-        document.getElementById(inputId);
+  if (passwordInput.type === "password") {
+    passwordInput.type = "text";
 
-    if (passwordInput.type === "password") {
+    button.setAttribute("aria-label", "Hide password");
+  } else {
+    passwordInput.type = "password";
 
-        passwordInput.type = "text";
-
-        button.setAttribute(
-            "aria-label",
-            "Hide password"
-        );
-
-    } else {
-
-        passwordInput.type = "password";
-
-        button.setAttribute(
-            "aria-label",
-            "Show password"
-        );
-    }
+    button.setAttribute("aria-label", "Show password");
+  }
 }
-
 
 // =========================================
 // LOGOUT
 // =========================================
 
 export function logoutUser() {
+  localStorage.removeItem("loggedIn");
 
-    localStorage.removeItem("loggedIn");
+  updateNavbar();
 
-    updateNavbar();
-
-    alert("You have been logged out.");
+  alert("You have been logged out.");
 }
-
 
 // =========================================
 // UPDATE NAVBAR
 // =========================================
 
 export function updateNavbar() {
+  const loggedIn = localStorage.getItem("loggedIn") === "true";
 
-    const loginButtons =
-        document.querySelectorAll(".js-auth-open");
+  const savedUser = localStorage.getItem("user");
 
-    const loggedIn =
-        localStorage.getItem("loggedIn") === "true";
+  // Desktop buttons
+  const loginButton = document.getElementById("loginNavButton");
 
-    loginButtons.forEach(function(button) {
+  const signupButton = document.getElementById("signupNavButton");
 
-        if (loggedIn) {
+  const profileWrap = document.getElementById("profileWrap");
 
-            button.textContent = "Logout";
+  const profileButton = document.getElementById("profileButton");
 
-            button.setAttribute(
-                "data-auth",
-                "logout"
-            );
+  // Mobile buttons
+  const mobileLoginButton = document.getElementById("mobileLoginButton");
 
-        } else {
+  const mobileSignupButton = document.getElementById("mobileSignupButton");
 
-            button.textContent = "Login";
+  const mobileProfileWrap = document.getElementById("mobileProfileWrap");
 
-            button.setAttribute(
-                "data-auth",
-                "login"
-            );
-        }
-    });
+  const mobileProfileButton = document.getElementById("mobileProfileButton");
+
+  // =========================================
+  // LOGGED IN
+  // =========================================
+
+  if (loggedIn && savedUser !== null) {
+    const user = JSON.parse(savedUser);
+
+    const firstLetter = user.name.charAt(0).toUpperCase();
+
+    // Desktop
+
+    if (loginButton !== null) {
+      loginButton.style.display = "none";
+    }
+
+    if (signupButton !== null) {
+      signupButton.style.display = "none";
+    }
+
+    if (profileWrap !== null) {
+      profileWrap.classList.add("show");
+    }
+
+    if (profileButton !== null) {
+      profileButton.textContent = firstLetter;
+    }
+
+    // Mobile
+
+    if (mobileLoginButton !== null) {
+      mobileLoginButton.style.display = "none";
+    }
+
+    if (mobileSignupButton !== null) {
+      mobileSignupButton.style.display = "none";
+    }
+
+    if (mobileProfileWrap !== null) {
+      mobileProfileWrap.classList.add("show");
+    }
+
+    if (mobileProfileButton !== null) {
+      mobileProfileButton.textContent = firstLetter;
+    }
+  }
+
+  // =========================================
+  // LOGGED OUT
+  // =========================================
+  else {
+    // Desktop
+
+    if (loginButton !== null) {
+      loginButton.style.display = "";
+    }
+
+    if (signupButton !== null) {
+      signupButton.style.display = "";
+    }
+
+    if (profileWrap !== null) {
+      profileWrap.classList.remove("show");
+    }
+
+    // Mobile
+
+    if (mobileLoginButton !== null) {
+      mobileLoginButton.style.display = "";
+    }
+
+    if (mobileSignupButton !== null) {
+      mobileSignupButton.style.display = "";
+    }
+
+    if (mobileProfileWrap !== null) {
+      mobileProfileWrap.classList.remove("show");
+    }
+  }
 }
-
 
 // =========================================
 // CLOSE AUTH MODAL
 // =========================================
 
 export function closeAuth() {
+  const authModal = document.getElementById("authModal");
 
-    const authModal =
-        document.getElementById("authModal");
+  if (authModal !== null) {
+    authModal.classList.remove("open");
 
-    if (authModal !== null) {
-        authModal.classList.remove("open");
-    }
+    authModal.setAttribute("aria-hidden", "true");
+
+    document.body.classList.remove("modal-open");
+  }
 }
