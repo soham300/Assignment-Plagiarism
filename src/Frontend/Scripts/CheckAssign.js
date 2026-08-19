@@ -121,7 +121,7 @@ submitbutton.addEventListener("click", async function extractTextFromFile() {
             // console.log("Text file content:", fileContent);
             arrresult=createChunksLinear(fileContent);
             for(let x=0;x<arrresult.length;x++){
-              gramsfinal=buildthegrams(arrresult[x]);
+              let gramsfinal=buildthegrams(arrresult[x]);
               arrresult[x].grams=gramsfinal;
             }
             
@@ -132,7 +132,7 @@ submitbutton.addEventListener("click", async function extractTextFromFile() {
 
         }
 
-        obj={
+        let obj={
             filename:fileList[i].name,
             filesize:fileList[i].size,
             chunks:arrresult
@@ -235,30 +235,37 @@ async function applyalgo(fileList){
 
     }
 
-
+          let totalmaxsimlarity=0;
           let firstlength=chunksarr[0].length;
           let secondlength=chunksarr[1].length;
-
+          let count=0;
           for(let i=0;i<firstlength;i++){
+              let similarity=0;
               const firstset=new Set(chunksarr[0][i].grams);
-              const secondset=new Set(chunksarr[1][i].grams);
+              for(let j=0;j<secondlength;j++){
+                const secondset=new Set(chunksarr[1][j].grams);
+               if (firstset.size === 0 || secondset.size === 0) continue; 
 
-              console.log(firstset);
-              console.log(secondset);
-              if (firstset.size === 0 && secondset.size === 0) alert("both files are empty"); 
-              if (firstset.size === 0 || secondset.size === 0) alert("any of file in empty"); 
+                let intersectioncount=0;
+                for(const a of firstset){
+                    if(secondset.has(a)){
+                      intersectioncount++;
+                    }
+                }
+                count++;
 
-              let intersectioncount=0;
-              for(const a of firstset){
-                  if(secondset.has(a)){
-                    intersectioncount++;
-                  }
-              }
-
-              const unionSize = firstset.size + secondset.size - intersectioncount;
-              const similarity = intersectioncount / unionSize;
-              console.log(similarity);
+                const unionSize = firstset.size + secondset.size - intersectioncount;
+                const similarityvalue = intersectioncount / unionSize;
+                // console.log("first set:"+[...firstset])
+                // console.log("second set:" +[...secondset]);
+                // console.log(similarityvalue);
+                similarity=Math.max(similarityvalue,similarity);
+              }  
+              totalmaxsimlarity+=similarity;
           }
+          console.log("final");
+          console.log((totalmaxsimlarity/firstlength)*100);
+          // console.log(similarity/count);  
 
     
     // console.log(chunksarr);
