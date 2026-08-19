@@ -27,7 +27,7 @@ dropZone.addEventListener('drop', async function(event) {
     
     const entry = items[i].webkitGetAsEntry();
     //  convert that items in the fileformat object
-    console.log(entry);
+    // console.log(entry);
     
 
     if (entry) {
@@ -73,13 +73,11 @@ async function addfiles(event,filelist){
         
         itemstosave.appendChild(fileDiv);
         
-        
-
-
 
     }
     
 }
+
 
 
 
@@ -113,7 +111,6 @@ let submitbutton = document.getElementById("submit-btn");
 submitbutton.addEventListener("click", async function extractTextFromFile() {
     for (let i = 0; i < fileList.length; i++) {
 
-       
         let arrresult=[];
         const file = fileList[i];
         const fileName = file.name.toLowerCase(); // Use .name instead of .originalname
@@ -147,7 +144,13 @@ submitbutton.addEventListener("click", async function extractTextFromFile() {
             body:JSON.stringify(obj)
         }) 
     }
-});
+
+    console.log("luthra");
+    console.log(fileList);
+    applyalgo(fileList);
+
+}
+);
 
 
 function createChunksLinear(text, wordsPerChunk = 100) {
@@ -198,10 +201,75 @@ function buildthegrams(chunk, n = 4) {
 
 
   for (let i = 0; i < noofgrams; i++) {
-    const gramvalue = words.slice(i, i + n);
-    grams.push(gramvalue.join(" "));
+      const gramvalue = words.slice(i, i + n);
+      grams.push(gramvalue.join(" "));
   }
+  
+
 
   return grams;
 }
+
+
+
+// console.log(fileList);
+
+async function applyalgo(fileList){
+    // let response=await fetch(`http://localhost:3000/users?filename:eq=${fileList[]}`);
+    // let data=await response.json();
+    // if(!data){
+    //   alert("server is not responsding error");
+    // }
+    // console.log(data);
+    // console.log(fileList);
+
+
+    let chunksarr=[];
+    for(let i=0;i<fileList.length;i++){
+      let response=await fetch(`http://localhost:3000/users/?filename:eq=${fileList[i].name}`);
+      let data=await response.json();
+      console.log("soham")
+      chunksarr[i]=data[0].chunks;
+      console.log(data);
+
+
+    }
+
+
+          let firstlength=chunksarr[0].length;
+          let secondlength=chunksarr[1].length;
+
+          for(let i=0;i<firstlength;i++){
+              const firstset=new Set(chunksarr[0][i].grams);
+              const secondset=new Set(chunksarr[1][i].grams);
+
+              console.log(firstset);
+              console.log(secondset);
+              if (firstset.size === 0 && secondset.size === 0) alert("both files are empty"); 
+              if (firstset.size === 0 || secondset.size === 0) alert("any of file in empty"); 
+
+              let intersectioncount=0;
+              for(const a of firstset){
+                  if(secondset.has(a)){
+                    intersectioncount++;
+                  }
+              }
+
+              const unionSize = firstset.size + secondset.size - intersectioncount;
+              const similarity = intersectioncount / unionSize;
+              console.log(similarity);
+          }
+
+    
+    // console.log(chunksarr);
+
+
+    
+}
+
+
+
+
+
+// is id ki is name pa jo last file ha vo dedo this add on the email id
 
