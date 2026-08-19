@@ -11,6 +11,7 @@ db.json
 src/Backend/*
 !src/Backend/.gitkeep
 !src/Backend/HomeBackend.js
+!src/Backend/CheckBackend.js
 
 
 # 4. Ignore all files inside Frontend subfolders but keep the folder structure
