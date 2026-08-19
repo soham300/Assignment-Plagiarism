@@ -23,6 +23,7 @@ src/Frontend/Scripts/*
 src/Frontend/Templates/*
 !src/Frontend/Templates/.gitkeep
 !src/Frontend/Templates/index.html
+!src/Frontend/Templates/CheckAssign.html
 
 src/Frontend/styles/*
 !src/Frontend/styles/.gitkeep
