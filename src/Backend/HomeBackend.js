@@ -91,13 +91,6 @@ export async function handleSignup(event) {
 
 
 
-
-
-
-
-
-
-
 export async function resetPassword(event) {
   event.preventDefault();
   const email = document.getElementById("resetEmail").value.trim().toLowerCase();
@@ -133,6 +126,7 @@ export async function resetPassword(event) {
   document.getElementById("resetPanel").classList.remove("active");
   document.getElementById("loginPanel").classList.add("active");
 }
+
 
 
 export function togglePassword(inputId, button) {
@@ -197,7 +191,6 @@ export async function updateNavbar() {
 
 
 
-
 export function closeAuth() {
   const authModal = document.getElementById("authModal");
   if (authModal !== null) {
@@ -206,3 +199,4 @@ export function closeAuth() {
     document.body.classList.remove("modal-open");
   }
 }
+

@@ -44,7 +44,6 @@ function setProgressStep(stepNumber) {
 
   for (let i = 0; i < steps.length; i++) {
     const step = Number(steps[i].dataset.step);
-
     if (step < stepNumber) {
       steps[i].className = "p-step done";
     } else if (step === stepNumber) {
@@ -63,20 +62,10 @@ function setProgressStep(stepNumber) {
   }
 }
 
-
-
-
-// Show the required page section
-function showView(view) {
-  viewUpload.classList.remove("active");
-  viewAnimation.classList.remove("active");
-  viewResults.classList.remove("active");
-
   view.classList.add("active");
 
   window.scrollTo(0, 0);
 }
-
 
 
 
@@ -126,8 +115,6 @@ for (let i = 0; i < modeCards.length; i++) {
     checkButtonState();
   });
 }
-
-
 
 
 // Display selected files
@@ -241,10 +228,11 @@ dropZoneLeft.addEventListener("drop", async function (event) {
   handleIncomingFiles(files);
 });
 
+  viewAnimation.classList.remove("active");
 
+  viewResults.classList.remove("active");
 
-
-
+  view.classList.add("active");
 
 
 
@@ -339,7 +327,7 @@ analyzeBtn.addEventListener("click", async function () {
     // Save data to JSON Server  hence we add in the database 
     // first i get the user from the local storage who is logged in like i have to check that user comes one this page logged in 
     
-
+    
     let ans = localStorage.getItem("loggedIn");
 
     if (ans) {
