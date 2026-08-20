@@ -1,85 +1,150 @@
-export async function addfiles(event, filelist, itemstosave){
+// CheckBackend.js
+// Functions used by CheckAssign.js
+
+// Show selected files
+export async function addfiles(event, filelist, itemstosave) {
+  if (event && typeof event.preventDefault === "function") {
     event.preventDefault();
-    for(let a=0;a<filelist.length;a++){
-        const fileDiv = document.createElement('div');
-        fileDiv.className = 'file-card';
-        // let formattedSize=formatFileSize(file.size);
-        fileDiv.innerHTML+=`
-           
-                <div class="file-info">
-                <span class="file-name">📄 ${filelist[a].name}</span>
-                <span class="file-size">${filelist[a].size}</span>
-                </div>
-           
-        `
-        // now make form data object which is used for transmit the data inside the files
-        
+  }
 
-       
-        // let hwlll=document.getElementById("hwlll");
-        fileDiv.addEventListener('click', () => {
-            const fileURL = URL.createObjectURL(filelist[a]);
-            window.open(fileURL, '_blank');
-        });
-       
-        itemstosave.appendChild(fileDiv);
-       
+  if (!itemstosave) {
+    return;
+  }
 
+  itemstosave.innerHTML = "";
+
+  for (let i = 0; i < filelist.length; i++) {
+    const file = filelist[i];
+
+    const fileDiv = document.createElement("div");
+    fileDiv.className = "file-row";
+
+    let ext = "txt";
+
+    if (file.name) {
+      const match = file.name.toLowerCase().match(/\.([a-z0-9]+)$/);
+
+      if (match) {
+        ext = match[1];
+      }
     }
-   
+
+    let sizeFormatted;
+
+    if (file.size >= 1048576) {
+      sizeFormatted = (file.size / 1048576).toFixed(1) + " MB";
+    } else if (file.size >= 1024) {
+      sizeFormatted = Math.round(file.size / 1024) + " KB";
+    } else {
+      sizeFormatted = file.size + " B";
+    }
+
+    fileDiv.innerHTML =
+      '<span class="f-icon ' +
+      ext +
+      '">' +
+      '<svg class="ic"><use href="#i-file"/></svg>' +
+      "</span>" +
+      '<div class="f-info">' +
+      '<div class="f-name" title="' +
+      file.name +
+      '">' +
+      file.name +
+      "</div>" +
+      '<div class="f-meta">' +
+      ext.toUpperCase() +
+      " • " +
+      sizeFormatted +
+      "</div>" +
+      "</div>" +
+      '<button type="button" class="f-remove" ' +
+      'aria-label="Remove ' +
+      file.name +
+      '" ' +
+      'data-idx="' +
+      i +
+      '">' +
+      '<svg class="ic"><use href="#i-x"/></svg>' +
+      "</button>";
+
+    fileDiv.addEventListener("click", function (event) {
+      if (event.target.closest(".f-remove")) {
+        return;
+      }
+
+      try {
+        const fileURL = URL.createObjectURL(file);
+        window.open(fileURL, "_blank");
+      } catch (error) {
+        console.log("Preview error:", error);
+      }
+    });
+
+    itemstosave.appendChild(fileDiv);
+  }
 }
 
-
+// Read files and folders from drag and drop
 export async function processEntry(entry, fileList) {
   if (entry.isFile) {
-    return new Promise((resolve) => {
-      entry.file((file) => {
+    return new Promise(function (resolve) {
+      entry.file(function (file) {
         fileList.push(file);
         resolve();
       });
     });
   } else if (entry.isDirectory) {
-    const dirReader = entry.createReader();
-    const entries = await new Promise((resolve) => dirReader.readEntries(resolve));
-   
-    for (const childEntry of entries) {
-      await processEntry(childEntry, fileList);
+    const reader = entry.createReader();
+
+    const entries = await new Promise(function (resolve) {
+      reader.readEntries(resolve);
+    });
+
+    for (let i = 0; i < entries.length; i++) {
+      await processEntry(entries[i], fileList);
     }
   }
 }
 
-
+// Create 100-word chunks
 export function createChunksLinear(text, wordsPerChunk = 100) {
   const words = text.trim().split(/\s+/);
-  const totalWords = words.length;
 
-  if (totalWords === 0 || words[0] === "") return [];
+  if (words.length === 0 || words[0] === "") {
+    return [];
+  }
 
   const chunks = [];
   let chunkIndex = 0;
 
-  for (let i = 0; i < totalWords; i += wordsPerChunk) {
+  for (let i = 0; i < words.length; i += wordsPerChunk) {
     const chunkWords = words.slice(i, i + wordsPerChunk);
-   
+
     chunks.push({
       chunkIndex: chunkIndex,
       text: chunkWords.join(" "),
-      wordCount: chunkWords.length
+      wordCount: chunkWords.length,
     });
 
     chunkIndex++;
   }
 
   return chunks;
-
 }
 
-
+// Create 4-grams
 export function buildthegrams(chunk, n = 4) {
+  let text;
 
-  const text = typeof chunk === 'string' ? chunk : chunk.text;
+  if (typeof chunk === "string") {
+    text = chunk;
+  } else {
+    text = chunk.text;
+  }
 
-  if (!text) return [];
+  if (!text) {
+    return [];
+  }
 
   const words = text
     .toLowerCase()
@@ -87,81 +152,116 @@ export function buildthegrams(chunk, n = 4) {
     .trim()
     .split(/\s+/);
 
+  const numberOfGrams = words.length - n + 1;
 
-  const noofgrams = words.length - n + 1;
-
-  if (noofgrams <= 0) return [];
+  if (numberOfGrams <= 0) {
+    return [];
+  }
 
   const grams = [];
 
+  for (let i = 0; i < numberOfGrams; i++) {
+    const gramWords = words.slice(i, i + n);
 
-  for (let i = 0; i < noofgrams; i++) {
-      const gramvalue = words.slice(i, i + n);
-      grams.push(gramvalue.join(" "));
+    grams.push(gramWords.join(" "));
   }
- 
 
   return grams;
 }
 
+// Compare the two files
+export async function applyalgo(fileList, localFallbackChunks = null) {
+  const chunksarr = [];
 
-// console.log(fileList);
+  // Get chunks from JSON Server
+  for (let i = 0; i < fileList.length; i++) {
+    let chunks = null;
 
-export async function applyalgo(fileList){
-    // let response=await fetch(`http://localhost:3000/users?filename:eq=${fileList[0].name}`);
-    // let data=await response.json();
-    // if(!data){
-    //   alert("server is not responsding error");
-    // }
-    // console.log(data);
-    // console.log(fileList);
+    try {
+      const response = await fetch(
+        "http://localhost:3000/users/?filename:eq=" +
+          encodeURIComponent(fileList[i].name),
+      );
 
+      if (response.ok) {
+        const data = await response.json();
 
-    let chunksarr=[];
-    for(let i=0;i<fileList.length;i++){
-      let response=await fetch(`http://localhost:3000/users/?filename:eq=${fileList[i].name}`);
-      let data=await response.json();
-      console.log("soham")
-      chunksarr[i]=data[0].chunks;
-      console.log(data);
-
-
+        if (data.length > 0 && data[0].chunks) {
+          chunks = data[0].chunks;
+        }
+      }
+    } catch (error) {
+      console.log("JSON Server fetch notice for " + fileList[i].name, error);
     }
 
-          let totalmaxsimlarity=0;
-          let firstlength=chunksarr[0].length;
-          let secondlength=chunksarr[1].length;
-          let count=0;
-          for(let i=0;i<firstlength;i++){
-              let similarity=0;
-              const firstset=new Set(chunksarr[0][i].grams);
-              for(let j=0;j<secondlength;j++){
-                const secondset=new Set(chunksarr[1][j].grams);
-               if (firstset.size === 0 || secondset.size === 0) continue;
+    // Use locally created chunks if JSON Server has no data
+    if (!chunks && localFallbackChunks) {
+      if (localFallbackChunks[i]) {
+        chunks = localFallbackChunks[i];
+      }
+    }
 
-                let intersectioncount=0;
-                for(const a of firstset){
-                    if(secondset.has(a)){
-                      intersectioncount++;
-                    }
-                }
-                count++;
+    if (chunks) {
+      chunksarr[i] = chunks;
+    } else {
+      chunksarr[i] = [];
+    }
+  }
 
-                const unionSize = firstset.size + secondset.size - intersectioncount;
-                const similarityvalue = intersectioncount / unionSize;
-                // console.log("first set:"+[...firstset])
-                // console.log("second set:" +[...secondset]);
-                // console.log(similarityvalue);
-                similarity=Math.max(similarityvalue,similarity);
-              } 
-              totalmaxsimlarity+=similarity;
-          }
-          console.log("final");
-          console.log((totalmaxsimlarity/firstlength)*100);
-          // console.log(similarity/count); 
+  if (chunksarr.length < 2 || !chunksarr[0] || !chunksarr[1]) {
+    return 0;
+  }
 
-   
-    // console.log(chunksarr);
+  let totalSimilarity = 0;
 
+  const firstLength = chunksarr[0].length;
+  const secondLength = chunksarr[1].length;
 
+  if (firstLength === 0 || secondLength === 0) {
+    return 0;
+  }
+
+  // Compare every chunk of file 1
+  // with every chunk of file 2
+  for (let i = 0; i < firstLength; i++) {
+    let highestSimilarity = 0;
+
+    const firstSet = new Set(chunksarr[0][i].grams);
+
+    for (let j = 0; j < secondLength; j++) {
+      const secondSet = new Set(chunksarr[1][j].grams);
+
+      if (firstSet.size === 0 || secondSet.size === 0) {
+        continue;
+      }
+
+      let intersectionCount = 0;
+
+      for (const gram of firstSet) {
+        if (secondSet.has(gram)) {
+          intersectionCount++;
+        }
+      }
+
+      const unionSize = firstSet.size + secondSet.size - intersectionCount;
+
+      let similarity = 0;
+
+      if (unionSize > 0) {
+        similarity = intersectionCount / unionSize;
+      }
+
+      if (similarity > highestSimilarity) {
+        highestSimilarity = similarity;
+      }
+    }
+
+    totalSimilarity += highestSimilarity;
+  }
+
+  const finalSimilarity = (totalSimilarity / firstLength) * 100;
+
+  console.log("Calculated Similarity:", finalSimilarity);
+
+  return finalSimilarity;
 }
