@@ -65,7 +65,7 @@
       font-size: 16px;
       line-height: 1.6;
       -webkit-font-smoothing: antialiased;
-      overflow-y: auto; /* Natural page scrolling */
+      overflow-y: auto;
       min-height: 100vh;
     }
 
@@ -163,7 +163,7 @@
     .p-connector.filled::after { transform: scaleX(1); }
 
     /* ==========================================================================
-       5. APP WORKSPACE (Naturally Scrollable)
+       5. APP WORKSPACE
        ========================================================================== */
     .app { width: 100%; }
     .workspace {
@@ -483,7 +483,7 @@
     .metric b { font-family: var(--font-mono); font-size: 28px; font-weight: 700; color: var(--ink); letter-spacing: -0.02em; display: block; line-height: 1; }
     .metric span { font-size: 12px; font-weight: 700; color: var(--muted); text-transform: uppercase; letter-spacing: 0.06em; margin-top: 6px; display: block; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 
-    /* Comparison panels (Side-by-side, independently scrollable) */
+    /* Comparison panels */
     .compare-panels {
       display: grid; grid-template-columns: 1fr 1fr; gap: 20px;
       height: 65vh; min-height: 500px;
@@ -514,8 +514,7 @@
       font-size: 16px; line-height: 1.85; color: var(--ink-soft); background: #fff;
     }
     .panel-body::-webkit-scrollbar { width: 8px; }
-    .panel-body::-webkit-scrollbar-track { background: transparent; }
-    .panel-body::-webkit-scrollbar-thumb { background: var(--line-strong); border-radius: 99px; border: 2px solid #fff; }
+    .panel-body::-webkit-scrollbar-thumb { background: var(--line-strong); border-radius: 99px; }
     .panel-body p { margin-bottom: 24px; }
     .panel-body p:last-child { margin-bottom: 0; }
 
@@ -669,8 +668,6 @@
         <a href="#" class="btn btn-primary" data-demo>Get Started</a>
       </div>
     </div>
-    <!-- Mobile menu toggle omitted for brevity, can be added back if needed -->
-    <style>.nav-toggle{display:none}</style>
   </header>
 
   <!-- PROGRESS BAR (Sticky) -->
@@ -715,7 +712,7 @@
 
         <div class="upload-layout single" id="uploadLayout">
 
-          <!-- LEFT: Compact Drop Zone (Always present) -->
+          <!-- LEFT: Compact Drop Zone -->
           <div class="zone zone-left" id="zoneLeft">
             <div class="zone-head">
               <span class="z-chip" id="chipLeft">S1</span>
@@ -842,7 +839,7 @@
               <div class="panel-head">
                 <span class="p-chip" id="panelAChip">A</span>
                 <b id="panelAName">File A</b>
-                <span class="p-fmt" id="panelAFmt">PDF</span>
+                <span class="p-fmt" id="panelAFmt">TXT</span>
               </div>
               <div class="panel-body" id="panelABody"></div>
               <div class="legend">
@@ -855,7 +852,7 @@
               <div class="panel-head">
                 <span class="p-chip" id="panelBChip">B</span>
                 <b id="panelBName">File B</b>
-                <span class="p-fmt" id="panelBFmt">PDF</span>
+                <span class="p-fmt" id="panelBFmt">TXT</span>
               </div>
               <div class="panel-body" id="panelBBody"></div>
               <div class="legend">
@@ -901,619 +898,7 @@
     <span id="toastMsg"></span>
   </div>
 
-  <script>
-    /* =========================================================================
-       AssignCheck — Analysis page (frontend prototype)
-       ========================================================================= */
-
-    const $  = (sel, ctx = document) => ctx.querySelector(sel);
-    const $$ = (sel, ctx = document) => Array.from(ctx.querySelectorAll(sel));
-    const wait = ms => new Promise(res => setTimeout(res, ms));
-
-    /* -------------------------------------------------------------------------
-       Helpers
-       ------------------------------------------------------------------------- */
-    function countUp(el, to, { suffix = '', duration = 900, format = false } = {}) {
-      const t0 = performance.now();
-      function tick(t) {
-        const p = Math.min(1, (t - t0) / duration);
-        const eased = 1 - Math.pow(1 - p, 3);
-        const v = Math.round(to * eased);
-        el.textContent = (format ? v.toLocaleString('en-US') : v) + suffix;
-        if (p < 1) requestAnimationFrame(tick);
-      }
-      requestAnimationFrame(tick);
-    }
-    function formatSize(bytes) {
-      if (bytes >= 1048576) return (bytes / 1048576).toFixed(1) + ' MB';
-      if (bytes >= 1024) return Math.round(bytes / 1024) + ' KB';
-      return bytes + ' B';
-    }
-    function extOf(name) {
-      const m = name.toLowerCase().match(/\.([a-z0-9]+)$/);
-      return m ? m[1] : '';
-    }
-
-    let toastTimer;
-    function showToast(msg) {
-      $('#toastMsg').textContent = msg;
-      const t = $('#toast');
-      t.classList.add('show');
-      clearTimeout(toastTimer);
-      toastTimer = setTimeout(() => t.classList.remove('show'), 2800);
-    }
-    $$('[data-demo]').forEach(el => el.addEventListener('click', e => {
-      e.preventDefault();
-      showToast('This is a preview — accounts are not open yet.');
-    }));
-
-    /* =========================================================================
-       STATE
-       ========================================================================= */
-    const ALLOWED = ['pdf', 'docx', 'txt', 'pptx'];
-    const state = {
-      mode: 'student',
-      files: { left: [], right: [] },
-      running: false,
-      selectedPair: 0
-    };
-
-    const MODE_COPY = {
-      student: {
-        left:  { label: 'Student Assignments', chip: 'S1', multi: true,
-                 summary: 'Upload <b>two or more student files</b> to compare them against each other.' },
-        right: null,
-        dual: false
-      },
-      reference: {
-        left:  { label: 'Student Assignment', chip: 'S', multi: false,
-                 summary: 'Upload a <b>student file</b> and the <b>teacher reference</b> to compare.' },
-        right: { label: 'Teacher Reference Answer', chip: 'R', multi: false },
-        dual: true
-      }
-    };
-
-    /* =========================================================================
-       PROGRESS BAR
-       ========================================================================= */
-    function setProgressStep(n) {
-      $$('.p-step').forEach(s => {
-        const i = +s.dataset.step;
-        s.classList.toggle('done', i < n);
-        s.classList.toggle('active', i === n);
-      });
-      $$('.p-connector').forEach((c, i) => {
-        c.classList.toggle('filled', i + 1 < n);
-      });
-    }
-
-    /* =========================================================================
-       VIEW SWITCHING
-       ========================================================================= */
-    const VIEWS = { upload: '#viewUpload', animation: '#viewAnimation', results: '#viewResults' };
-    function swapView(name) {
-      $$('.ws-view').forEach(v => v.classList.remove('active'));
-      $(VIEWS[name]).classList.add('active');
-      window.scrollTo({ top: 0, behavior: 'smooth' });
-    }
-
-    /* =========================================================================
-       MODE SELECTION
-       ------------------------------------------------------------------------- */
-    const zoneLeft   = $('#zoneLeft');
-    const zoneRight  = $('#zoneRight');
-    const uploadLayout = $('#uploadLayout');
-
-    function applyMode() {
-      const c = MODE_COPY[state.mode];
-      $('#labelLeft').textContent  = c.left.label;
-      $('#chipLeft').textContent   = c.left.chip;
-
-      const filePanelSingle = $('#filePanelSingle');
-
-      if (c.dual) {
-        zoneRight.style.display = 'flex';
-        filePanelSingle.style.display = 'none';
-        uploadLayout.classList.remove('single');
-        uploadLayout.classList.add('dual');
-        $('#labelRight').textContent = c.right.label;
-        $('#chipRight').textContent = c.right.chip;
-      } else {
-        zoneRight.style.display = 'none';
-        filePanelSingle.style.display = 'flex';
-        uploadLayout.classList.remove('dual');
-        uploadLayout.classList.add('single');
-        state.files.right = [];
-      }
-      $('#summaryText').innerHTML = c.left.summary;
-      updateAnalyzeState();
-      renderFileList('left');
-      renderFileList('right');
-    }
-
-    $$('.mode-card').forEach(card => card.addEventListener('click', () => {
-      if (card.dataset.mode === state.mode) return;
-      $$('.mode-card').forEach(c => {
-        c.classList.remove('selected');
-        c.setAttribute('aria-checked', 'false');
-      });
-      card.classList.add('selected');
-      card.setAttribute('aria-checked', 'true');
-      state.mode = card.dataset.mode;
-      applyMode();
-    }));
-
-    /* =========================================================================
-       FILE LIST MANAGEMENT
-       ------------------------------------------------------------------------- */
-    const fileInputs = { left: $('#fileInputLeft'), right: $('#fileInputRight') };
-
-    function renderFileList(side) {
-      let listEl, countEl, badgeEl;
-
-      if (state.mode === 'student' && side === 'left') {
-        listEl = $('#fileListSingle');
-        countEl = $('#fileCountSingle');
-        badgeEl = $('#fileCountBadgeSingle');
-      } else if (state.mode === 'reference' && side === 'left') {
-        listEl = $('#fileListLeft');
-        countEl = $('#fileCountLeft');
-      } else {
-        listEl = $('#fileListRight');
-        countEl = $('#fileCountRight');
-      }
-
-      if (!listEl) return;
-
-      const files = state.files[side];
-      listEl.innerHTML = '';
-
-      files.forEach((file, idx) => {
-        const row = document.createElement('div');
-        row.className = 'file-row';
-        row.innerHTML = `
-          <span class="f-icon ${file.ext}"><svg class="ic"><use href="#i-file"/></svg></span>
-          <div class="f-info">
-            <div class="f-name" title="${file.name}">${file.name}</div>
-            <div class="f-meta">${file.ext.toUpperCase()} • ${formatSize(file.size)}</div>
-          </div>
-          <button type="button" class="f-remove" aria-label="Remove ${file.name}" data-idx="${idx}">
-            <svg class="ic"><use href="#i-x"/></svg>
-          </button>`;
-        listEl.appendChild(row);
-      });
-
-      const countText = `${files.length} file${files.length === 1 ? '' : 's'}`;
-      if (countEl) countEl.textContent = countText + (state.mode === 'student' && side === 'left' ? ' selected' : '');
-      if (badgeEl) badgeEl.textContent = files.length;
-
-      listEl.querySelectorAll('.f-remove').forEach(btn => {
-        btn.addEventListener('click', e => {
-          e.stopPropagation();
-          const idx = +btn.dataset.idx;
-          state.files[side].splice(idx, 1);
-          renderFileList(side);
-          updateAnalyzeState();
-        });
-      });
-    }
-
-    function updateAnalyzeState() {
-      let ready = false;
-      if (state.mode === 'student') {
-        ready = state.files.left.length >= 2;
-      } else {
-        ready = state.files.left.length >= 1 && state.files.right.length >= 1;
-      }
-      const analyzeBtn = $('#analyzeBtn');
-      analyzeBtn.disabled = !ready;
-      analyzeBtn.setAttribute('aria-disabled', String(!ready));
-    }
-
-    function addFiles(side, fileList) {
-      const files = Array.from(fileList || []);
-      files.forEach(f => {
-        const ext = extOf(f.name);
-        if (!ALLOWED.includes(ext)) {
-          showToast(`Skipped "${f.name}" — unsupported format.`);
-          return;
-        }
-        if (side === 'right') {
-          state.files.right = [{ name: f.name, size: f.size, ext }];
-        } else {
-          state.files[side].push({ name: f.name, size: f.size, ext });
-        }
-      });
-      renderFileList(side);
-      updateAnalyzeState();
-    }
-
-    function wireZone(side, dropEl, zoneEl) {
-      ['dragenter', 'dragover'].forEach(ev =>
-        dropEl.addEventListener(ev, e => { e.preventDefault(); zoneEl.classList.add('dragover'); }));
-      dropEl.addEventListener('dragleave', e => { e.preventDefault(); zoneEl.classList.remove('dragover'); });
-      dropEl.addEventListener('drop', e => {
-        e.preventDefault();
-        zoneEl.classList.remove('dragover');
-        if (e.dataTransfer.files && e.dataTransfer.files.length) {
-          addFiles(side, e.dataTransfer.files);
-        }
-      });
-      dropEl.addEventListener('click', () => fileInputs[side].click());
-      dropEl.addEventListener('keydown', e => {
-        if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); fileInputs[side].click(); }
-      });
-      fileInputs[side].addEventListener('change', () => {
-        if (fileInputs[side].files && fileInputs[side].files.length) {
-          addFiles(side, fileInputs[side].files);
-        }
-        fileInputs[side].value = '';
-      });
-    }
-    wireZone('left',  $('#dropLeft'),  zoneLeft);
-    wireZone('right', $('#dropRight'), zoneRight);
-
-    /* =========================================================================
-       ANALYSIS ANIMATION
-       ========================================================================= */
-    const aStage   = $('#aStage');
-    const aEngine  = $('#aEngine');
-    const aeStatus = $('#aeStatus');
-    const stageEls = $$('.ae-stage', aEngine);
-    const analyzeBtn = $('#analyzeBtn');
-
-    const MESSAGES = [
-      'Reading assignment...',
-      'Extracting text...',
-      'Preparing content...',
-      'Generating n-grams...',
-      'Comparing sections...',
-      'Detecting matching content...',
-      'Preparing report...'
-    ];
-    const PROGRESS_AT = [8, 24, 40, 56, 72, 88, 100];
-    const DURATIONS   = [1100, 1300, 1100, 1400, 1600, 1700, 1200];
-    const FRAG_COLORS = ['var(--s1-soft)', 'var(--s3-soft)', 'var(--primary-soft)'];
-
-    function setMsg(text) { $('#progMsg').textContent = text; aeStatus.textContent = text; }
-    function setProgress(pct) {
-      $('#progFill').style.width = pct + '%';
-      $('#progPct').textContent = pct + '%';
-    }
-
-    function buildAnimDocs() {
-      $$('.a-doc', aStage).forEach(d => d.remove());
-      const connectionsSvg = $('.a-connections', aStage);
-      connectionsSvg.innerHTML = '';
-
-      const isRef = state.mode === 'reference';
-      const leftFiles  = state.files.left;
-      const rightFiles = state.files.right;
-
-      let docs = [];
-      if (isRef) {
-        docs.push({ file: leftFiles[0], chip: 'S', side: 'left' });
-        docs.push({ file: rightFiles[0], chip: 'R', side: 'right', isRef: true });
-      } else {
-        const maxDocs = 6;
-        const shown = leftFiles.slice(0, maxDocs);
-        shown.forEach((f, i) => {
-          docs.push({ file: f, chip: 'S' + (i + 1), side: i < shown.length / 2 ? 'left' : 'right' });
-        });
-      }
-
-      const leftDocs  = docs.filter(d => d.side === 'left');
-      const rightDocs = docs.filter(d => d.side === 'right');
-
-      leftDocs.forEach((d, i) => {
-        const topPct = 6 + (i * (88 / Math.max(leftDocs.length - 1, 1)));
-        const el = createDocEl(d, i, 'left');
-        el.style.left = '0px';
-        el.style.top  = topPct + '%';
-        aStage.appendChild(el);
-      });
-      rightDocs.forEach((d, i) => {
-        const topPct = 6 + (i * (88 / Math.max(rightDocs.length - 1, 1)));
-        const el = createDocEl(d, i, 'right');
-        el.style.right = '0px';
-        el.style.top   = topPct + '%';
-        aStage.appendChild(el);
-      });
-
-      docs.forEach((d, i) => {
-        const line = document.createElementNS('http://www.w3.org/2000/svg', 'line');
-        line.setAttribute('vector-effect', 'non-scaling-stroke');
-        connectionsSvg.appendChild(line);
-      });
-
-      return docs;
-    }
-
-    function createDocEl(d, i, side) {
-      const el = document.createElement('div');
-      el.className = `a-doc a-doc-${side}`;
-      el.dataset.side = side;
-      el.dataset.idx  = i;
-      const avatarBg = d.isRef
-        ? 'linear-gradient(135deg,var(--s3),#10b981)'
-        : (side === 'left' ? 'linear-gradient(135deg,var(--primary),#6366f1)'
-                            : 'linear-gradient(135deg,var(--s1),#3b82f6)');
-
-      const displayName = d.file.name.length > 22 ? d.file.name.substring(0, 20) + '...' : d.file.name;
-
-      el.innerHTML = `
-        <div class="a-doc-head">
-          <span class="a-avatar" style="background:${avatarBg}">${d.chip}</span>
-          <span class="a-id">
-            <span class="a-name" title="${d.file.name}">${displayName}</span>
-            <span class="a-fname">${d.file.ext.toUpperCase()} • ${formatSize(d.file.size)}</span>
-          </span>
-        </div>
-        <div class="a-lines">
-          <div class="a-line" style="width:90%"></div>
-          <div class="a-line" data-m style="width:74%"><i class="tag">1</i></div>
-          <div class="a-line" style="width:82%"></div>
-          <div class="a-line" data-m style="width:64%"><i class="tag">1</i></div>
-          <div class="a-line" style="width:78%"></div>
-        </div>`;
-      return el;
-    }
-
-    function aCenter(el) {
-      const s = aStage.getBoundingClientRect(), r = el.getBoundingClientRect();
-      return { x: r.left + r.width / 2 - s.left, y: r.top + r.height / 2 - s.top };
-    }
-    function updateALinks() {
-      const s = aStage.getBoundingClientRect();
-      if (!s.width || !s.height) return;
-      const e = aCenter(aEngine);
-      const docs = $$('.a-doc', aStage);
-      const lines = $$('.a-connections line', aStage);
-      docs.forEach((doc, i) => {
-        const L = lines[i];
-        if (!L) return;
-        const p = aCenter(doc);
-        L.setAttribute('x1', (p.x / s.width) * 100);
-        L.setAttribute('y1', (p.y / s.height) * 100);
-        L.setAttribute('x2', (e.x / s.width) * 100);
-        L.setAttribute('y2', (e.y / s.height) * 100);
-      });
-    }
-    window.addEventListener('resize', () => setTimeout(updateALinks, 150));
-
-    function fireFragment() {
-      const docs = $$('.a-doc', aStage);
-      if (!docs.length) return;
-      const doc = docs[Math.floor(Math.random() * docs.length)];
-      const from = aCenter(doc), to = aCenter(aEngine);
-      const f = document.createElement('span');
-      f.className = 'text-fragment';
-      f.style.background = FRAG_COLORS[Math.floor(Math.random() * FRAG_COLORS.length)];
-      aStage.appendChild(f);
-      const drift = Math.random() * 20 - 10;
-      f.animate([
-        { transform: `translate(${from.x}px,${from.y}px) scale(1)`, opacity: 0 },
-        { opacity: 1, offset: .15 },
-        { transform: `translate(${to.x + drift}px,${to.y}px) scale(.3)`, opacity: .2 }
-      ], { duration: 800, easing: 'cubic-bezier(.45,0,.2,1)' }).onfinish = () => f.remove();
-    }
-
-    function resetAnalysisUI() {
-      aStage.classList.remove('p-comparing', 'p-scanning');
-      aEngine.classList.remove('active', 'done');
-      stageEls.forEach(s => s.classList.remove('active', 'done'));
-      $$('.a-line.found', aStage).forEach(l => l.classList.remove('found'));
-      setProgress(0);
-      setMsg('Waiting to start…');
-      $('#animStatusText').textContent = 'Running';
-      $('#animStatus').classList.remove('done');
-    }
-
-    async function startAnalysis() {
-      if (state.running || analyzeBtn.disabled) return;
-      state.running = true;
-      analyzeBtn.disabled = true;
-      analyzeBtn.querySelector('span').textContent = 'Analyzing…';
-
-      setProgressStep(2);
-      resetAnalysisUI();
-      buildAnimDocs();
-      swapView('animation');
-
-      const isRef = state.mode === 'reference';
-      $('#animTitle').textContent = isRef
-        ? 'Comparing student with teacher reference…'
-        : `Comparing ${state.files.left.length} student assignments…`;
-
-      await wait(350);
-      updateALinks();
-
-      setMsg(MESSAGES[0]);
-      setProgress(PROGRESS_AT[0]);
-      aStage.classList.add('p-comparing');
-      await wait(1000);
-      updateALinks();
-      await wait(200);
-
-      let fragTimer = null;
-      for (let i = 0; i < 6; i++) {
-        setMsg(MESSAGES[i + 1]);
-        setProgress(PROGRESS_AT[i + 1]);
-        stageEls[i].classList.add('active');
-        aEngine.classList.add('active');
-
-        if (i === 0) aStage.classList.add('p-scanning');
-        if (i >= 1 && i <= 4) fragTimer = setInterval(fireFragment, 300);
-        if (i === 4) {
-          const lines = $$('.a-line[data-m]', aStage);
-          lines.forEach((l, j) => setTimeout(() =>
-            l.classList.add('found', 'hl-1'), j * 140));
-        }
-
-        await wait(DURATIONS[i + 1]);
-        if (fragTimer) { clearInterval(fragTimer); fragTimer = null; }
-        stageEls[i].classList.remove('active');
-        stageEls[i].classList.add('done');
-      }
-
-      aStage.classList.remove('p-scanning');
-      aEngine.classList.remove('active');
-      aEngine.classList.add('done');
-      aeStatus.textContent = 'Analysis complete';
-      $('#animStatusText').textContent = 'Complete';
-      $('#animStatus').classList.add('done');
-      await wait(800);
-
-      buildResults();
-      setProgressStep(3);
-      swapView('results');
-      runResultCounters();
-    }
-
-    analyzeBtn.addEventListener('click', startAnalysis);
-
-    /* =========================================================================
-       RESULTS
-       ========================================================================= */
-    const SAMPLE_TEXT_A = `<p>Machine learning is a subset of artificial intelligence <span class="hl match">that enables computers to learn from data without being explicitly programmed<sup>[1]</sup></span>. Rather than following fixed hand-written rules, these systems <span class="hl match">improve automatically by finding patterns and making predictions from examples<sup>[1]</sup></span>, which is why they are widely used in applications such as recommendation systems, search engines and spam filtering.</p>
-<p><span class="hl unique">In practice, a learning algorithm builds a model from training data, then uses that model to make predictions on new, unseen data.<sup>[U]</sup></span> The quality of the model depends on <span class="hl match">how well the training data represents the real-world problem being solved<sup>[1]</sup></span>, and on the choice of algorithm, features and hyperparameters.</p>
-<p><span class="hl diff">Supervised learning requires labeled examples, while unsupervised learning discovers structure in unlabeled data.<sup>[D]</sup></span></p>`;
-
-    const SAMPLE_TEXT_B = `<p>Machine learning is a subset of artificial intelligence <span class="hl match">that enables computers to learn from data without being explicitly programmed<sup>[1]</sup></span>. Rather than following fixed hand-written rules, these systems <span class="hl match">improve automatically by finding patterns and making predictions from examples<sup>[1]</sup></span>, which is why they are widely used in applications such as recommendation systems, search engines and spam filtering.</p>
-<p><span class="hl unique">Deep learning extends these ideas using neural networks with many layers, allowing the model to learn hierarchical representations directly from raw input.<sup>[U]</sup></span> The quality of the model depends on <span class="hl match">how well the training data represents the real-world problem being solved<sup>[1]</sup></span>, and on the choice of algorithm, features and hyperparameters.</p>
-<p><span class="hl diff">Reinforcement learning, by contrast, trains agents through trial-and-error interaction with an environment.<sup>[D]</sup></span></p>`;
-
-    function buildResults() {
-      const isRef = state.mode === 'reference';
-      const leftFiles  = state.files.left;
-      const rightFiles = state.files.right;
-
-      if (isRef) {
-        $('#pairLeft').textContent  = leftFiles[0].name;
-        $('#pairRight').textContent = rightFiles[0].name;
-        $('#pairSub').textContent   = 'Student vs Teacher Reference';
-        $('#panelB').classList.add('ref');
-      } else {
-        const a = leftFiles[0];
-        const b = leftFiles[1];
-        $('#pairLeft').textContent  = a.name;
-        $('#pairRight').textContent = b.name;
-        $('#pairSub').textContent   = `Highest similarity pair · ${leftFiles.length} files analyzed`;
-        $('#panelB').classList.remove('ref');
-      }
-
-      const aFile = leftFiles[0];
-      const bFile = isRef ? rightFiles[0] : leftFiles[1];
-      $('#panelAChip').textContent = isRef ? 'S' : 'S1';
-      $('#panelAName').textContent = aFile.name;
-      $('#panelAFmt').textContent  = aFile.ext.toUpperCase();
-      $('#panelBChip').textContent = isRef ? 'R' : 'S2';
-      $('#panelBName').textContent = bFile.name;
-      $('#panelBFmt').textContent  = bFile.ext.toUpperCase();
-      $('#panelABody').innerHTML = SAMPLE_TEXT_A;
-      $('#panelBBody').innerHTML = SAMPLE_TEXT_B;
-
-      const detailsArea = $('#detailsArea');
-      if (isRef || leftFiles.length === 2) {
-        detailsArea.innerHTML = `
-          <div class="res-details" id="resDetails">
-            <div class="detail-card diffs">
-              <h5><svg class="ic"><use href="#i-target"/></svg>Key Differences</h5>
-              <ul id="diffList">
-                <li>Introduction contains different wording in the second paragraph.</li>
-                <li>File B adds an extra paragraph not present in File A.</li>
-                <li>Section 3 contains several matching phrases but different examples.</li>
-                <li>Conclusion differs significantly in tone and structure.</li>
-                <li>File A omits information present in the reference section.</li>
-              </ul>
-            </div>
-            <div class="detail-card matches">
-              <h5><svg class="ic"><use href="#i-check"/></svg>Matching Content</h5>
-              <ul id="matchList">
-                <li>"enables computers to learn from data without being explicitly programmed"</li>
-                <li>"improve automatically by finding patterns and making predictions from examples"</li>
-                <li>"how well the training data represents the real-world problem being solved"</li>
-                <li>Shared structure across introduction and methodology sections.</li>
-                <li>Identical phrasing in 3 consecutive sentences of paragraph 2.</li>
-              </ul>
-            </div>
-          </div>`;
-      } else {
-        const pairs = [];
-        for (let i = 0; i < leftFiles.length; i++) {
-          for (let j = i + 1; j < leftFiles.length; j++) {
-            const score = 30 + Math.floor(Math.random() * 55);
-            pairs.push({ i, j, score });
-          }
-        }
-        pairs.sort((a, b) => b.score - a.score);
-        state.selectedPair = 0;
-
-        const rowsHtml = pairs.map((p, idx) => `
-          <div class="compare-row ${idx === 0 ? 'selected' : ''}" data-idx="${idx}">
-            <span class="cr-files">
-              <span class="cr-file" title="${leftFiles[p.i].name}">${leftFiles[p.i].name}</span>
-              <span class="cr-arrow">↔</span>
-              <span class="cr-file" title="${leftFiles[p.j].name}">${leftFiles[p.j].name}</span>
-            </span>
-            <span class="cr-score">${p.score}%</span>
-          </div>`).join('');
-
-        detailsArea.innerHTML = `
-          <div class="compare-table">
-            <h5><svg class="ic"><use href="#i-list"/></svg>All Comparisons · ${pairs.length} pairs</h5>
-            <div class="compare-list" id="compareList">${rowsHtml}</div>
-          </div>`;
-
-        $$('.compare-row').forEach(row => {
-          row.addEventListener('click', () => {
-            $$('.compare-row').forEach(r => r.classList.remove('selected'));
-            row.classList.add('selected');
-            state.selectedPair = +row.dataset.idx;
-            const p = pairs[state.selectedPair];
-            $('#panelAName').textContent = leftFiles[p.i].name;
-            $('#panelBName').textContent = leftFiles[p.j].name;
-            $('#panelAChip').textContent = 'S' + (p.i + 1);
-            $('#panelBChip').textContent = 'S' + (p.j + 1);
-            $('#panelAFmt').textContent = leftFiles[p.i].ext.toUpperCase();
-            $('#panelBFmt').textContent = leftFiles[p.j].ext.toUpperCase();
-          });
-        });
-      }
-    }
-
-    function runResultCounters() {
-      const isRef = state.mode === 'reference';
-      const fileCount = isRef
-        ? state.files.left.length + state.files.right.length
-        : state.files.left.length;
-
-      countUp($('#resSimilarity'), 78, { suffix: '%', duration: 1000 });
-      countUp($('#mFiles'), fileCount, { duration: 900 });
-      countUp($('#mMatching'), 12, { duration: 1000 });
-      countUp($('#mDifferent'), 8, { duration: 1000 });
-      countUp($('#mPhrases'), 34, { duration: 1100 });
-    }
-
-    $('#downloadBtn').addEventListener('click', () =>
-      showToast('Report download will be connected to the backend.'));
-    $('#newAnalysisBtn').addEventListener('click', () => {
-      state.running = false;
-      state.files = { left: [], right: [] };
-      state.selectedPair = 0;
-      renderFileList('left');
-      renderFileList('right');
-      updateAnalyzeState();
-      resetAnalysisUI();
-      analyzeBtn.querySelector('span').textContent = 'Analyze Assignment';
-      setProgressStep(1);
-      swapView('upload');
-    });
-
-    applyMode();
-    updateAnalyzeState();
-    setProgressStep(1);
-    window.addEventListener('load', updateALinks);
-  </script>
+  <!-- Single connected JavaScript entry point -->
+  <script type="module" src="../Scripts/CheckAssign.js"></script>
 </body>
 </html>
