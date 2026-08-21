@@ -173,46 +173,50 @@ export function buildthegrams(chunk, n = 4) {
 export async function applyalgo(fileList, localFallbackChunks = null) {
   const chunksarr = [];
 
-  // Get chunks from JSON Server
+  // Get chunks
   for (let i = 0; i < fileList.length; i++) {
     let chunks = null;
 
-    try {
-      const response = await fetch(
-        "http://localhost:3000/users/?filename:eq=" +
-          encodeURIComponent(fileList[i].name),
-      );
+    // IMPORTANT:
+    // Use freshly generated local chunks first
+    if (localFallbackChunks && localFallbackChunks[i]) {
+      chunks = localFallbackChunks[i];
+    }
 
-      if (response.ok) {
-        const data = await response.json();
+    // JSON Server only as fallback
+    if (!chunks) {
+      try {
+        const response = await fetch(
+          "http://localhost:3000/users/?filename=" +
+            encodeURIComponent(fileList[i].name)
+        );
 
-        if (data.length > 0 && data[0].chunks) {
-          chunks = data[0].chunks;
+        if (response.ok) {
+          const data = await response.json();
+
+          if (data.length > 0 && data[0].chunks) {
+            chunks = data[0].chunks;
+          }
         }
-      }
-    } catch (error) {
-      console.log("JSON Server fetch notice for " + fileList[i].name, error);
-    }
-
-    // Use locally created chunks if JSON Server has no data
-    if (!chunks && localFallbackChunks) {
-      if (localFallbackChunks[i]) {
-        chunks = localFallbackChunks[i];
+      } catch (error) {
+        console.log(
+          "JSON Server fetch notice for " + fileList[i].name,
+          error
+        );
       }
     }
 
-    if (chunks) {
-      chunksarr[i] = chunks;
-    } else {
-      chunksarr[i] = [];
-    }
+    chunksarr[i] = chunks || [];
   }
 
-  if (chunksarr.length < 2 || !chunksarr[0] || !chunksarr[1]) {
+  // Need two files
+  if (chunksarr.length < 2) {
     return 0;
   }
 
-  let totalSimilarity = 0;
+  if (!chunksarr[0] || !chunksarr[1]) {
+    return 0;
+  }
 
   const firstLength = chunksarr[0].length;
   const secondLength = chunksarr[1].length;
@@ -221,17 +225,25 @@ export async function applyalgo(fileList, localFallbackChunks = null) {
     return 0;
   }
 
-  // Compare every chunk of file 1
-  // with every chunk of file 2
+  // ORIGINAL SIMILARITY ALGORITHM
+  let totalSimilarity = 0;
+
   for (let i = 0; i < firstLength; i++) {
     let highestSimilarity = 0;
 
-    const firstSet = new Set(chunksarr[0][i].grams);
+    const firstSet = new Set(
+      chunksarr[0][i].grams || []
+    );
 
     for (let j = 0; j < secondLength; j++) {
-      const secondSet = new Set(chunksarr[1][j].grams);
+      const secondSet = new Set(
+        chunksarr[1][j].grams || []
+      );
 
-      if (firstSet.size === 0 || secondSet.size === 0) {
+      if (
+        firstSet.size === 0 ||
+        secondSet.size === 0
+      ) {
         continue;
       }
 
@@ -243,12 +255,16 @@ export async function applyalgo(fileList, localFallbackChunks = null) {
         }
       }
 
-      const unionSize = firstSet.size + secondSet.size - intersectionCount;
+      const unionSize =
+        firstSet.size +
+        secondSet.size -
+        intersectionCount;
 
       let similarity = 0;
 
       if (unionSize > 0) {
-        similarity = intersectionCount / unionSize;
+        similarity =
+          intersectionCount / unionSize;
       }
 
       if (similarity > highestSimilarity) {
@@ -259,9 +275,13 @@ export async function applyalgo(fileList, localFallbackChunks = null) {
     totalSimilarity += highestSimilarity;
   }
 
-  const finalSimilarity = (totalSimilarity / firstLength) * 100;
+  const finalSimilarity =
+    (totalSimilarity / firstLength) * 100;
 
-  console.log("Calculated Similarity:", finalSimilarity);
+  console.log(
+    "Calculated Similarity:",
+    finalSimilarity
+  );
 
   return finalSimilarity;
 }
