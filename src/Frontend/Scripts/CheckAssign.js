@@ -414,36 +414,8 @@ analyzeBtn.addEventListener("click", async function () {
     stageElements[i].classList.add("done");
   }
 
-
   // Run actual similarity algorithm
   const realScore = await applyalgo(filesToCompare, localChunks);
-  // Run actual algorithm
-  const reportData = await applyalgo(filesToCompare, localChunks);
-const completeReport = {
-  score: reportData,
-  files: filesToCompare.map(function (file) {
-    return {
-      name: file.name,
-      size: file.size,
-      type: file.type
-    };
-  }),
-  text: {
-    [filesToCompare[0].name]: rawTextMap[filesToCompare[0].name] || "",
-    [filesToCompare[1].name]: rawTextMap[filesToCompare[1].name] || ""
-  },
-  chunks: localChunks.map(function (chunks) {
-    return chunks;
-  }),
-  generatedAt: new Date().toISOString()
-};
-sessionStorage.setItem(
-  "assignCheckReport",
-  JSON.stringify(completeReport)
-);
-
-displayResults(filesToCompare, reportData);
-
 
   aStage.classList.remove("p-scanning");
 
@@ -457,7 +429,7 @@ displayResults(filesToCompare, reportData);
 
   await wait(700);
 
-
+  displayResults(filesToCompare, realScore);
 
   setProgressStep(3);
   showView(viewResults);
@@ -609,13 +581,6 @@ if (newAnalysisBtn) {
 
     setProgressStep(1);
     showView(viewUpload);
-  });
-}
-const viewReportBtn = document.getElementById("viewReportBtn");
-
-if (viewReportBtn) {
-  viewReportBtn.addEventListener("click", function () {
-    window.location.href = "../Templates/modified.html";
   });
 }
 

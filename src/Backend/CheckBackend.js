@@ -1,31 +1,18 @@
-// CheckBackend.js
 
-// ============================================================
-// 1. Render selected files to the container
-// ============================================================
-
+// 1. Render file list cards to container
 export async function addfiles(event, filelist, itemstosave) {
   if (event && typeof event.preventDefault === "function") {
     event.preventDefault();
   }
-
-  if (!itemstosave) {
-    return;
-  }
-
+  if (!itemstosave) return;
   itemstosave.innerHTML = "";
 
   for (let a = 0; a < filelist.length; a++) {
     const file = filelist[a];
-
     const fileDiv = document.createElement("div");
     fileDiv.className = "file-row";
 
-    const ext =
-      file.name
-        ?.toLowerCase()
-        .match(/\.([a-z0-9]+)$/)?.[1] || "txt";
-
+    const ext = file.name ? file.name.toLowerCase().match(/\.([a-z0-9]+)$/)?.[1] || "txt" : "txt";
     const sizeFormatted =
       file.size >= 1048576
         ? (file.size / 1048576).toFixed(1) + " MB"
@@ -34,49 +21,22 @@ export async function addfiles(event, filelist, itemstosave) {
         : file.size + " B";
 
     fileDiv.innerHTML = `
-      <span class="f-icon ${ext}">
-        <svg class="ic">
-          <use href="#i-file"></use>
-        </svg>
-      </span>
-
+      <span class="f-icon ${ext}"><svg class="ic"><use href="#i-file"/></svg></span>
       <div class="f-info">
-        <div class="f-name" title="${file.name}">
-          ${file.name}
-        </div>
-
-        <div class="f-meta">
-          ${ext.toUpperCase()} • ${sizeFormatted}
-        </div>
+        <div class="f-name" title="${file.name}">${file.name}</div>
+        <div class="f-meta">${ext.toUpperCase()} • ${sizeFormatted}</div>
       </div>
-
-      <button
-        type="button"
-        class="f-remove"
-        aria-label="Remove ${file.name}"
-        data-idx="${a}"
-      >
-        <svg class="ic">
-          <use href="#i-x"></use>
-        </svg>
+      <button type="button" class="f-remove" aria-label="Remove ${file.name}" data-idx="${a}">
+        <svg class="ic"><use href="#i-x"/></svg>
       </button>
     `;
 
-    // Click file row to preview file
+    // Click to preview file in browser
     fileDiv.addEventListener("click", (e) => {
-      if (e.target.closest(".f-remove")) {
-        return;
-      }
-
+      if (e.target.closest(".f-remove")) return;
       try {
         const fileURL = URL.createObjectURL(file);
-
         window.open(fileURL, "_blank");
-
-        // Release object URL later
-        setTimeout(() => {
-          URL.revokeObjectURL(fileURL);
-        }, 10000);
       } catch (err) {
         console.error("Preview error:", err);
       }
@@ -86,112 +46,39 @@ export async function addfiles(event, filelist, itemstosave) {
   }
 }
 
-
-// ============================================================
-// 2. Read entries recursively
-//    Handles folders and files from drag & drop
-// ============================================================
-
+// 2. Read entries recursively (handles folders and files from drag & drop)
 export async function processEntry(entry, fileList) {
-  if (!entry || !fileList) {
-    return;
-  }
-
-  // File
   if (entry.isFile) {
     return new Promise((resolve) => {
-      entry.file(
-        (file) => {
-          fileList.push(file);
-          resolve();
-        },
-        (error) => {
-          console.error("Unable to read file:", error);
-          resolve();
-        }
-      );
-    });
-  }
-
-  // Directory
-  if (entry.isDirectory) {
-    const dirReader = entry.createReader();
-
-    const readEntries = () => {
-      return new Promise((resolve, reject) => {
-        dirReader.readEntries(resolve, reject);
+      entry.file((file) => {
+        fileList.push(file);
+        resolve();
       });
-    };
+    });
+  } else if (entry.isDirectory) {
+    const dirReader = entry.createReader();
+    const entries = await new Promise((resolve) =>
+      dirReader.readEntries(resolve)
+    );
 
-    try {
-      let entries = [];
-
-      // readEntries() may return batches,
-      // so keep reading until no entries remain
-      while (true) {
-        const batch = await readEntries();
-
-        if (!batch || batch.length === 0) {
-          break;
-        }
-
-        entries = entries.concat(batch);
-      }
-
-      for (const childEntry of entries) {
-        await processEntry(childEntry, fileList);
-      }
-    } catch (error) {
-      console.error("Directory processing error:", error);
+    for (const childEntry of entries) {
+      await processEntry(childEntry, fileList);
     }
   }
 }
 
-
-// ============================================================
-// 3. Create linear chunks of text
-//    Default: 100 words per chunk
-// ============================================================
-
+// 3. Create linear chunks of text (100 words each)
 export function createChunksLinear(text, wordsPerChunk = 100) {
-  if (typeof text !== "string") {
-    return [];
-  }
-
-  const cleanedText = text.trim();
-
-  if (!cleanedText) {
-    return [];
-  }
-
-  if (
-    !Number.isInteger(wordsPerChunk) ||
-    wordsPerChunk <= 0
-  ) {
-    wordsPerChunk = 100;
-  }
-
-  const words = cleanedText.split(/\s+/);
-
+  const words = text.trim().split(/\s+/);
   const totalWords = words.length;
 
-  if (totalWords === 0) {
-    return [];
-  }
+  if (totalWords === 0 || words[0] === "") return [];
 
   const chunks = [];
-
   let chunkIndex = 0;
 
-  for (
-    let i = 0;
-    i < totalWords;
-    i += wordsPerChunk
-  ) {
-    const chunkWords = words.slice(
-      i,
-      i + wordsPerChunk
-    );
+  for (let i = 0; i < totalWords; i += wordsPerChunk) {
+    const chunkWords = words.slice(i, i + wordsPerChunk);
 
     chunks.push({
       chunkIndex: chunkIndex,
@@ -205,324 +92,163 @@ export function createChunksLinear(text, wordsPerChunk = 100) {
   return chunks;
 }
 
-
-// ============================================================
-// 4. Build n-grams from chunk text
-//    Default: 4-grams
-// ============================================================
-
+// 4. Build n-grams from chunk text (4-grams)
 export function buildthegrams(chunk, n = 4) {
-  const text =
-    typeof chunk === "string"
-      ? chunk
-      : chunk?.text;
+  const text = typeof chunk === "string" ? chunk : chunk.text;
 
-  if (!text || typeof text !== "string") {
-    return [];
-  }
-
-  if (!Number.isInteger(n) || n <= 0) {
-    n = 4;
-  }
+  if (!text) return [];
 
   const words = text
     .toLowerCase()
     .replace(/[^a-z0-9 ]/g, "")
     .trim()
-    .split(/\s+/)
-    .filter(Boolean);
+    .split(/\s+/);
 
-  const numberOfGrams =
-    words.length - n + 1;
+  const noofgrams = words.length - n + 1;
 
-  if (numberOfGrams <= 0) {
-    return [];
-  }
+  if (noofgrams <= 0) return [];
 
   const grams = [];
 
-  for (
-    let i = 0;
-    i < numberOfGrams;
-    i++
-  ) {
-    const gramWords = words.slice(
-      i,
-      i + n
-    );
-
-    grams.push(
-      gramWords.join(" ")
-    );
+  for (let i = 0; i < noofgrams; i++) {
+    const gramvalue = words.slice(i, i + n);
+    grams.push(gramvalue.join(" "));
   }
 
   return grams;
 }
 
 
-// ============================================================
-// 5. Apply similarity algorithm
-//
-//    Logic:
-//    - First use freshly generated local chunks
-//    - JSON Server is only used as fallback
-//    - Compare every chunk of File 1
-//      against every chunk of File 2
-//    - Jaccard similarity is used
-//    - For every chunk of File 1,
-//      highest matching similarity is selected
-//    - Final score = average of highest similarities
-// ============================================================
 
-export async function applyalgo(
-  fileList,
-  localFallbackChunks = null
-) {
-  if (!Array.isArray(fileList)) {
-    console.error(
-      "applyalgo: fileList must be an array."
-    );
 
-    return 0;
-  }
 
-  if (fileList.length < 2) {
-    console.warn(
-      "Similarity requires at least two files."
-    );
+// export async function applyalgo(fileList){
+//     // let response=await fetch(`http://localhost:3000/users?filename:eq=${fileList[0].name}`);
+//     // let data=await response.json();
+//     // if(!data){
+//     //   alert("server is not responsding error");
+//     // }
+//     // console.log(data);
+//     // console.log(fileList);
 
-    return 0;
-  }
 
-  const chunksarr = [];
+//     let chunksarr=[];
+//     for(let i=0;i<fileList.length;i++){
+//       let response=await fetch(`http://localhost:3000/users/?filename:eq=${fileList[i].name}`);
+//       let data=await response.json();
+//       console.log("soham")
+//       chunksarr[i]=data[0].chunks;
+//       console.log(data);
 
-  // ----------------------------------------------------------
-  // Get chunks for every file
-  // ----------------------------------------------------------
+
+//     }
+
+//           let totalmaxsimlarity=0;
+//           let firstlength=chunksarr[0].length;
+//           let secondlength=chunksarr[1].length;
+//           let count=0;
+//           for(let i=0;i<firstlength;i++){
+//               let similarity=0;
+//               const firstset=new Set(chunksarr[0][i].grams);
+//               for(let j=0;j<secondlength;j++){
+//                 const secondset=new Set(chunksarr[1][j].grams);
+//                if (firstset.size === 0 || secondset.size === 0) continue;
+
+//                 let intersectioncount=0;
+//                 for(const a of firstset){
+//                     if(secondset.has(a)){
+//                       intersectioncount++;
+//                     }
+//                 }
+//                 count++;
+
+//                 const unionSize = firstset.size + secondset.size - intersectioncount;
+//                 const similarityvalue = intersectioncount / unionSize;
+//                 // console.log("first set:"+[...firstset])
+//                 // console.log("second set:" +[...secondset]);
+//                 // console.log(similarityvalue);
+//                 similarity=Math.max(similarityvalue,similarity);
+//               } 
+//               totalmaxsimlarity+=similarity;
+//           }
+//           console.log("final");
+//           console.log((totalmaxsimlarity/firstlength)*100);
+//           // console.log(similarity/count); 
+
+   
+//     // console.log(chunksarr);
+
+
+// }
+
+
+// Jaccard alog working compare kar raha ha first chunk grams with all the chunks grams
+export async function applyalgo(fileList, localFallbackChunks = null) {
+  let chunksarr = [];
+  
 
   for (let i = 0; i < fileList.length; i++) {
     let chunks = null;
+      let getemail = localStorage.getItem("userEmail");
+       
+    try {
+      
+      let response = await fetch(
+        `http://localhost:3000/filedata?email=${encodeURIComponent(getemail)}`
+      );
+      if (response.ok) {
+        let data = await response.json();
+        console.log("soham")
+        if (data && data.length > 0 && data[0].chunks) {
+          chunks = data[0].chunks;
+        }
+      }
+    } catch (err) {
+      console.warn("JSON-Server fetch notice for " + fileList[i].name, err);
+    }
 
-    // --------------------------------------------------------
-    // Priority 1:
-    // Use freshly generated local chunks
-    // --------------------------------------------------------
-
-    if (
-      Array.isArray(localFallbackChunks) &&
-      localFallbackChunks[i] &&
-      Array.isArray(localFallbackChunks[i])
-    ) {
+    if (!chunks && localFallbackChunks && localFallbackChunks[i]) {
       chunks = localFallbackChunks[i];
-
-      console.log(
-        "Using local chunks for:",
-        fileList[i]?.name
-      );
     }
-
-    // --------------------------------------------------------
-    // Priority 2:
-    // JSON Server fallback
-    // --------------------------------------------------------
-
-    if (!chunks) {
-      try {
-        const userEmail =
-          localStorage.getItem("userEmail");
-
-        const response = await fetch(
-          `http://localhost:3000/filedata?email=${encodeURIComponent(
-            userEmail || ""
-          )}`
-        );
-
-        if (response.ok) {
-          const data =
-            await response.json();
-
-          if (
-            Array.isArray(data) &&
-            data.length > 0 &&
-            Array.isArray(data[0].chunks)
-          ) {
-            chunks = data[0].chunks;
-
-            console.log(
-              "Using JSON Server chunks for:",
-              fileList[i]?.name
-            );
-          }
-        } else {
-          console.warn(
-            "JSON Server returned status:",
-            response.status
-          );
-        }
-      } catch (error) {
-        console.warn(
-          "JSON Server fetch notice for " +
-            (fileList[i]?.name || "file"),
-          error
-        );
-      }
-    }
-
-    // --------------------------------------------------------
-    // If no chunks found
-    // --------------------------------------------------------
-
-    chunksarr[i] =
-      Array.isArray(chunks)
-        ? chunks
-        : [];
+    chunksarr[i] = chunks || [];
   }
 
-  // ----------------------------------------------------------
-  // Need at least two sets of chunks
-  // ----------------------------------------------------------
-
-  if (chunksarr.length < 2) {
-    console.warn(
-      "Not enough chunk collections available."
-    );
-
+  if (chunksarr.length < 2 || !chunksarr[0] || !chunksarr[1]) {
     return 0;
   }
 
-  const firstChunks = chunksarr[0];
-  const secondChunks = chunksarr[1];
+  let totalmaxsimlarity = 0;
+  let firstlength = chunksarr[0].length;
+  let secondlength = chunksarr[1].length;
+  let count = 0;
 
-  if (
-    !Array.isArray(firstChunks) ||
-    !Array.isArray(secondChunks)
-  ) {
-    console.warn(
-      "Invalid chunk data."
-    );
+  if (firstlength === 0 || secondlength === 0) return 0;
 
-    return 0;
-  }
+  for (let i = 0; i < firstlength; i++) {
+    let similarity = 0;
+    const firstset = new Set(chunksarr[0][i].grams);
 
-  if (
-    firstChunks.length === 0 ||
-    secondChunks.length === 0
-  ) {
-    console.warn(
-      "One or both files contain no chunks."
-    );
+    for (let j = 0; j < secondlength; j++) {
+      const secondset = new Set(chunksarr[1][j].grams);
+      if (firstset.size === 0 || secondset.size === 0) continue;
 
-    return 0;
-  }
-
-  // ----------------------------------------------------------
-  // Calculate similarity
-  // ----------------------------------------------------------
-
-  let totalSimilarity = 0;
-
-  for (
-    let i = 0;
-    i < firstChunks.length;
-    i++
-  ) {
-    let highestSimilarity = 0;
-
-    const firstSet = new Set(
-      Array.isArray(firstChunks[i]?.grams)
-        ? firstChunks[i].grams
-        : []
-    );
-
-    if (firstSet.size === 0) {
-      continue;
-    }
-
-    // --------------------------------------------------------
-    // Compare current chunk with every chunk
-    // of second file
-    // --------------------------------------------------------
-
-    for (
-      let j = 0;
-      j < secondChunks.length;
-      j++
-    ) {
-      const secondSet = new Set(
-        Array.isArray(secondChunks[j]?.grams)
-          ? secondChunks[j].grams
-          : []
-      );
-
-      if (secondSet.size === 0) {
-        continue;
-      }
-
-      // ------------------------------------------------------
-      // Intersection
-      // ------------------------------------------------------
-
-      let intersectionCount = 0;
-
-      for (const gram of firstSet) {
-        if (secondSet.has(gram)) {
-          intersectionCount++;
+      let intersectioncount = 0;
+      for (const a of firstset) {
+        if (secondset.has(a)) {
+          intersectioncount++;
         }
       }
+      count++;
 
-      // ------------------------------------------------------
-      // Union
-      // ------------------------------------------------------
+      const unionSize = firstset.size + secondset.size - intersectioncount;
+      const similarityvalue = unionSize > 0 ? intersectioncount / unionSize : 0;
 
-      const unionSize =
-        firstSet.size +
-        secondSet.size -
-        intersectionCount;
-
-      if (unionSize <= 0) {
-        continue;
-      }
-
-      // ------------------------------------------------------
-      // Jaccard similarity
-      // ------------------------------------------------------
-
-      const similarityValue =
-        intersectionCount /
-        unionSize;
-
-      if (
-        similarityValue >
-        highestSimilarity
-      ) {
-        highestSimilarity =
-          similarityValue;
-      }
+      similarity = Math.max(similarityvalue, similarity);
     }
-
-    totalSimilarity +=
-      highestSimilarity;
+    totalmaxsimlarity += similarity;
   }
 
-  // ----------------------------------------------------------
-  // Final percentage
-  // ----------------------------------------------------------
-
-  const finalSimilarity =
-    (totalSimilarity /
-      firstChunks.length) *
-    100;
-
-  // Prevent floating point noise
-  const roundedSimilarity =
-    Number(
-      finalSimilarity.toFixed(2)
-    );
-
-  console.log(
-    "Calculated Similarity:",
-    roundedSimilarity
-  );
-
-  return roundedSimilarity;
+  const finalSimilarity = firstlength > 0 ? (totalmaxsimlarity / firstlength) * 100 : 0;
+  console.log("Calculated Similarity:", finalSimilarity);
+  return finalSimilarity;
 }
