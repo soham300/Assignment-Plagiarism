@@ -1,4 +1,7 @@
+
 // login  code is checking in json server and confrminig this to the local storage by putting the email
+
+
 export async function handleLogin(event) {
   event.preventDefault();
   const email = document.getElementById("loginEmail").value.trim().toLowerCase();
@@ -60,15 +63,19 @@ export async function handleSignup(event) {
     email: email,
     password: password
   };
+
   const fileuserdata={
      email:email,
      filedetails:[]
   }
+
+
   await fetch("http://localhost:3000/users", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(newUser)
   });
+
 
   await fetch("http://localhost:3000/filedata",{
     method:"POST",
@@ -76,6 +83,7 @@ export async function handleSignup(event) {
     body:JSON.stringify(fileuserdata)
   });
   
+
   localStorage.removeItem("loggedIn");
   localStorage.removeItem("userEmail");
   alert("Account created successfully! Please login.");
