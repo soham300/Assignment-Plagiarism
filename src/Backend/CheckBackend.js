@@ -1,4 +1,3 @@
-
 // 1. Render file list cards to container
 export async function addfiles(event, filelist, itemstosave) {
   if (event && typeof event.preventDefault === "function") {
@@ -31,6 +30,7 @@ export async function addfiles(event, filelist, itemstosave) {
       </button>
     `;
 
+    
     // Click to preview file in browser
     fileDiv.addEventListener("click", (e) => {
       if (e.target.closest(".f-remove")) return;
@@ -235,6 +235,7 @@ export async function applyalgo(fileList, localFallbackChunks = null) {
       let intersectioncount = 0;
       for (const a of firstset) {
         if (secondset.has(a)) {
+          console.log(a);
           intersectioncount++;
         }
       }

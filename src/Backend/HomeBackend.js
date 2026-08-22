@@ -1,3 +1,5 @@
+
+
 // login  code is checking in json server and confrminig this to the local storage by putting the email
 export async function handleLogin(event) {
   event.preventDefault();
@@ -11,7 +13,12 @@ export async function handleLogin(event) {
   const users = await response.json();
   let foundUser = null;
   for (let i = 0; i < users.length; i++) {
-    if (users[i].email === email && users[i].password === password) {
+    const comparedhashpassword = dcodeIO.bcrypt.compareSync(
+      password,
+      users[i].password
+    );
+
+    if (users[i].email === email && comparedhashpassword) {
       foundUser = users[i];
       break;
     }
@@ -55,14 +62,15 @@ export async function handleSignup(event) {
     return;
   }
 
+  const hashedPassword = dcodeIO.bcrypt.hashSync(password, 10);
   const newUser = {
     name: name,
     email: email,
-    password: password
+    password: hashedPassword
   };
-  const fileuserdata={
-     email:email,
-     filedetails:[]
+  const fileuserdata = {
+    email: email,
+    filedetails: []
   }
   await fetch("http://localhost:3000/users", {
     method: "POST",
@@ -70,12 +78,12 @@ export async function handleSignup(event) {
     body: JSON.stringify(newUser)
   });
 
-  await fetch("http://localhost:3000/filedata",{
-    method:"POST",
+  await fetch("http://localhost:3000/filedata", {
+    method: "POST",
     headers: { "Content-Type": "application/json" },
-    body:JSON.stringify(fileuserdata)
+    body: JSON.stringify(fileuserdata)
   });
-  
+
   localStorage.removeItem("loggedIn");
   localStorage.removeItem("userEmail");
   alert("Account created successfully! Please login.");
