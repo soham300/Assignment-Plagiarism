@@ -1,4 +1,3 @@
-
 // 1. Render file list cards to container
 export async function addfiles(event, filelist, itemstosave) {
   if (event && typeof event.preventDefault === "function") {
@@ -31,6 +30,7 @@ export async function addfiles(event, filelist, itemstosave) {
       </button>
     `;
 
+    
     // Click to preview file in browser
     fileDiv.addEventListener("click", (e) => {
       if (e.target.closest(".f-remove")) return;
@@ -182,8 +182,11 @@ export function buildthegrams(chunk, n = 4) {
 // }
 
 
+
 // Jaccard alog working compare kar raha ha first chunk grams with all the chunks grams
+let commongrams=[];
 export async function applyalgo(fileList, localFallbackChunks = null) {
+  commongrams=[];
   let chunksarr = [];
   
 
@@ -193,14 +196,21 @@ export async function applyalgo(fileList, localFallbackChunks = null) {
        
     try {
       
-      let response = await fetch(
+       // if (data && data.length > 0 && data[0].chunks) { // this is now taking the first
+       //  taken file and second taken file but this is not correct so we have to take the
+       //  all recent added file from the data base and get it from the last or cannot store
+       //  the name in the localstorage 
+        // because a person can add more that one file of same name as he did in past
+        //  this things done in CheckAssign 
+      let response = await fetch( // there is no need of getting the fetch as when we are making 
+      // the chunks we are storing that in list and share when need to call the apply algo
         `http://localhost:3000/filedata?email=${encodeURIComponent(getemail)}`
       );
       if (response.ok) {
         let data = await response.json();
+        // console.log(data.filedetails);
         console.log("soham")
-        if (data && data.length > 0 && data[0].chunks) {
-          chunks = data[0].chunks;
+        if (data && data.length > 0 && data[0].chunks) { 
         }
       }
     } catch (err) {
@@ -213,6 +223,8 @@ export async function applyalgo(fileList, localFallbackChunks = null) {
     chunksarr[i] = chunks || [];
   }
 
+
+
   if (chunksarr.length < 2 || !chunksarr[0] || !chunksarr[1]) {
     return 0;
   }
@@ -221,6 +233,7 @@ export async function applyalgo(fileList, localFallbackChunks = null) {
   let firstlength = chunksarr[0].length;
   let secondlength = chunksarr[1].length;
   let count = 0;
+
 
   if (firstlength === 0 || secondlength === 0) return 0;
 
@@ -235,6 +248,8 @@ export async function applyalgo(fileList, localFallbackChunks = null) {
       let intersectioncount = 0;
       for (const a of firstset) {
         if (secondset.has(a)) {
+          commongrams.push(a);
+          console.log(a);
           intersectioncount++;
         }
       }
@@ -250,5 +265,15 @@ export async function applyalgo(fileList, localFallbackChunks = null) {
 
   const finalSimilarity = firstlength > 0 ? (totalmaxsimlarity / firstlength) * 100 : 0;
   console.log("Calculated Similarity:", finalSimilarity);
+
   return finalSimilarity;
 }
+
+
+export function getthecommongrams(){
+    return new Set(commongrams); 
+}
+
+
+// console.log(commongrams);
+

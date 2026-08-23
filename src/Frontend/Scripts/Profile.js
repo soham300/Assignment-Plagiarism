@@ -1,1349 +1,1971 @@
 /* =========================================================
    ASSIGNCHECK — PROFILE.JS
-   ========================================================= */
+   UPDATED VERSION
+   - Profile
+   - Uploaded Files
+   - Storage
+   - Analyses COUNT FIX
+   - Last Upload
+   - View Report
+   - New Analysis
+   - Logout
+========================================================= */
 
-document.addEventListener("DOMContentLoaded", () => {
+"use strict";
 
-    /* =====================================================
-       ELEMENTS
-       ===================================================== */
+/* =========================================================
+   CONFIGURATION
+========================================================= */
 
-    const profileButton = document.getElementById("profileButton");
-    const profileMenu = document.getElementById("profileMenu");
+const API_BASE = "http://localhost:3000";
 
-    const navToggle = document.getElementById("navToggle");
-
-    const editProfileBtn = document.getElementById("editProfileBtn");
-    const editModal = document.getElementById("editModal");
-
-    const closeModal = document.getElementById("closeModal");
-    const cancelEdit = document.getElementById("cancelEdit");
-
-    const profileForm = document.getElementById("profileForm");
-
-    const nameInput = document.getElementById("nameInput");
-    const emailInput = document.getElementById("emailInput");
-
-    const passwordModal = document.getElementById("passwordModal");
-
-    const closePasswordModal =
-        document.getElementById("closePasswordModal");
-
-    const cancelPassword =
-        document.getElementById("cancelPassword");
-
-    const passwordForm =
-        document.getElementById("passwordForm");
-
-    const changePasswordBtn =
-        document.getElementById("changePasswordBtn");
-
-    const changeEmailBtn =
-        document.getElementById("changeEmailBtn");
-
-    const deleteAccountBtn =
-        document.getElementById("deleteAccountBtn");
-
-    const logoutBtn =
-        document.getElementById("logoutBtn");
+const USERS_API = `${API_BASE}/users`;
+const FILEDATA_API = `${API_BASE}/filedata`;
+const FILERESULT_API = `${API_BASE}/fileresult`;
 
 
-    /* =====================================================
-       STORAGE KEYS
-       ===================================================== */
+/* =========================================================
+   LOGIN
+========================================================= */
 
-    const PROFILE_KEY = "assigncheck_profile";
-    const HISTORY_KEYS = [
-        "assigncheck_history",
-        "analysisHistory",
-        "history",
-        "assignmentHistory"
+const loggedIn = localStorage.getItem("loggedIn");
+
+if (!loggedIn) {
+    window.location.href = "../Templates/index.html";
+}
+
+
+/* =========================================================
+   GLOBAL VARIABLES
+========================================================= */
+
+let currentUser = null;
+let currentFileData = null;
+let currentResultData = [];
+
+let profileFiles = [];
+let analysisResults = [];
+
+
+/* =========================================================
+   GET CURRENT EMAIL
+========================================================= */
+
+function getCurrentEmail() {
+
+    return (
+        localStorage.getItem("userEmail") ||
+        localStorage.getItem("email") ||
+        loggedIn ||
+        ""
+    ).trim();
+}
+
+
+/* =========================================================
+   DOM
+========================================================= */
+
+const userNameEl =
+    document.getElementById("userName");
+
+const userEmailEl =
+    document.getElementById("userEmail");
+
+const avatarEl =
+    document.getElementById("avatar");
+
+const navAvatarEl =
+    document.getElementById("navAvatar");
+
+const totalFilesEl =
+    document.getElementById("totalFiles");
+
+const totalSizeEl =
+    document.getElementById("totalSize");
+
+const totalAnalysesEl =
+    document.getElementById("totalAnalyses");
+
+const lastUploadEl =
+    document.getElementById("lastUpload");
+
+const fileCountEl =
+    document.getElementById("fileCount");
+
+const fileListEl =
+    document.getElementById("fileList");
+
+const detailNameEl =
+    document.getElementById("detailName");
+
+const detailEmailEl =
+    document.getElementById("detailEmail");
+
+const logoutBtn =
+    document.getElementById("logoutBtn");
+
+const toastEl =
+    document.getElementById("toast");
+
+
+/* =========================================================
+   SAFE TEXT
+========================================================= */
+
+function safeText(value, fallback = "") {
+
+    if (
+        value === undefined ||
+        value === null ||
+        value === ""
+    ) {
+        return fallback;
+    }
+
+    return String(value);
+}
+
+
+/* =========================================================
+   ESCAPE HTML
+========================================================= */
+
+function escapeHTML(value) {
+
+    return String(value)
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#039;");
+}
+
+
+/* =========================================================
+   INITIAL
+========================================================= */
+
+function getInitial(name, email) {
+
+    const value =
+        safeText(name) ||
+        safeText(email) ||
+        "U";
+
+    return (
+        value
+            .trim()
+            .charAt(0)
+            .toUpperCase() || "U"
+    );
+}
+
+
+/* =========================================================
+   FORMAT BYTES
+========================================================= */
+
+function formatBytes(bytes) {
+
+    bytes = Number(bytes) || 0;
+
+    if (bytes <= 0) {
+        return "0 B";
+    }
+
+    const units = [
+        "B",
+        "KB",
+        "MB",
+        "GB"
     ];
 
+    let index = 0;
+    let size = bytes;
 
-    /* =====================================================
-       DEFAULT PROFILE
-       ===================================================== */
+    while (
+        size >= 1024 &&
+        index < units.length - 1
+    ) {
+        size /= 1024;
+        index++;
+    }
 
-    const defaultProfile = {
-        name: "User",
-        email: "user@email.com",
-        memberSince: new Date().toISOString()
-    };
+    if (index === 0) {
+        return Math.round(size) + " B";
+    }
+
+    return size.toFixed(2) + " " + units[index];
+}
 
 
-    /* =====================================================
-       GET PROFILE
-       ===================================================== */
+/* =========================================================
+   FORMAT DATE
+========================================================= */
 
-    function getProfile() {
+function formatDate(value) {
 
-        try {
+    if (!value) {
+        return "—";
+    }
 
-            const savedProfile =
-                localStorage.getItem(PROFILE_KEY);
+    const date = new Date(value);
 
-            if (!savedProfile) {
-                return defaultProfile;
-            }
+    if (isNaN(date.getTime())) {
+        return "—";
+    }
 
-            const parsed =
-                JSON.parse(savedProfile);
-
-            return {
-                ...defaultProfile,
-                ...parsed
-            };
-
-        } catch (error) {
-
-            console.error(
-                "Unable to load profile:",
-                error
-            );
-
-            return defaultProfile;
+    return date.toLocaleDateString(
+        "en-IN",
+        {
+            day: "2-digit",
+            month: "short",
+            year: "numeric"
         }
+    );
+}
+
+
+/* =========================================================
+   TOAST
+========================================================= */
+
+function showToast(message) {
+
+    if (!toastEl) {
+        console.log(message);
+        return;
     }
 
+    toastEl.textContent = message;
 
-    /* =====================================================
-       SAVE PROFILE
-       ===================================================== */
+    toastEl.classList.add("show");
 
-    function saveProfile(profile) {
+    setTimeout(function () {
 
-        localStorage.setItem(
-            PROFILE_KEY,
-            JSON.stringify(profile)
+        toastEl.classList.remove("show");
+
+    }, 2500);
+}
+
+
+/* =========================================================
+   GET USER
+========================================================= */
+
+async function getUser() {
+
+    const email = getCurrentEmail();
+
+    if (!email) {
+        return null;
+    }
+
+    try {
+
+        const response = await fetch(
+            `${USERS_API}?email=${encodeURIComponent(email)}`
+        );
+
+        if (!response.ok) {
+            throw new Error("Users API failed");
+        }
+
+        const data = await response.json();
+
+        if (
+            Array.isArray(data) &&
+            data.length > 0
+        ) {
+            return data[0];
+        }
+
+    } catch (error) {
+
+        console.error(
+            "USER LOAD ERROR:",
+            error
         );
     }
 
-
-    /* =====================================================
-       INITIAL PROFILE
-       ===================================================== */
-
-    let profile = getProfile();
+    return null;
+}
 
 
-    /* =====================================================
-       INITIALIZE PROFILE
-       ===================================================== */
+/* =========================================================
+   GET FILE DATA
+========================================================= */
 
-    renderProfile(profile);
+async function getFileData() {
 
-    renderStatistics();
+    const email = getCurrentEmail();
 
-    renderRecentActivity();
+    if (!email) {
+        return null;
+    }
 
+    try {
 
-    /* =====================================================
-       RENDER PROFILE
-       ===================================================== */
-
-    function renderProfile(user) {
-
-        const name =
-            user.name || "User";
-
-        const email =
-            user.email || "user@email.com";
-
-
-        /* ---------- Initial ---------- */
-
-        const initial =
-            getInitial(name);
-
-
-        /* ---------- Main Profile ---------- */
-
-        setText(
-            "profileName",
-            name
+        const response = await fetch(
+            `${FILEDATA_API}?email=${encodeURIComponent(email)}`
         );
 
-        setText(
-            "profileEmail",
+        if (!response.ok) {
+            throw new Error("Filedata API failed");
+        }
+
+        const data = await response.json();
+
+        if (
+            Array.isArray(data) &&
+            data.length > 0
+        ) {
+            return data[0];
+        }
+
+    } catch (error) {
+
+        console.error(
+            "FILEDATA LOAD ERROR:",
+            error
+        );
+    }
+
+    return null;
+}
+
+
+/* =========================================================
+   GET ALL FILE RESULTS
+========================================================= */
+
+async function getFileResults() {
+
+    const email = getCurrentEmail();
+
+    if (!email) {
+        return [];
+    }
+
+    try {
+
+        const response = await fetch(
+            `${FILERESULT_API}?email=${encodeURIComponent(email)}`
+        );
+
+        if (!response.ok) {
+            throw new Error("Fileresult API failed");
+        }
+
+        const data = await response.json();
+
+        if (Array.isArray(data)) {
+            return data;
+        }
+
+        if (
+            data &&
+            typeof data === "object"
+        ) {
+            return [data];
+        }
+
+    } catch (error) {
+
+        console.error(
+            "FILERESULT LOAD ERROR:",
+            error
+        );
+    }
+
+    return [];
+}
+
+
+/* =========================================================
+   UPDATE USER PROFILE
+========================================================= */
+
+function updateProfile(user) {
+
+    const email =
+        safeText(
+            user?.email,
+            getCurrentEmail()
+        );
+
+    const name =
+        safeText(
+            user?.name ||
+            user?.username ||
+            user?.fullName ||
+            user?.fullname,
+            email
+                ? email.split("@")[0]
+                : "User"
+        );
+
+    const initial =
+        getInitial(
+            name,
             email
         );
 
-        setText(
-            "detailName",
-            name
-        );
-
-        setText(
-            "detailEmail",
-            email
-        );
-
-
-        /* ---------- Navbar ---------- */
-
-        setText(
-            "profileButton",
-            initial
-        );
-
-        setText(
-            "menuAvatar",
-            initial
-        );
-
-        setText(
-            "menuUserName",
-            name
-        );
-
-        setText(
-            "menuUserEmail",
-            email
-        );
-
-
-        /* ---------- Settings ---------- */
-
-        setText(
-            "settingEmail",
-            email
-        );
-
-
-        /* ---------- Avatar ---------- */
-
-        setText(
-            "profileAvatar",
-            initial
-        );
-
-
-        /* ---------- Member Since ---------- */
-
-        setText(
-            "memberSince",
-            formatMemberDate(
-                user.memberSince
-            )
-        );
+    if (userNameEl) {
+        userNameEl.textContent = name;
     }
 
-
-    /* =====================================================
-       GET INITIAL
-       ===================================================== */
-
-    function getInitial(name) {
-
-        if (!name) {
-            return "U";
-        }
-
-        const cleaned =
-            name.trim();
-
-        if (!cleaned) {
-            return "U";
-        }
-
-        const parts =
-            cleaned.split(/\s+/);
-
-        if (parts.length >= 2) {
-
-            return (
-                parts[0][0] +
-                parts[parts.length - 1][0]
-            ).toUpperCase();
-        }
-
-        return cleaned[0].toUpperCase();
+    if (userEmailEl) {
+        userEmailEl.textContent = email;
     }
 
-
-    /* =====================================================
-       SET TEXT HELPER
-       ===================================================== */
-
-    function setText(id, value) {
-
-        const element =
-            document.getElementById(id);
-
-        if (element) {
-            element.textContent = value;
-        }
+    if (detailNameEl) {
+        detailNameEl.textContent = name;
     }
 
+    if (detailEmailEl) {
+        detailEmailEl.textContent = email;
+    }
 
-    /* =====================================================
-       FORMAT MEMBER DATE
-       ===================================================== */
+    if (avatarEl) {
+        avatarEl.textContent = initial;
+    }
 
-    function formatMemberDate(dateValue) {
+    if (navAvatarEl) {
+        navAvatarEl.textContent = initial;
+    }
+}
 
-        if (!dateValue) {
-            return "—";
+
+/* =========================================================
+   GET FILE ARRAY
+========================================================= */
+
+function getFilesFromFileData(fileData) {
+
+    if (!fileData) {
+        return [];
+    }
+
+    if (Array.isArray(fileData.filedetails)) {
+        return fileData.filedetails;
+    }
+
+    if (Array.isArray(fileData.files)) {
+        return fileData.files;
+    }
+
+    if (Array.isArray(fileData.filesprocessed)) {
+        return fileData.filesprocessed;
+    }
+
+    if (Array.isArray(fileData.filesProcessed)) {
+        return fileData.filesProcessed;
+    }
+
+    return [];
+}
+
+
+/* =========================================================
+   IMPORTANT:
+   GET ANALYSIS ARRAY
+========================================================= */
+
+function getSavedReports(resultData, fileData) {
+
+    const reports = [];
+
+    /*
+       Duplicate protection.
+    */
+
+    const keys = new Set();
+
+
+    function addReport(report) {
+
+        if (
+            !report ||
+            typeof report !== "object"
+        ) {
+            return;
         }
+
+        if (
+            Object.keys(report).length === 0
+        ) {
+            return;
+        }
+
+
+        const id =
+            report.id ??
+            report.reportId ??
+            "";
+
+
+        const filenames =
+            Array.isArray(report.filenames)
+                ? report.filenames.join("|")
+                : safeText(
+                    report.filename ||
+                    report.fileName ||
+                    ""
+                );
+
+
+        const score =
+            report.roundedscore ??
+            report.roundedScore ??
+            report.score ??
+            report.similarity ??
+            report.similarityScore ??
+            "";
+
 
         const date =
-            new Date(dateValue);
-
-        if (Number.isNaN(date.getTime())) {
-            return "—";
-        }
-
-        return date.toLocaleDateString(
-            "en-US",
-            {
-                month: "short",
-                year: "numeric"
-            }
-        );
-    }
-
-
-    /* =====================================================
-       PROFILE DROPDOWN
-       ===================================================== */
-
-    if (profileButton && profileMenu) {
-
-        profileButton.addEventListener(
-            "click",
-            (event) => {
-
-                event.stopPropagation();
-
-                const isOpen =
-                    profileMenu.classList.toggle("open");
-
-                profileButton.setAttribute(
-                    "aria-expanded",
-                    isOpen
-                );
-            }
-        );
-
-
-        document.addEventListener(
-            "click",
-            (event) => {
-
-                if (
-                    !profileMenu.contains(event.target) &&
-                    !profileButton.contains(event.target)
-                ) {
-
-                    profileMenu.classList.remove(
-                        "open"
-                    );
-
-                    profileButton.setAttribute(
-                        "aria-expanded",
-                        "false"
-                    );
-                }
-            }
-        );
-    }
-
-
-    /* =====================================================
-       MOBILE NAV
-       ===================================================== */
-
-    if (navToggle) {
-
-        navToggle.addEventListener(
-            "click",
-            () => {
-
-                const nav =
-                    document.querySelector(".nav-links");
-
-                if (!nav) {
-                    return;
-                }
-
-                const visible =
-                    nav.classList.toggle("mobile-open");
-
-                navToggle.setAttribute(
-                    "aria-expanded",
-                    visible
-                );
-            }
-        );
-    }
-
-
-    /* =====================================================
-       OPEN EDIT MODAL
-       ===================================================== */
-
-    if (editProfileBtn) {
-
-        editProfileBtn.addEventListener(
-            "click",
-            () => {
-
-                nameInput.value =
-                    profile.name || "";
-
-                emailInput.value =
-                    profile.email || "";
-
-                openModal(editModal);
-            }
-        );
-    }
-
-
-    /* =====================================================
-       CLOSE EDIT MODAL
-       ===================================================== */
-
-    if (closeModal) {
-
-        closeModal.addEventListener(
-            "click",
-            () => {
-
-                closeModalWindow(
-                    editModal
-                );
-            }
-        );
-    }
-
-
-    if (cancelEdit) {
-
-        cancelEdit.addEventListener(
-            "click",
-            () => {
-
-                closeModalWindow(
-                    editModal
-                );
-            }
-        );
-    }
-
-
-    /* =====================================================
-       EDIT PROFILE SUBMIT
-       ===================================================== */
-
-    if (profileForm) {
-
-        profileForm.addEventListener(
-            "submit",
-            (event) => {
-
-                event.preventDefault();
-
-
-                const name =
-                    nameInput.value.trim();
-
-                const email =
-                    emailInput.value.trim();
-
-
-                if (!name || !email) {
-
-                    alert(
-                        "Please fill in all fields."
-                    );
-
-                    return;
-                }
-
-
-                profile = {
-                    ...profile,
-
-                    name,
-                    email
-                };
-
-
-                saveProfile(profile);
-
-                renderProfile(profile);
-
-                closeModalWindow(editModal);
-
-                showToast(
-                    "Profile updated successfully."
-                );
-            }
-        );
-    }
-
-
-    /* =====================================================
-       EMAIL BUTTON
-       ===================================================== */
-
-    if (changeEmailBtn) {
-
-        changeEmailBtn.addEventListener(
-            "click",
-            () => {
-
-                nameInput.value =
-                    profile.name || "";
-
-                emailInput.value =
-                    profile.email || "";
-
-                openModal(editModal);
-
-                setTimeout(
-                    () => {
-                        emailInput.focus();
-                    },
-                    100
-                );
-            }
-        );
-    }
-
-
-    /* =====================================================
-       PASSWORD MODAL
-       ===================================================== */
-
-    if (changePasswordBtn) {
-
-        changePasswordBtn.addEventListener(
-            "click",
-            () => {
-
-                openModal(
-                    passwordModal
-                );
-            }
-        );
-    }
-
-
-    if (closePasswordModal) {
-
-        closePasswordModal.addEventListener(
-            "click",
-            () => {
-
-                closeModalWindow(
-                    passwordModal
-                );
-            }
-        );
-    }
-
-
-    if (cancelPassword) {
-
-        cancelPassword.addEventListener(
-            "click",
-            () => {
-
-                closeModalWindow(
-                    passwordModal
-                );
-            }
-        );
-    }
-
-
-    /* =====================================================
-       PASSWORD FORM
-       ===================================================== */
-
-    if (passwordForm) {
-
-        passwordForm.addEventListener(
-            "submit",
-            (event) => {
-
-                event.preventDefault();
-
-
-                const currentPassword =
-                    document.getElementById(
-                        "currentPassword"
-                    ).value;
-
-                const newPassword =
-                    document.getElementById(
-                        "newPassword"
-                    ).value;
-
-                const confirmPassword =
-                    document.getElementById(
-                        "confirmPassword"
-                    ).value;
-
-
-                if (
-                    !currentPassword ||
-                    !newPassword ||
-                    !confirmPassword
-                ) {
-
-                    alert(
-                        "Please fill in all password fields."
-                    );
-
-                    return;
-                }
-
-
-                if (newPassword.length < 6) {
-
-                    alert(
-                        "New password must contain at least 6 characters."
-                    );
-
-                    return;
-                }
-
-
-                if (
-                    newPassword !==
-                    confirmPassword
-                ) {
-
-                    alert(
-                        "New password and confirm password do not match."
-                    );
-
-                    return;
-                }
-
-
-                /*
-                 * Frontend-only demo.
-                 *
-                 * Real password changes should
-                 * be handled by your backend.
-                 */
-
-
-                passwordForm.reset();
-
-                closeModalWindow(
-                    passwordModal
-                );
-
-                showToast(
-                    "Password updated successfully."
-                );
-            }
-        );
-    }
-
-
-    /* =====================================================
-       DELETE ACCOUNT
-       ===================================================== */
-
-    if (deleteAccountBtn) {
-
-        deleteAccountBtn.addEventListener(
-            "click",
-            () => {
-
-                const confirmed =
-                    confirm(
-                        "Are you sure you want to delete your account? This action cannot be undone."
-                    );
-
-
-                if (!confirmed) {
-                    return;
-                }
-
-
-                localStorage.removeItem(
-                    PROFILE_KEY
-                );
-
-
-                /*
-                 * Remove known history keys.
-                 */
-
-                HISTORY_KEYS.forEach(
-                    (key) => {
-
-                        localStorage.removeItem(
-                            key
-                        );
-                    }
-                );
-
-
-                profile =
-                    defaultProfile;
-
-
-                renderProfile(profile);
-
-                renderStatistics();
-
-                renderRecentActivity();
-
-
-                showToast(
-                    "Account data removed."
-                );
-            }
-        );
-    }
-
-
-    /* =====================================================
-       LOGOUT
-       ===================================================== */
-
-    if (logoutBtn) {
-
-        logoutBtn.addEventListener(
-            "click",
-            () => {
-
-                const confirmed =
-                    confirm(
-                        "Are you sure you want to logout?"
-                    );
-
-
-                if (!confirmed) {
-                    return;
-                }
-
-
-                /*
-                 * Don't delete profile.
-                 * Only clear session/login data.
-                 */
-
-                localStorage.removeItem(
-                    "assigncheck_logged_in"
-                );
-
-                localStorage.removeItem(
-                    "currentUser"
-                );
-
-                localStorage.removeItem(
-                    "userSession"
-                );
-
-
-                /*
-                 * Change this path according
-                 * to your login page.
-                 */
-
-                window.location.href =
-                    "../Templates/index.html";
-            }
-        );
-    }
-
-
-    /* =====================================================
-       MODAL HELPERS
-       ===================================================== */
-
-    function openModal(modal) {
-
-        if (!modal) {
-            return;
-        }
-
-        modal.classList.add("active");
-
-        document.body.style.overflow =
-            "hidden";
-    }
-
-
-    function closeModalWindow(modal) {
-
-        if (!modal) {
-            return;
-        }
-
-        modal.classList.remove("active");
-
-        document.body.style.overflow =
+            report.createdAt ??
+            report.created_at ??
+            report.timestamp ??
+            report.date ??
+            report.uploadedAt ??
             "";
+
+
+        const key =
+            String(id) +
+            "|" +
+            filenames +
+            "|" +
+            String(score) +
+            "|" +
+            String(date);
+
+
+        if (keys.has(key)) {
+            return;
+        }
+
+
+        keys.add(key);
+
+        reports.push(report);
     }
 
 
-    /* =====================================================
-       CLOSE MODAL ON OVERLAY CLICK
-       ===================================================== */
+    /*
+       ----------------------------------------------------
+       CASE 1:
+       fileresult response is array
+       ----------------------------------------------------
+    */
 
-    [editModal, passwordModal].forEach(
-        (modal) => {
+    if (Array.isArray(resultData)) {
 
-            if (!modal) {
+        resultData.forEach(function (record) {
+
+            if (!record) {
                 return;
             }
 
-            modal.addEventListener(
-                "click",
-                (event) => {
 
-                    if (
-                        event.target === modal
-                    ) {
+            /*
+               filesprocesed
+            */
 
-                        closeModalWindow(
-                            modal
-                        );
-                    }
-                }
+            if (
+                Array.isArray(
+                    record.filesprocesed
+                )
+            ) {
+
+                record.filesprocesed.forEach(
+                    addReport
+                );
+            }
+
+
+            /*
+               filesProcessed
+            */
+
+            if (
+                Array.isArray(
+                    record.filesProcessed
+                )
+            ) {
+
+                record.filesProcessed.forEach(
+                    addReport
+                );
+            }
+
+
+            /*
+               analysisResults
+            */
+
+            if (
+                Array.isArray(
+                    record.analysisResults
+                )
+            ) {
+
+                record.analysisResults.forEach(
+                    addReport
+                );
+            }
+
+
+            /*
+               analyses
+            */
+
+            if (
+                Array.isArray(
+                    record.analyses
+                )
+            ) {
+
+                record.analyses.forEach(
+                    addReport
+                );
+            }
+
+
+            /*
+               reports
+            */
+
+            if (
+                Array.isArray(
+                    record.reports
+                )
+            ) {
+
+                record.reports.forEach(
+                    addReport
+                );
+            }
+
+
+            /*
+               results
+            */
+
+            if (
+                Array.isArray(
+                    record.results
+                )
+            ) {
+
+                record.results.forEach(
+                    addReport
+                );
+            }
+
+
+            /*
+               history
+            */
+
+            if (
+                Array.isArray(
+                    record.history
+                )
+            ) {
+
+                record.history.forEach(
+                    addReport
+                );
+            }
+
+
+            /*
+               If the record ITSELF is one report.
+            */
+
+            if (
+                Array.isArray(record.filenames) ||
+                record.score !== undefined ||
+                record.similarity !== undefined ||
+                record.roundedscore !== undefined ||
+                record.roundedScore !== undefined
+            ) {
+
+                addReport(record);
+            }
+
+        });
+    }
+
+
+    /*
+       ----------------------------------------------------
+       CASE 2:
+       Single object
+       ----------------------------------------------------
+    */
+
+    if (
+        resultData &&
+        !Array.isArray(resultData) &&
+        typeof resultData === "object"
+    ) {
+
+        if (
+            Array.isArray(
+                resultData.filesprocesed
+            )
+        ) {
+
+            resultData.filesprocesed.forEach(
+                addReport
             );
         }
-    );
+
+        if (
+            Array.isArray(
+                resultData.filesProcessed
+            )
+        ) {
+
+            resultData.filesProcessed.forEach(
+                addReport
+            );
+        }
+
+        if (
+            Array.isArray(
+                resultData.analysisResults
+            )
+        ) {
+
+            resultData.analysisResults.forEach(
+                addReport
+            );
+        }
+
+        if (
+            Array.isArray(
+                resultData.analyses
+            )
+        ) {
+
+            resultData.analyses.forEach(
+                addReport
+            );
+        }
+
+        if (
+            Array.isArray(
+                resultData.reports
+            )
+        ) {
+
+            resultData.reports.forEach(
+                addReport
+            );
+        }
+
+        if (
+            Array.isArray(
+                resultData.results
+            )
+        ) {
+
+            resultData.results.forEach(
+                addReport
+            );
+        }
+    }
 
 
-    /* =====================================================
-       ESCAPE KEY
-       ===================================================== */
+    /*
+       ----------------------------------------------------
+       CASE 3:
+       FILEDATA nested results
+       ----------------------------------------------------
+    */
 
-    document.addEventListener(
-        "keydown",
-        (event) => {
+    const files =
+        getFilesFromFileData(
+            fileData
+        );
 
-            if (event.key !== "Escape") {
+
+    if (Array.isArray(files)) {
+
+        files.forEach(function (file) {
+
+            if (
+                !file ||
+                typeof file !== "object"
+            ) {
                 return;
             }
 
-            closeModalWindow(editModal);
 
-            closeModalWindow(passwordModal);
-        }
-    );
+            if (
+                Array.isArray(file.results)
+            ) {
 
-
-    /* =====================================================
-       HISTORY DATA
-       ===================================================== */
-
-    function getHistory() {
-
-        for (const key of HISTORY_KEYS) {
-
-            const stored =
-                localStorage.getItem(key);
-
-            if (!stored) {
-                continue;
+                file.results.forEach(
+                    addReport
+                );
             }
+
+
+            if (
+                Array.isArray(file.reports)
+            ) {
+
+                file.reports.forEach(
+                    addReport
+                );
+            }
+
+
+            if (
+                Array.isArray(
+                    file.analysisResults
+                )
+            ) {
+
+                file.analysisResults.forEach(
+                    addReport
+                );
+            }
+
+        });
+    }
+
+
+    /*
+       ----------------------------------------------------
+       CASE 4:
+       SESSION STORAGE FALLBACK
+       ----------------------------------------------------
+    */
+
+    if (reports.length === 0) {
+
+        const sessionKeys = [
+            "assignCheckReport",
+            "lastAnalysisResult"
+        ];
+
+
+        sessionKeys.forEach(function (key) {
 
             try {
 
+                const raw =
+                    sessionStorage.getItem(key);
+
+                if (!raw) {
+                    return;
+                }
+
                 const parsed =
-                    JSON.parse(stored);
+                    JSON.parse(raw);
+
 
                 if (Array.isArray(parsed)) {
-                    return parsed;
-                }
 
-                if (
-                    parsed &&
-                    Array.isArray(parsed.history)
-                ) {
+                    parsed.forEach(
+                        addReport
+                    );
 
-                    return parsed.history;
-                }
+                } else {
 
-                if (
-                    parsed &&
-                    Array.isArray(parsed.analyses)
-                ) {
+                    addReport(parsed);
 
-                    return parsed.analyses;
                 }
 
             } catch (error) {
 
-                console.warn(
-                    `Unable to read ${key}:`,
+                console.error(
+                    "SESSION REPORT ERROR:",
                     error
                 );
             }
-        }
 
-        return [];
+        });
     }
 
 
-    /* =====================================================
-       NORMALIZE HISTORY
-       ===================================================== */
-
-    function normalizeHistory(history) {
-
-        return history
-            .map((item, index) => {
-
-                if (!item) {
-                    return null;
-                }
+    return reports;
+}
 
 
-                const name =
-                    item.fileName ||
-                    item.filename ||
-                    item.assignmentName ||
-                    item.name ||
-                    item.title ||
-                    `Assignment ${index + 1}`;
+/* =========================================================
+   CALCULATE FILE STATS
+========================================================= */
+
+function calculateFileStats(files) {
+
+    let totalSize = 0;
+    let latestDate = null;
 
 
-                let similarity =
-                    item.similarity ??
-                    item.similarityScore ??
-                    item.overallSimilarity ??
-                    item.score ??
-                    0;
+    files.forEach(function (file) {
 
-
-                if (
-                    typeof similarity === "string"
-                ) {
-
-                    similarity =
-                        parseFloat(
-                            similarity.replace(
-                                "%",
-                                ""
-                            )
-                        );
-                }
-
-
-                similarity =
-                    Number(similarity);
-
-
-                if (
-                    !Number.isFinite(similarity)
-                ) {
-
-                    similarity = 0;
-                }
-
-
-                const date =
-                    item.date ||
-                    item.createdAt ||
-                    item.timestamp ||
-                    item.time ||
-                    new Date().toISOString();
-
-
-                return {
-                    name,
-                    similarity,
-                    date
-                };
-
-            })
-            .filter(Boolean);
-    }
-
-
-    /* =====================================================
-       STATISTICS
-       ===================================================== */
-
-    function renderStatistics() {
-
-        const history =
-            normalizeHistory(
-                getHistory()
-            );
-
-
-        const total =
-            history.length;
-
-
-        /*
-         * Most assignment comparison
-         * analyses contain 2 documents.
-         */
-
-        const documents =
-            history.reduce(
-                (totalDocuments, item) => {
-
-                    return totalDocuments + 2;
-
-                },
-                0
-            );
-
-
-        let average =
-            0;
-
-
-        if (total > 0) {
-
-            const sum =
-                history.reduce(
-                    (totalScore, item) => {
-
-                        return (
-                            totalScore +
-                            item.similarity
-                        );
-
-                    },
-                    0
-                );
-
-
-            average =
-                Math.round(
-                    sum / total
-                );
-        }
-
-
-        /*
-         * Reports generated.
-         *
-         * If your history stores a
-         * reportGenerated flag, use it.
-         * Otherwise every analysis is
-         * treated as a generated report.
-         */
-
-        const reports =
-            history.filter(
-                item => {
-
-                    return (
-                        item.reportGenerated !== false
-                    );
-
-                }
-            ).length;
-
-
-        setText(
-            "totalAnalyses",
-            total
+        totalSize += Number(
+            file?.filesize ??
+            file?.size ??
+            0
         );
 
-        setText(
-            "documentsChecked",
-            documents
-        );
 
-        setText(
-            "averageSimilarity",
-            `${average}%`
-        );
-
-        setText(
-            "reportsGenerated",
-            reports
-        );
-    }
+        const dateValue =
+            file?.uploadedAt ||
+            file?.createdAt ||
+            file?.date ||
+            file?.timestamp;
 
 
-    /* =====================================================
-       RECENT ACTIVITY
-       ===================================================== */
-
-    function renderRecentActivity() {
-
-        const activityList =
-            document.getElementById(
-                "activityList"
-            );
-
-
-        if (!activityList) {
+        if (!dateValue) {
             return;
         }
 
-
-        const history =
-            normalizeHistory(
-                getHistory()
-            );
-
-
-        if (!history.length) {
-
-            activityList.innerHTML = `
-
-                <div class="empty-activity">
-
-                    <div class="empty-icon">
-                        📋
-                    </div>
-
-                    <h3>
-                        No recent analyses
-                    </h3>
-
-                    <p>
-                        Your recent assignment analyses
-                        will appear here.
-                    </p>
-
-                    <a
-                        href="CheckAssign.html"
-                        class="analyze-btn">
-
-                        Analyze Assignment
-
-                    </a>
-
-                </div>
-
-            `;
-
-            return;
-        }
-
-
-        /*
-         * Newest first.
-         */
-
-        history.sort(
-            (a, b) => {
-
-                return (
-                    new Date(b.date) -
-                    new Date(a.date)
-                );
-            }
-        );
-
-
-        const recent =
-            history.slice(0, 4);
-
-
-        activityList.innerHTML =
-            recent
-                .map(
-                    item => {
-
-                        return `
-
-                            <div class="activity-item">
-
-                                <div class="activity-icon">
-                                    📄
-                                </div>
-
-                                <div class="activity-info">
-
-                                    <strong>
-                                        ${escapeHTML(
-                                            item.name
-                                        )}
-                                    </strong>
-
-                                    <span>
-                                        ${formatActivityDate(
-                                            item.date
-                                        )}
-                                    </span>
-
-                                </div>
-
-                                <div class="activity-score">
-                                    ${Math.round(
-                                        item.similarity
-                                    )}%
-                                </div>
-
-                            </div>
-
-                        `;
-                    }
-                )
-                .join("");
-    }
-
-
-    /* =====================================================
-       ACTIVITY DATE
-       ===================================================== */
-
-    function formatActivityDate(dateValue) {
 
         const date =
             new Date(dateValue);
 
 
         if (
-            Number.isNaN(
-                date.getTime()
+            !isNaN(date.getTime()) &&
+            (
+                !latestDate ||
+                date > latestDate
             )
         ) {
 
-            return "Recently";
+            latestDate = date;
         }
 
+    });
 
-        return date.toLocaleDateString(
-            "en-US",
-            {
-                day: "numeric",
-                month: "short",
-                year: "numeric"
-            }
+
+    return {
+        count: files.length,
+        size: totalSize,
+        latestDate: latestDate
+    };
+}
+
+
+/* =========================================================
+   UPDATE STATISTICS
+========================================================= */
+
+function updateStatistics(
+    files,
+    results
+) {
+
+    const stats =
+        calculateFileStats(
+            files
         );
+
+
+    /*
+       FILE COUNT
+    */
+
+    if (totalFilesEl) {
+
+        totalFilesEl.textContent =
+            String(stats.count);
     }
 
 
-    /* =====================================================
-       ESCAPE HTML
-       ===================================================== */
+    if (fileCountEl) {
 
-    function escapeHTML(value) {
+        fileCountEl.textContent =
+            String(stats.count);
+    }
 
-        return String(value)
-            .replace(
-                /&/g,
-                "&amp;"
-            )
-            .replace(
-                /</g,
-                "&lt;"
-            )
-            .replace(
-                />/g,
-                "&gt;"
-            )
-            .replace(
-                /"/g,
-                "&quot;"
-            )
-            .replace(
-                /'/g,
-                "&#039;"
+
+    /*
+       STORAGE
+    */
+
+    if (totalSizeEl) {
+
+        totalSizeEl.textContent =
+            formatBytes(
+                stats.size
             );
     }
 
 
-    /* =====================================================
-       TOAST
-       ===================================================== */
+    /*
+       ====================================================
+       ANALYSES CARD — FIXED
+       ====================================================
+    */
 
-    function showToast(message) {
+    analysisResults =
+        getSavedReports(
+            results,
+            currentFileData
+        );
 
-        const oldToast =
-            document.querySelector(
-                ".profile-toast"
-            );
+
+    const count =
+        analysisResults.length;
 
 
-        if (oldToast) {
-            oldToast.remove();
+    console.log(
+        "TOTAL ANALYSES:",
+        count
+    );
+
+
+    console.log(
+        "ANALYSIS RESULTS:",
+        analysisResults
+    );
+
+
+    if (totalAnalysesEl) {
+
+        totalAnalysesEl.textContent =
+            String(count);
+    }
+
+
+    /*
+       LAST UPLOAD
+    */
+
+    if (lastUploadEl) {
+
+        if (stats.latestDate) {
+
+            lastUploadEl.textContent =
+                formatDate(
+                    stats.latestDate
+                );
+
+        } else if (files.length > 0) {
+
+            lastUploadEl.textContent =
+                "Recently";
+
+        } else {
+
+            lastUploadEl.textContent =
+                "—";
+        }
+    }
+}
+
+
+/* =========================================================
+   FILE TYPE
+========================================================= */
+
+function getFileType(filename) {
+
+    const name =
+        safeText(
+            filename
+        ).toLowerCase();
+
+
+    const ext =
+        name.includes(".")
+            ? name.split(".").pop()
+            : "";
+
+
+    const types = {
+
+        pdf: {
+            label: "PDF",
+            className: "pdf"
+        },
+
+        doc: {
+            label: "DOC",
+            className: "doc"
+        },
+
+        docx: {
+            label: "DOCX",
+            className: "doc"
+        },
+
+        ppt: {
+            label: "PPT",
+            className: "ppt"
+        },
+
+        pptx: {
+            label: "PPTX",
+            className: "ppt"
+        },
+
+        txt: {
+            label: "TXT",
+            className: "txt"
         }
 
+    };
 
-        const toast =
+
+    return (
+        types[ext] || {
+            label: "FILE",
+            className: "file"
+        }
+    );
+}
+
+
+/* =========================================================
+   RENDER EMPTY FILES
+========================================================= */
+
+function renderEmptyFiles() {
+
+    if (!fileListEl) {
+        return;
+    }
+
+
+    fileListEl.innerHTML = `
+
+        <div class="empty-state">
+
+            <div class="empty-icon">
+                ↑
+            </div>
+
+            <h3>
+                No files uploaded yet
+            </h3>
+
+            <p>
+                Upload assignments to start
+                your first analysis.
+            </p>
+
+        </div>
+
+    `;
+}
+
+
+/* =========================================================
+   RENDER FILES
+========================================================= */
+
+function renderFiles(files) {
+
+    if (!fileListEl) {
+        return;
+    }
+
+
+    if (
+        !Array.isArray(files) ||
+        files.length === 0
+    ) {
+
+        renderEmptyFiles();
+
+        return;
+    }
+
+
+    fileListEl.innerHTML = "";
+
+
+    const displayFiles =
+        files
+            .slice()
+            .reverse();
+
+
+    displayFiles.forEach(function (file) {
+
+        const filename =
+            safeText(
+                file?.filename ||
+                file?.fileName ||
+                file?.name,
+                "Unknown File"
+            );
+
+
+        const filesize =
+            Number(
+                file?.filesize ??
+                file?.size ??
+                0
+            );
+
+
+        const type =
+            getFileType(
+                filename
+            );
+
+
+        const fileDate =
+            file?.uploadedAt ||
+            file?.createdAt ||
+            file?.date ||
+            file?.timestamp;
+
+
+        const card =
             document.createElement(
                 "div"
             );
 
 
-        toast.className =
-            "profile-toast";
+        card.className =
+            "profile-file-item";
 
 
-        toast.textContent =
-            message;
+        card.innerHTML = `
+
+            <div class="profile-file-icon ${type.className}">
+                ${type.label}
+            </div>
+
+            <div class="profile-file-info">
+
+                <div class="profile-file-name">
+                    ${escapeHTML(filename)}
+                </div>
+
+                <div class="profile-file-meta">
+
+                    ${type.label}
+
+                    ${
+                        filesize
+                            ? " • " +
+                              formatBytes(filesize)
+                            : ""
+                    }
+
+                    ${
+                        fileDate
+                            ? " • " +
+                              formatDate(fileDate)
+                            : ""
+                    }
+
+                </div>
+
+            </div>
+
+        `;
 
 
-        toast.style.position =
-            "fixed";
-
-        toast.style.bottom =
-            "25px";
-
-        toast.style.right =
-            "25px";
-
-        toast.style.zIndex =
-            "9999";
-
-        toast.style.padding =
-            "12px 17px";
-
-        toast.style.borderRadius =
-            "10px";
-
-        toast.style.background =
-            "#18182c";
-
-        toast.style.color =
-            "#ffffff";
-
-        toast.style.fontSize =
-            "12px";
-
-        toast.style.fontWeight =
-            "600";
-
-        toast.style.boxShadow =
-            "0 10px 30px rgba(0,0,0,0.15)";
-
-
-        document.body.appendChild(
-            toast
+        fileListEl.appendChild(
+            card
         );
 
-
-        setTimeout(
-            () => {
-
-                toast.style.opacity =
-                    "0";
-
-                toast.style.transform =
-                    "translateY(5px)";
-
-                toast.style.transition =
-                    "0.2s ease";
+    });
+}
 
 
-                setTimeout(
-                    () => {
+/* =========================================================
+   VIEW REPORT
+========================================================= */
 
-                        toast.remove();
+function viewReport(
+    report,
+    index
+) {
 
-                    },
-                    200
-                );
+    if (!report) {
 
-            },
-            2500
+        showToast(
+            "Report not found."
         );
+
+        return;
     }
 
-});
+
+    try {
+
+        sessionStorage.setItem(
+            "selectedReport",
+            JSON.stringify(report)
+        );
+
+
+        sessionStorage.setItem(
+            "selectedReportId",
+            String(
+                report.id ??
+                report.reportId ??
+                index ??
+                ""
+            )
+        );
+
+
+        sessionStorage.setItem(
+            "viewReport",
+            "true"
+        );
+
+
+        sessionStorage.setItem(
+            "showsthedisplayornot",
+            "true"
+        );
+
+
+    } catch (error) {
+
+        console.error(
+            "REPORT SAVE ERROR:",
+            error
+        );
+
+        return;
+    }
+
+
+    window.location.href =
+        "../Templates/DetailedReport.html";
+}
+
+
+/* =========================================================
+   OPEN REPORT BY INDEX
+========================================================= */
+
+function openReport(index) {
+
+    index = Number(index);
+
+
+    if (
+        isNaN(index) ||
+        index < 0 ||
+        index >= analysisResults.length
+    ) {
+
+        showToast(
+            "Report not found."
+        );
+
+        return;
+    }
+
+
+    viewReport(
+        analysisResults[index],
+        index
+    );
+}
+
+
+/* =========================================================
+   RENDER REPORTS
+========================================================= */
+
+function renderReports(resultData) {
+
+    const reportContainer =
+        document.getElementById(
+            "reportList"
+        );
+
+
+    analysisResults =
+        getSavedReports(
+            resultData,
+            currentFileData
+        );
+
+
+    if (!reportContainer) {
+        return;
+    }
+
+
+    reportContainer.innerHTML = "";
+
+
+    if (
+        analysisResults.length === 0
+    ) {
+
+        reportContainer.innerHTML = `
+
+            <div class="empty-state">
+
+                <div class="empty-icon">
+                    ✓
+                </div>
+
+                <h3>
+                    No analyses yet
+                </h3>
+
+                <p>
+                    Your completed comparison
+                    reports will appear here.
+                </p>
+
+            </div>
+
+        `;
+
+        return;
+    }
+
+
+    const latestReports =
+        analysisResults
+            .slice()
+            .reverse();
+
+
+    latestReports.forEach(function (
+        report,
+        reverseIndex
+    ) {
+
+        const originalIndex =
+            analysisResults.length -
+            1 -
+            reverseIndex;
+
+
+        const filenames =
+            Array.isArray(
+                report?.filenames
+            )
+                ? report.filenames
+                : [];
+
+
+        const score =
+            Number(
+                report?.roundedscore ??
+                report?.roundedScore ??
+                report?.score ??
+                report?.similarity ??
+                0
+            );
+
+
+        const item =
+            document.createElement(
+                "div"
+            );
+
+
+        item.className =
+            "profile-report-item";
+
+
+        item.innerHTML = `
+
+            <div class="report-info">
+
+                <div class="report-title">
+
+                    ${escapeHTML(
+                        filenames.join(" vs ") ||
+                        report?.filename ||
+                        report?.fileName ||
+                        "Assignment Analysis"
+                    )}
+
+                </div>
+
+                <div class="report-meta">
+
+                    Similarity:
+                    ${Math.round(score)}%
+
+                </div>
+
+            </div>
+
+            <button
+                type="button"
+                class="view-report-btn"
+            >
+                View Report →
+            </button>
+
+        `;
+
+
+        const button =
+            item.querySelector(
+                ".view-report-btn"
+            );
+
+
+        if (button) {
+
+            button.addEventListener(
+                "click",
+                function () {
+
+                    viewReport(
+                        report,
+                        originalIndex
+                    );
+
+                }
+            );
+        }
+
+
+        reportContainer.appendChild(
+            item
+        );
+
+    });
+}
+
+
+/* =========================================================
+   NEW ANALYSIS
+========================================================= */
+
+function setupNewAnalysis() {
+
+    const buttons =
+        document.querySelectorAll(
+            "#newAnalysisBtn, .new-analysis-btn, [data-action='new-analysis']"
+        );
+
+
+    buttons.forEach(function (button) {
+
+        if (
+            button.dataset.profileBound ===
+            "true"
+        ) {
+            return;
+        }
+
+
+        button.dataset.profileBound =
+            "true";
+
+
+        button.addEventListener(
+            "click",
+            function () {
+
+                sessionStorage.removeItem(
+                    "assignCheckReport"
+                );
+
+                sessionStorage.removeItem(
+                    "selectedReport"
+                );
+
+                sessionStorage.removeItem(
+                    "selectedReportId"
+                );
+
+                sessionStorage.removeItem(
+                    "viewReport"
+                );
+
+                sessionStorage.removeItem(
+                    "showsthedisplayornot"
+                );
+
+
+                window.location.href =
+                    "../Templates/CheckAssign.html";
+            }
+        );
+
+    });
+}
+
+
+/* =========================================================
+   LOGOUT
+========================================================= */
+
+function setupLogout() {
+
+    if (!logoutBtn) {
+        return;
+    }
+
+
+    if (
+        logoutBtn.dataset.profileBound ===
+        "true"
+    ) {
+        return;
+    }
+
+
+    logoutBtn.dataset.profileBound =
+        "true";
+
+
+    logoutBtn.addEventListener(
+        "click",
+        function () {
+
+            localStorage.removeItem(
+                "loggedIn"
+            );
+
+            localStorage.removeItem(
+                "userEmail"
+            );
+
+            localStorage.removeItem(
+                "email"
+            );
+
+
+            sessionStorage.removeItem(
+                "assignCheckReport"
+            );
+
+            sessionStorage.removeItem(
+                "selectedReport"
+            );
+
+            sessionStorage.removeItem(
+                "selectedReportId"
+            );
+
+            sessionStorage.removeItem(
+                "viewReport"
+            );
+
+            sessionStorage.removeItem(
+                "showsthedisplayornot"
+            );
+
+
+            window.location.href =
+                "../Templates/index.html";
+        }
+    );
+}
+
+
+/* =========================================================
+   LOAD PROFILE
+========================================================= */
+
+async function loadProfile() {
+
+    const email =
+        getCurrentEmail();
+
+
+    if (!email) {
+
+        window.location.href =
+            "../Templates/index.html";
+
+        return;
+    }
+
+
+    if (userNameEl) {
+        userNameEl.textContent =
+            "Loading...";
+    }
+
+
+    if (userEmailEl) {
+        userEmailEl.textContent =
+            email;
+    }
+
+
+    try {
+
+        const [
+            user,
+            fileData,
+            resultData
+        ] = await Promise.all([
+
+            getUser(),
+
+            getFileData(),
+
+            getFileResults()
+
+        ]);
+
+
+        currentUser =
+            user;
+
+        currentFileData =
+            fileData;
+
+        currentResultData =
+            resultData;
+
+
+        /*
+           PROFILE
+        */
+
+        updateProfile(
+            user || {
+                email: email
+            }
+        );
+
+
+        /*
+           FILES
+        */
+
+        profileFiles =
+            getFilesFromFileData(
+                fileData
+            );
+
+
+        /*
+           ANALYSES
+        */
+
+        analysisResults =
+            getSavedReports(
+                resultData,
+                fileData
+            );
+
+
+        console.log(
+            "PROFILE FILES:",
+            profileFiles
+        );
+
+
+        console.log(
+            "FILERESULT DATA:",
+            resultData
+        );
+
+
+        console.log(
+            "FINAL ANALYSES:",
+            analysisResults
+        );
+
+
+        /*
+           STATISTICS
+        */
+
+        updateStatistics(
+            profileFiles,
+            resultData
+        );
+
+
+        /*
+           FILE LIST
+        */
+
+        renderFiles(
+            profileFiles
+        );
+
+
+        /*
+           REPORT LIST
+        */
+
+        renderReports(
+            resultData
+        );
+
+
+    } catch (error) {
+
+        console.error(
+            "PROFILE LOAD FAILED:",
+            error
+        );
+
+
+        updateProfile({
+            email: email
+        });
+
+
+        if (totalFilesEl) {
+            totalFilesEl.textContent = "0";
+        }
+
+
+        if (totalSizeEl) {
+            totalSizeEl.textContent = "0 B";
+        }
+
+
+        if (totalAnalysesEl) {
+            totalAnalysesEl.textContent = "0";
+        }
+
+
+        if (lastUploadEl) {
+            lastUploadEl.textContent = "—";
+        }
+
+
+        analysisResults = [];
+
+
+        renderEmptyFiles();
+    }
+}
+
+
+/* =========================================================
+   REFRESH
+========================================================= */
+
+async function refreshProfile() {
+
+    await loadProfile();
+
+    showToast(
+        "Profile refreshed."
+    );
+}
+
+
+/* =========================================================
+   DASHBOARD
+========================================================= */
+
+function goToDashboard() {
+
+    window.location.href =
+        "../Templates/index.html";
+}
+
+
+/* =========================================================
+   GLOBAL FUNCTIONS
+========================================================= */
+
+window.openReport =
+    openReport;
+
+window.viewReport =
+    viewReport;
+
+window.refreshProfile =
+    refreshProfile;
+
+window.goToDashboard =
+    goToDashboard;
+
+
+/* =========================================================
+   INITIALIZE
+========================================================= */
+
+let profileInitialized = false;
+
+
+async function initializeProfile() {
+
+    if (profileInitialized) {
+        return;
+    }
+
+
+    profileInitialized =
+        true;
+
+
+    setupLogout();
+
+    setupNewAnalysis();
+
+
+    /*
+       Refresh buttons
+    */
+
+    const refreshButtons =
+        document.querySelectorAll(
+            "#refreshBtn, .refresh-btn, [data-action='refresh']"
+        );
+
+
+    refreshButtons.forEach(
+        function (button) {
+
+            if (
+                button.dataset.profileBound ===
+                "true"
+            ) {
+                return;
+            }
+
+
+            button.dataset.profileBound =
+                "true";
+
+
+            button.addEventListener(
+                "click",
+                refreshProfile
+            );
+
+        }
+    );
+
+
+    await loadProfile();
+}
+
+
+/* =========================================================
+   DOM READY
+========================================================= */
+
+if (
+    document.readyState ===
+    "loading"
+) {
+
+    document.addEventListener(
+        "DOMContentLoaded",
+        initializeProfile
+    );
+
+} else {
+
+    initializeProfile();
+
+}
