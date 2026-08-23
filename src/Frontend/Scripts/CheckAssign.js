@@ -1,6 +1,6 @@
-let currentuser=localStorage.getItem("loggedIn");
-if(currentuser==null){
-  window.location.href="../Templates/index.html";
+let currentuser = localStorage.getItem("loggedIn");
+if (currentuser == null) {
+  window.location.href = "../Templates/index.html";
   alert("login first");
 }
 
@@ -10,6 +10,7 @@ import {
   createChunksLinear,
   buildthegrams,
   applyalgo,
+  getthecommongrams,
 } from "../../Backend/CheckBackend.js";
 
 let currentMode = "student";
@@ -245,17 +246,17 @@ function createAnimationDocs(files) {
   // Clear existing docs and connections
   const existingDocs = aStage.querySelectorAll('.a-doc');
   existingDocs.forEach(doc => doc.remove());
-  
+
   const connectionsSvg = aStage.querySelector('.a-connections');
   if (connectionsSvg) {
     connectionsSvg.innerHTML = '';
   }
 
   const numFiles = files.length;
-  
+
   // Define positions based on number of files
   let positions = [];
-  
+
   if (numFiles === 2) {
     // Two files: Left and Right
     positions = [
@@ -285,19 +286,19 @@ function createAnimationDocs(files) {
 
     const pos = positions[index];
     const fileType = getFileType(file.name);
-    const label = index === 0 ? 'Student A' : index === 1 ? 'Student B' : 
-                  index === 2 ? 'Student C' : `File ${index + 1}`;
-    const chip = index === 0 ? 'S1' : index === 1 ? 'S2' : 
-                 index === 2 ? 'S3' : `F${index + 1}`;
-    
+    const label = index === 0 ? 'Student A' : index === 1 ? 'Student B' :
+      index === 2 ? 'Student C' : `File ${index + 1}`;
+    const chip = index === 0 ? 'S1' : index === 1 ? 'S2' :
+      index === 2 ? 'S3' : `F${index + 1}`;
+
     // Shorten filename for display
-    const displayName = file.name.length > 20 ? 
+    const displayName = file.name.length > 20 ?
       file.name.substring(0, 18) + '...' : file.name;
 
     const doc = document.createElement('div');
     doc.className = 'a-doc';
     doc.style.cssText = `${pos.top ? `top: ${pos.top};` : ''} ${pos.left ? `left: ${pos.left};` : ''} ${pos.right ? `right: ${pos.right};` : ''}`;
-    
+
     doc.innerHTML = `
       <div class="a-doc-head">
         <div class="a-avatar" style="background: var(${fileType.color})">${chip}</div>
@@ -314,7 +315,7 @@ function createAnimationDocs(files) {
         <div class="a-line"></div>
       </div>
     `;
-    
+
     aStage.appendChild(doc);
   });
 
@@ -322,17 +323,17 @@ function createAnimationDocs(files) {
   const docs = aStage.querySelectorAll('.a-doc');
   const centerX = 50;
   const centerY = 50;
-  
+
   docs.forEach((doc, index) => {
     const rect = doc.getBoundingClientRect();
     const stageRect = aStage.getBoundingClientRect();
-    
+
     // Calculate position relative to stage
     const docLeft = ((rect.left - stageRect.left) / stageRect.width) * 100;
     const docTop = ((rect.top - stageRect.top) / stageRect.height) * 100;
     const docRight = docLeft + ((rect.width / stageRect.width) * 100);
     const docBottom = docTop + ((rect.height / stageRect.height) * 100);
-    
+
     // Determine connection point (closest edge to center)
     let startX, startY;
     if (docLeft < 50) {
@@ -340,13 +341,13 @@ function createAnimationDocs(files) {
     } else {
       startX = docLeft;
     }
-    
+
     if (docTop < 50) {
       startY = docBottom;
     } else {
       startY = docTop;
     }
-    
+
     const line = document.createElementNS('http://www.w3.org/2000/svg', 'line');
     line.setAttribute('x1', startX);
     line.setAttribute('y1', startY);
@@ -357,7 +358,7 @@ function createAnimationDocs(files) {
     line.setAttribute('stroke-dasharray', '6 8');
     line.style.opacity = '0';
     line.classList.add('connection-line');
-    
+
     connectionsSvg.appendChild(line);
   });
 }
@@ -416,10 +417,12 @@ analyzeBtn.addEventListener("click", async function () {
   await wait(stageDelays[0]);
 
   // Process files (use first 2 for comparison, or all if in reference mode)
+  // we are calculating the local chunks of each file 
   localChunks = [];
-  const filesToProcess = currentMode === "reference" ? 
-    [fileList[0], fileList[fileList.length - 1]] : 
-    [fileList[0], fileList[1]];
+  // const filesToProcess = [fileList[fileList.length - 2], fileList[fileList.length - 1]];
+  const filesToProcess = [fileList[0], fileList[1]];
+
+
 
   for (let i = 0; i < filesToProcess.length; i++) {
     const file = filesToProcess[i];
@@ -433,7 +436,7 @@ analyzeBtn.addEventListener("click", async function () {
 
     rawTextMap[file.name] = content;
 
-    // Create 100-word chunks
+    // Create 100-word chunks (my function)
     const chunks = createChunksLinear(content, 100);
 
     // Create 4-grams
@@ -450,7 +453,8 @@ analyzeBtn.addEventListener("click", async function () {
       const xyz = {
         filename: file.name,
         filesize: file.size,
-        chunks: chunks
+        chunks: chunks,
+        results: []
       };
 
       console.log(xyz);
@@ -460,15 +464,16 @@ analyzeBtn.addEventListener("click", async function () {
       );
       const users = await response.json();
 
+
       if (users.length === 0) {
-        console.log("User not found");
+        console.log("User not found"); // storing the chunks in the database
         continue;
       }
 
       const user = users[0];
       user.filedetails.push(xyz);
 
-      await fetch(`http://localhost:3000/filedata/${user.id}`, {
+      await fetch("http://localhost:3000/filedata/" + user.id, {
         method: "PUT",
         headers: {
           "Content-Type": "application/json"
@@ -476,8 +481,16 @@ analyzeBtn.addEventListener("click", async function () {
         body: JSON.stringify(user)
       });
 
+
+
+
+
+
+
       console.log("File added successfully");
     }
+
+
   }
 
   // Run animation stages
@@ -498,7 +511,7 @@ analyzeBtn.addEventListener("click", async function () {
           line.style.animation = 'dashflow 1.4s linear infinite';
         }
       });
-      
+
       // Highlight document lines progressively
       docs.forEach((doc, docIdx) => {
         const lines_in_doc = doc.querySelectorAll('.a-line');
@@ -548,69 +561,172 @@ function countUp(element, targetNumber) {
   }, 25);
 }
 
-// Display results
-function displayResults(files, score) {
+// Display results// Display results
+
+let showsthedisplayornot=true;
+
+async function displayResults(files, score) {
+  sessionStorage.setItem("showsthedisplayornot",true);
+  const fileA = files[0];
+  const fileB = files[1];
+  const getemail = localStorage.getItem("userEmail");
+
+  // 1. Get the text FIRST so it can be used for matching
+  const textA = rawTextMap[fileA.name] || "No content extracted.";
+  const textB = rawTextMap[fileB.name] || "No content extracted.";
+
+  // 2. Calculate score and update the animated counter
   const roundedScore = Math.min(100, Math.max(0, Math.round(score)));
   const scoreElement = document.getElementById("resSimilarity");
   countUp(scoreElement, roundedScore);
 
-  const fileA = files[0];
-  const fileB = files[1];
+  // 3. Get matches for BOTH files (Now textA and textB are safely defined)
+  let commonGramsSet = getthecommongrams();
+  const { matchesA, matchesB } = reconstructMatchesFromGrams(textA, textB, commonGramsSet);
 
-  document.getElementById("pairLeft").textContent = fileA.name;
-  document.getElementById("pairRight").textContent = fileB.name;
-  document.getElementById("pairSub").textContent =
-    "Comparison between " + fileA.name + " and " + fileB.name;
+  // 4. Prepare the complete result object to save to the database
+  const firstChunkCount = localChunks[0] ? localChunks[0].length : 0;
+  const secondChunkCount = localChunks[1] ? localChunks[1].length : 0;
 
-  document.getElementById("panelAName").textContent = fileA.name;
-  document.getElementById("panelBName").textContent = fileB.name;
+  const result = {
+    filenames: [fileA.name, fileB.name],
+    filefirstmatches: matchesA,
+    filesecondmatches: matchesB,
+    similarwords: commonGramsSet.size,
+    roundedscore: roundedScore,
+    textA: textA,       // CRITICAL: Save text to DB so it survives page refresh
+    textB: textB,       // CRITICAL: Save text to DB so it survives page refresh
+    chunkCountA: firstChunkCount,
+    chunkCountB: secondChunkCount
+  };
 
-  // Set file type badges
-  const typeA = getFileType(fileA.name);
-  const typeB = getFileType(fileB.name);
-  document.getElementById("panelAFmt").textContent = typeA.label;
-  document.getElementById("panelBFmt").textContent = typeB.label;
+  // 5. Save to Database
+  if (getemail) {
+    try {
+      const data = await fetch(`http://localhost:3000/fileresult?email=${encodeURIComponent(getemail)}`);
+      const resp = await data.json();
 
-  const textA = rawTextMap[fileA.name] || "No content extracted.";
-  const textB = rawTextMap[fileB.name] || "No content extracted.";
+      if (resp && resp.length > 0) {
+        const rep = resp[0];
+        
+        // Safety check: ensure the array exists before pushing
+        if (!rep.filesprocesed) {
+          rep.filesprocesed = [];
+        }
+        
+        rep.filesprocesed.push(result);
 
-  document.getElementById("panelABody").innerHTML = formatTextToParagraphs(textA);
-  document.getElementById("panelBBody").innerHTML = formatTextToParagraphs(textB);
-
-  document.getElementById("mFiles").textContent = fileList.length;
-
-  let matching = 0;
-  if (roundedScore > 0) {
-    matching = Math.ceil(roundedScore / 10);
+        await fetch(`http://localhost:3000/fileresult/${rep.id}`, {
+          method: "PUT",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(rep)
+        });
+        console.log("Result saved to database successfully");
+      }
+    } catch (err) {
+      console.error("Failed to save result to database:", err);
+    }
   }
-  document.getElementById("mMatching").textContent = matching;
+
+  
+}
+
+
+function renderUI(result) {
+  const roundedScore = result.roundedscore;
+  
+  // 1. Update Score
+  const scoreElement = document.getElementById("resSimilarity");
+  if (scoreElement) countUp(scoreElement, roundedScore);
+
+  const fileAName = result.filenames[0];
+  const fileBName = result.filenames[1];
+
+  // 2. Update File Names and Badges
+  if (document.getElementById("pairLeft")) document.getElementById("pairLeft").textContent = fileAName;
+  if (document.getElementById("pairRight")) document.getElementById("pairRight").textContent = fileBName;
+  if (document.getElementById("panelAName")) document.getElementById("panelAName").textContent = fileAName;
+  if (document.getElementById("panelBName")) document.getElementById("panelBName").textContent = fileBName;
+
+  const typeA = getFileType(fileAName);
+  const typeB = getFileType(fileBName);
+  if (document.getElementById("panelAFmt")) document.getElementById("panelAFmt").textContent = typeA.label;
+  if (document.getElementById("panelBFmt")) document.getElementById("panelBFmt").textContent = typeB.label;
+
+  // 3. Update Text Panels (Uses the SAVED text from the database)
+  const textA = result.textA || "No content extracted.";
+  const textB = result.textB || "No content extracted.";
+
+  if (document.getElementById("panelABody")) {
+    document.getElementById("panelABody").innerHTML = highlightMatchesInText(textA, result.filefirstmatches);
+  }
+  if (document.getElementById("panelBBody")) {
+    document.getElementById("panelBBody").innerHTML = highlightMatchesInText(textB, result.filesecondmatches);
+  }
+
+  // 4. Update Stats
+  if (document.getElementById("mFiles")) document.getElementById("mFiles").textContent = result.filenames.length;
+  if (document.getElementById("mMatching")) document.getElementById("mMatching").textContent = result.similarwords;
 
   let different = 0;
   if (roundedScore < 100) {
     different = 10 - Math.ceil(roundedScore / 10);
-    if (different < 1) {
-      different = 1;
-    }
+    if (different < 1) different = 1;
   }
-  document.getElementById("mDifferent").textContent = different;
-  document.getElementById("mPhrases").textContent = Math.round(roundedScore * 0.5);
+  if (document.getElementById("mDifferent")) document.getElementById("mDifferent").textContent = different;
+  if (document.getElementById("mPhrases")) document.getElementById("mPhrases").textContent = Math.round(roundedScore * 0.5);
 
-  const firstChunkCount = localChunks[0] ? localChunks[0].length : 0;
-  const secondChunkCount = localChunks[1] ? localChunks[1].length : 0;
+  // 5. Update Lists
+  if (document.getElementById("diffList")) {
+    document.getElementById("diffList").innerHTML =
+      "<li>File 1 has <b>" + (result.chunkCountA || 0) + " chunks</b> (100 words per chunk).</li>" +
+      "<li>File 2 has <b>" + (result.chunkCountB || 0) + " chunks</b> (100 words per chunk).</li>" +
+      "<li>Calculated Jaccard similarity across all 4-gram sets: <b>" + roundedScore + "%</b>.</li>";
+  }
 
-  document.getElementById("diffList").innerHTML =
-    "<li>File 1 has <b>" + firstChunkCount + " chunks</b> (100 words per chunk).</li>" +
-    "<li>File 2 has <b>" + secondChunkCount + " chunks</b> (100 words per chunk).</li>" +
-    "<li>Calculated Jaccard similarity across all 4-gram sets: <b>" + roundedScore + "%</b>.</li>";
+  if (document.getElementById("matchList")) {
+    document.getElementById("matchList").innerHTML =
+      "<li>Processed using sliding 4-gram overlapping windows.</li>" +
+      "<li>" + (roundedScore > 20 ? "Significant matching phrases detected." : "Low phrase similarity across sections.") + "</li>";
+  }
 
-  document.getElementById("matchList").innerHTML =
-    "<li>Processed using sliding 4-gram overlapping windows.</li>" +
-    "<li>" +
-    (roundedScore > 20
-      ? "Significant matching phrases detected."
-      : "Low phrase similarity across sections.") +
-    "</li>";
+    
 }
+
+
+
+async function loadLastSession() {
+  const getemail = localStorage.getItem("userEmail");
+  if (!getemail) return; // If not logged in, do nothing
+
+  try {
+    // Fetch the saved results for this user
+    const response = await fetch(`http://localhost:3000/fileresult?email=${encodeURIComponent(getemail)}`);
+    const resp = await response.json();
+
+    // Check if data exists and has at least one saved result
+    if (resp && resp.length > 0 && resp[0].filesprocesed && resp[0].filesprocesed.length > 0) {
+      const person = resp[0];
+      
+      // Get the very last analysis they did
+      const lastResult = person.filesprocesed[person.filesprocesed.length - 1];
+      
+      // Switch to the results view and render the saved data
+      setProgressStep(3);
+      showView(viewResults);
+      renderUI(lastResult);
+      
+      console.log("Loaded last session from database successfully");
+    }
+  } catch (err) {
+    console.error("Failed to load last session:", err);
+  }
+}
+
+
+
+    loadLastSession();
+
 
 // Convert text into paragraphs
 function formatTextToParagraphs(text) {
@@ -649,7 +765,7 @@ if (newAnalysisBtn) {
     // Clear animation docs and connections
     const docs = aStage.querySelectorAll('.a-doc');
     docs.forEach(doc => doc.remove());
-    
+
     const lines = aStage.querySelectorAll('.connection-line');
     lines.forEach(line => line.remove());
 
@@ -663,3 +779,187 @@ if (newAnalysisBtn) {
 // Initial setup
 setProgressStep(1);
 checkButtonState();
+
+// console.log(rawTextMap);
+
+
+//  not able to write this function exactly and this is not 100% correct so after again able to understand and try to write each and everything write
+
+export function reconstructMatchesFromGrams(textA, textB, commonGramsSet, gramSize = 4) {
+  if (!textA || !textB) return { matchesA: [], matchesB: [] };
+
+  // 1. Split into raw words and clean words
+  const wordsA = textA.trim().split(/\s+/);
+  const wordsB = textB.trim().split(/\s+/);
+
+  const cleanA = wordsA.map(w => w.toLowerCase().replace(/[^a-z0-9]/g, ""));
+  const cleanB = wordsB.map(w => w.toLowerCase().replace(/[^a-z0-9]/g, ""));
+
+  // Normalize commonGramsSet
+  const normalizedGrams = new Set();
+  if (commonGramsSet instanceof Set) {
+    commonGramsSet.forEach(item => {
+      const str = Array.isArray(item) ? item.join(" ") : String(item).trim().toLowerCase();
+      normalizedGrams.add(str);
+    });
+  } else if (Array.isArray(commonGramsSet)) {
+    commonGramsSet.forEach(item => {
+      const str = Array.isArray(item) ? item.join(" ") : String(item).trim().toLowerCase();
+      normalizedGrams.add(str);
+    });
+  }
+
+  // console.log(normalizedGrams);
+
+  // 2. Pre-index File B 4-grams
+  const mapB = new Map();
+  for (let j = 0; j <= cleanB.length - gramSize; j++) {
+    const gramB = cleanB.slice(j, j + gramSize).join(" ");
+    if (!gramB || gramB.includes("  ")) continue;
+    if (!mapB.has(gramB)) {
+      mapB.set(gramB, []);
+    }
+    mapB.get(gramB).push(j);
+  }
+
+  const visitedA = new Array(wordsA.length).fill(false);
+  const visitedB = new Array(wordsB.length).fill(false); // Prevent overlapping highlights in B
+
+  const matchesA = [];
+  const matchesB = [];
+
+  // 3. Scan File A and seed expansion
+  for (let i = 0; i <= cleanA.length - gramSize; i++) {
+    if (visitedA[i]) continue;
+
+    const currentGram = cleanA.slice(i, i + gramSize).join(" ");
+
+    if (normalizedGrams.has(currentGram) && mapB.has(currentGram)) {
+      const matchIndicesB = mapB.get(currentGram);
+
+      let bestK = 0;
+      let bestBIndex = -1;
+
+      for (const j of matchIndicesB) {
+        let k = 0;
+        while (
+          i + k < cleanA.length &&
+          j + k < cleanB.length &&
+          cleanA[i + k] !== "" &&
+          cleanA[i + k] === cleanB[j + k]
+        ) {
+          k++;
+        }
+
+        if (k > bestK) {
+          bestK = k;
+          bestBIndex = j;
+        }
+      }
+
+      if (bestK >= gramSize) {
+        // Check if this section in File B is already highlighted to prevent overlapping tags
+        let isBVisited = false;
+        for (let v = bestBIndex; v < bestBIndex + bestK; v++) {
+          if (visitedB[v]) {
+            isBVisited = true;
+            break;
+          }
+        }
+
+        if (!isBVisited) {
+          // Mark both as visited
+          for (let v = i; v < i + bestK; v++) visitedA[v] = true;
+          for (let v = bestBIndex; v < bestBIndex + bestK; v++) visitedB[v] = true;
+
+          matchesA.push({
+            phrase: wordsA.slice(i, i + bestK).join(" "),
+            startIndex: i,
+            endIndex: i + bestK,
+            length: bestK
+          });
+
+          matchesB.push({
+            phrase: wordsB.slice(bestBIndex, bestBIndex + bestK).join(" "),
+            startIndex: bestBIndex,
+            endIndex: bestBIndex + bestK,
+            length: bestK
+          });
+        }
+
+        i += bestK - 1; // Jump past processed continuous block
+      }
+    }
+  }
+
+  return { matchesA, matchesB };
+}
+
+
+
+
+
+
+function highlightMatchesInText(text, matchedPhrases) {
+  if (!text || !matchedPhrases || matchedPhrases.length === 0) {
+    return formatTextToParagraphs(text);
+  }
+
+  // 1. Find all words and their exact character indices in the original text
+  const words = [];
+  const regex = /\S+/g;
+  let match;
+  while ((match = regex.exec(text)) !== null) {
+    words.push({
+      start: match.index,
+      end: match.index + match[0].length
+    });
+  }
+
+  // 2. Map the word-based indices from matchedPhrases to character indices
+  const highlightIntervals = [];
+
+  for (const phraseInfo of matchedPhrases) {
+    const startWordIdx = phraseInfo.startIndex;
+    const endWordIdx = phraseInfo.endIndex; // exclusive
+
+    if (startWordIdx >= 0 && endWordIdx <= words.length && startWordIdx < endWordIdx) {
+      const charStart = words[startWordIdx].start;
+      const charEnd = words[endWordIdx - 1].end;
+      highlightIntervals.push({ start: charStart, end: charEnd });
+    }
+  }
+
+  // 3. Merge overlapping or adjacent intervals to prevent broken/nested HTML tags
+  highlightIntervals.sort((a, b) => a.start - b.start);
+  const mergedIntervals = [];
+  for (const interval of highlightIntervals) {
+    if (mergedIntervals.length === 0) {
+      mergedIntervals.push({ ...interval });
+    } else {
+      const last = mergedIntervals[mergedIntervals.length - 1];
+      if (interval.start <= last.end) {
+        last.end = Math.max(last.end, interval.end);
+      } else {
+        mergedIntervals.push({ ...interval });
+      }
+    }
+  }
+
+  // 4. Reconstruct the text with <mark> tags
+  let result = "";
+  let currentIndex = 0;
+
+  for (const interval of mergedIntervals) {
+    // Add text before the highlight
+    result += text.substring(currentIndex, interval.start);
+    // Add highlighted text
+    result += `<mark class="highlight-match">${text.substring(interval.start, interval.end)}</mark>`;
+    currentIndex = interval.end;
+  }
+  // Add remaining text
+  result += text.substring(currentIndex);
+
+  // 5. Convert to paragraphs (uses your existing function)
+  return formatTextToParagraphs(result);
+}

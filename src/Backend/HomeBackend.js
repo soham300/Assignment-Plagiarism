@@ -84,6 +84,21 @@ export async function handleSignup(event) {
     body: JSON.stringify(fileuserdata)
   });
 
+
+  // build one for the result section
+    //  result section is formed when a person click on the analyzed button
+    const resultsection={
+          email:email,
+          filesprocesed:[],
+        }
+    await fetch(`http://localhost:3000/fileresult`,{
+      method:"POST",
+      headers: {
+              "Content-Type": "application/json"
+      },
+      body: JSON.stringify(resultsection)
+    });
+
   localStorage.removeItem("loggedIn");
   localStorage.removeItem("userEmail");
   alert("Account created successfully! Please login.");
