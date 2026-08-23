@@ -1,0 +1,1247 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Profile — AssignCheck</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+    <style>
+        :root {
+            --primary: #6c63ff;
+            --primary-dark: #574fd6;
+            --primary-light: #f0efff;
+
+            --text: #18182c;
+            --text-light: #77778b;
+            --muted: #9b9bad;
+
+            --bg: #f7f7fb;
+            --white: #ffffff;
+            --border: #e9e9f2;
+
+            --success: #16a34a;
+            --danger: #ef4444;
+
+            --shadow-sm: 0 4px 14px rgba(35, 35, 70, 0.06);
+            --shadow-md: 0 12px 30px rgba(35, 35, 70, 0.08);
+
+            --radius: 18px;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        html {
+            scroll-behavior: smooth;
+        }
+
+        body {
+            font-family: "Inter", sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            min-height: 100vh;
+        }
+
+        button,
+        a {
+            font-family: inherit;
+        }
+
+        a {
+            text-decoration: none;
+            color: inherit;
+        }
+
+        /* =========================
+           HEADER
+        ========================= */
+
+        .navbar {
+            height: 72px;
+            background: rgba(255,255,255,.92);
+            backdrop-filter: blur(14px);
+            border-bottom: 1px solid var(--border);
+
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+
+            padding: 0 5%;
+
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .brand {
+            display: flex;
+            align-items: center;
+            gap: 11px;
+            font-size: 20px;
+            font-weight: 800;
+        }
+
+        .brand-icon {
+            width: 38px;
+            height: 38px;
+
+            border-radius: 11px;
+
+            background: linear-gradient(
+                135deg,
+                var(--primary),
+                #8a82ff
+            );
+
+            color: white;
+
+            display: flex;
+            align-items: center;
+            justify-content: center;
+
+            font-size: 18px;
+            font-weight: 800;
+
+            box-shadow: 0 7px 18px rgba(108,99,255,.25);
+        }
+
+        .nav-right {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .nav-link {
+            padding: 9px 14px;
+            border-radius: 10px;
+
+            color: var(--text-light);
+
+            font-size: 14px;
+            font-weight: 600;
+
+            transition: .2s;
+        }
+
+        .nav-link:hover {
+            background: var(--primary-light);
+            color: var(--primary);
+        }
+
+        .profile-mini {
+            width: 40px;
+            height: 40px;
+
+            border-radius: 50%;
+
+            background: var(--primary-light);
+            color: var(--primary);
+
+            display: flex;
+            align-items: center;
+            justify-content: center;
+
+            font-size: 14px;
+            font-weight: 800;
+
+            border: 2px solid white;
+            box-shadow: var(--shadow-sm);
+        }
+
+        /* =========================
+           MAIN
+        ========================= */
+
+        .container {
+            width: min(1180px, 92%);
+            margin: 0 auto;
+            padding: 42px 0 70px;
+        }
+
+        .page-heading {
+            margin-bottom: 30px;
+        }
+
+        .page-heading h1 {
+            font-size: 32px;
+            line-height: 1.2;
+            margin-bottom: 8px;
+            letter-spacing: -0.8px;
+        }
+
+        .page-heading p {
+            color: var(--text-light);
+            font-size: 14px;
+        }
+
+        /* =========================
+           PROFILE HERO
+        ========================= */
+
+        .profile-card {
+            background: var(--white);
+            border: 1px solid var(--border);
+            border-radius: 24px;
+
+            padding: 28px;
+
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+
+            gap: 25px;
+
+            box-shadow: var(--shadow-sm);
+
+            margin-bottom: 25px;
+        }
+
+        .profile-info {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+
+        .avatar {
+            width: 82px;
+            height: 82px;
+
+            flex-shrink: 0;
+
+            border-radius: 22px;
+
+            background: linear-gradient(
+                135deg,
+                var(--primary),
+                #8b84ff
+            );
+
+            color: white;
+
+            display: flex;
+            align-items: center;
+            justify-content: center;
+
+            font-size: 27px;
+            font-weight: 800;
+
+            box-shadow: 0 10px 25px rgba(108,99,255,.25);
+        }
+
+        .profile-text h2 {
+            font-size: 22px;
+            margin-bottom: 7px;
+        }
+
+        .profile-text p {
+            color: var(--text-light);
+            font-size: 14px;
+            margin-bottom: 10px;
+        }
+
+        .status {
+            display: inline-flex;
+            align-items: center;
+            gap: 7px;
+
+            background: #ecfdf3;
+            color: var(--success);
+
+            padding: 6px 10px;
+
+            border-radius: 999px;
+
+            font-size: 12px;
+            font-weight: 700;
+        }
+
+        .status-dot {
+            width: 7px;
+            height: 7px;
+            border-radius: 50%;
+            background: var(--success);
+        }
+
+        .logout-btn {
+            border: 1px solid #ffd5d5;
+            background: #fff7f7;
+            color: var(--danger);
+
+            padding: 11px 17px;
+
+            border-radius: 11px;
+
+            cursor: pointer;
+
+            font-size: 13px;
+            font-weight: 700;
+
+            transition: .2s;
+        }
+
+        .logout-btn:hover {
+            background: #feecec;
+            border-color: #ffc0c0;
+        }
+
+        /* =========================
+           STAT CARDS
+        ========================= */
+
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 16px;
+
+            margin-bottom: 25px;
+        }
+
+        .stat-card {
+            background: white;
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+
+            padding: 21px;
+
+            box-shadow: var(--shadow-sm);
+
+            transition: .2s;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-md);
+        }
+
+        .stat-top {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+
+            margin-bottom: 17px;
+        }
+
+        .stat-icon {
+            width: 39px;
+            height: 39px;
+
+            border-radius: 11px;
+
+            background: var(--primary-light);
+            color: var(--primary);
+
+            display: flex;
+            align-items: center;
+            justify-content: center;
+
+            font-size: 17px;
+            font-weight: 800;
+        }
+
+        .stat-label {
+            color: var(--text-light);
+            font-size: 12px;
+            font-weight: 600;
+        }
+
+        .stat-value {
+            font-size: 25px;
+            font-weight: 800;
+
+            letter-spacing: -.5px;
+        }
+
+        /* =========================
+           CONTENT GRID
+        ========================= */
+
+        .content-grid {
+            display: grid;
+            grid-template-columns: 1.55fr .8fr;
+            gap: 20px;
+        }
+
+        .card {
+            background: white;
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+
+            box-shadow: var(--shadow-sm);
+        }
+
+        .card-header {
+            padding: 21px 22px;
+
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+
+            border-bottom: 1px solid var(--border);
+        }
+
+        .card-title {
+            font-size: 16px;
+            font-weight: 800;
+        }
+
+        .card-subtitle {
+            font-size: 12px;
+            color: var(--text-light);
+            margin-top: 4px;
+        }
+
+        .file-count {
+            background: var(--primary-light);
+            color: var(--primary);
+
+            min-width: 28px;
+            height: 28px;
+
+            padding: 0 8px;
+
+            border-radius: 9px;
+
+            display: flex;
+            align-items: center;
+            justify-content: center;
+
+            font-size: 12px;
+            font-weight: 800;
+        }
+
+        /* =========================
+           FILE LIST
+        ========================= */
+
+        .file-list {
+            padding: 5px 20px 15px;
+        }
+
+        .file-item {
+            display: flex;
+            align-items: center;
+
+            gap: 13px;
+
+            padding: 16px 4px;
+
+            border-bottom: 1px solid #f0f0f5;
+        }
+
+        .file-item:last-child {
+            border-bottom: none;
+        }
+
+        .file-icon {
+            width: 42px;
+            height: 42px;
+
+            border-radius: 11px;
+
+            background: #f3f2ff;
+            color: var(--primary);
+
+            display: flex;
+            align-items: center;
+            justify-content: center;
+
+            font-size: 16px;
+            font-weight: 800;
+
+            flex-shrink: 0;
+        }
+
+        .file-info {
+            min-width: 0;
+            flex: 1;
+        }
+
+        .file-name {
+            font-size: 13px;
+            font-weight: 700;
+
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+
+            margin-bottom: 5px;
+        }
+
+        .file-meta {
+            color: var(--text-light);
+            font-size: 11px;
+        }
+
+        .file-date {
+            color: var(--muted);
+            font-size: 11px;
+            white-space: nowrap;
+        }
+
+        .empty-state {
+            padding: 45px 20px;
+            text-align: center;
+        }
+
+        .empty-icon {
+            width: 52px;
+            height: 52px;
+
+            margin: 0 auto 14px;
+
+            border-radius: 15px;
+
+            background: #f4f4f8;
+
+            display: flex;
+            align-items: center;
+            justify-content: center;
+
+            color: var(--muted);
+
+            font-size: 21px;
+        }
+
+        .empty-state h3 {
+            font-size: 14px;
+            margin-bottom: 7px;
+        }
+
+        .empty-state p {
+            font-size: 12px;
+            color: var(--text-light);
+            margin-bottom: 17px;
+        }
+
+        /* =========================
+           QUICK ACTIONS
+        ========================= */
+
+        .actions {
+            padding: 18px;
+        }
+
+        .action-btn {
+            width: 100%;
+
+            display: flex;
+            align-items: center;
+            gap: 12px;
+
+            padding: 14px;
+
+            border: 1px solid var(--border);
+            background: white;
+
+            border-radius: 12px;
+
+            margin-bottom: 10px;
+
+            cursor: pointer;
+
+            text-align: left;
+
+            transition: .2s;
+        }
+
+        .action-btn:last-child {
+            margin-bottom: 0;
+        }
+
+        .action-btn:hover {
+            border-color: #d9d6ff;
+            background: #faf9ff;
+            transform: translateY(-1px);
+        }
+
+        .action-icon {
+            width: 37px;
+            height: 37px;
+
+            border-radius: 10px;
+
+            background: var(--primary-light);
+            color: var(--primary);
+
+            display: flex;
+            align-items: center;
+            justify-content: center;
+
+            font-weight: 800;
+        }
+
+        .action-content {
+            flex: 1;
+        }
+
+        .action-title {
+            font-size: 13px;
+            font-weight: 700;
+            margin-bottom: 3px;
+        }
+
+        .action-desc {
+            color: var(--text-light);
+            font-size: 10px;
+        }
+
+        .arrow {
+            color: var(--muted);
+            font-size: 16px;
+        }
+
+        /* =========================
+           ACCOUNT DETAILS
+        ========================= */
+
+        .details {
+            padding: 18px 21px 21px;
+        }
+
+        .detail-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+
+            padding: 13px 0;
+
+            border-bottom: 1px solid #f0f0f5;
+        }
+
+        .detail-row:last-child {
+            border-bottom: none;
+        }
+
+        .detail-label {
+            color: var(--text-light);
+            font-size: 12px;
+        }
+
+        .detail-value {
+            max-width: 55%;
+
+            text-align: right;
+
+            font-size: 12px;
+            font-weight: 700;
+
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        /* =========================
+           TOAST
+        ========================= */
+
+        .toast {
+            position: fixed;
+
+            right: 24px;
+            bottom: 24px;
+
+            background: #18182c;
+            color: white;
+
+            padding: 13px 17px;
+
+            border-radius: 12px;
+
+            font-size: 13px;
+            font-weight: 600;
+
+            box-shadow: var(--shadow-md);
+
+            transform: translateY(100px);
+            opacity: 0;
+
+            transition: .3s;
+
+            z-index: 999;
+        }
+
+        .toast.show {
+            transform: translateY(0);
+            opacity: 1;
+        }
+
+        /* =========================
+           RESPONSIVE
+        ========================= */
+
+        @media (max-width: 900px) {
+
+            .stats {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            .content-grid {
+                grid-template-columns: 1fr;
+            }
+
+        }
+
+        @media (max-width: 650px) {
+
+            .navbar {
+                padding: 0 4%;
+            }
+
+            .nav-link {
+                display: none;
+            }
+
+            .container {
+                width: 92%;
+                padding-top: 28px;
+            }
+
+            .page-heading h1 {
+                font-size: 26px;
+            }
+
+            .profile-card {
+                align-items: flex-start;
+                flex-direction: column;
+            }
+
+            .profile-info {
+                width: 100%;
+            }
+
+            .logout-btn {
+                width: 100%;
+            }
+
+            .stats {
+                grid-template-columns: 1fr 1fr;
+                gap: 10px;
+            }
+
+            .stat-card {
+                padding: 16px;
+            }
+
+            .stat-value {
+                font-size: 21px;
+            }
+
+            .file-date {
+                display: none;
+            }
+        }
+
+        @media (max-width: 430px) {
+
+            .stats {
+                grid-template-columns: 1fr;
+            }
+
+            .avatar {
+                width: 65px;
+                height: 65px;
+                border-radius: 18px;
+            }
+
+            .profile-text h2 {
+                font-size: 18px;
+            }
+
+            .profile-info {
+                gap: 14px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+<!-- =========================
+     NAVBAR
+========================= -->
+
+<header class="navbar">
+
+    <a href="index.html" class="brand">
+        <div class="brand-icon">A</div>
+        <span>AssignCheck</span>
+    </a>
+
+    <div class="nav-right">
+
+        <a href="index.html" class="nav-link">
+            Dashboard
+        </a>
+
+        <a href="DetailedReport.html" class="nav-link">
+            Reports
+        </a>
+
+        <div class="profile-mini" id="navAvatar">
+            U
+        </div>
+
+    </div>
+
+</header>
+
+
+<!-- =========================
+     MAIN
+========================= -->
+
+<main class="container">
+
+    <div class="page-heading">
+
+        <h1>My Profile</h1>
+
+        <p>
+            Manage your account and view your assignment activity.
+        </p>
+
+    </div>
+
+
+    <!-- =========================
+         PROFILE
+    ========================= -->
+
+    <section class="profile-card">
+
+        <div class="profile-info">
+
+            <div class="avatar" id="avatar">
+                U
+            </div>
+
+            <div class="profile-text">
+
+                <h2 id="userName">
+                    User
+                </h2>
+
+                <p id="userEmail">
+                    Loading...
+                </p>
+
+                <div class="status">
+
+                    <span class="status-dot"></span>
+
+                    Account Active
+
+                </div>
+
+            </div>
+
+        </div>
+
+
+        <button
+            class="logout-btn"
+            id="logoutBtn"
+            type="button"
+        >
+            Logout
+        </button>
+
+    </section>
+
+
+    <!-- =========================
+         STATISTICS
+    ========================= -->
+
+    <section class="stats">
+
+        <div class="stat-card">
+
+            <div class="stat-top">
+
+                <span class="stat-label">
+                    Uploaded Files
+                </span>
+
+                <div class="stat-icon">
+                    ↑
+                </div>
+
+            </div>
+
+            <div
+                class="stat-value"
+                id="totalFiles"
+            >
+                0
+            </div>
+
+        </div>
+
+
+        <div class="stat-card">
+
+            <div class="stat-top">
+
+                <span class="stat-label">
+                    Storage Used
+                </span>
+
+                <div class="stat-icon">
+                    ◫
+                </div>
+
+            </div>
+
+            <div
+                class="stat-value"
+                id="totalSize"
+            >
+                0 KB
+            </div>
+
+        </div>
+
+
+        <div class="stat-card">
+
+            <div class="stat-top">
+
+                <span class="stat-label">
+                    Analyses
+                </span>
+
+                <div class="stat-icon">
+                    ✓
+                </div>
+
+            </div>
+
+            <div
+                class="stat-value"
+                id="totalAnalyses"
+            >
+                0
+            </div>
+
+        </div>
+
+
+        <div class="stat-card">
+
+            <div class="stat-top">
+
+                <span class="stat-label">
+                    Last Upload
+                </span>
+
+                <div class="stat-icon">
+                    ◷
+                </div>
+
+            </div>
+
+            <div
+                class="stat-value"
+                id="lastUpload"
+                style="font-size:16px;"
+            >
+                —
+            </div>
+
+        </div>
+
+    </section>
+
+
+    <!-- =========================
+         CONTENT
+    ========================= -->
+
+    <section class="content-grid">
+
+
+        <!-- FILES -->
+
+        <div class="card">
+
+            <div class="card-header">
+
+                <div>
+
+                    <div class="card-title">
+                        Uploaded Files
+                    </div>
+
+                    <div class="card-subtitle">
+                        Your recently processed assignments
+                    </div>
+
+                </div>
+
+                <div
+                    class="file-count"
+                    id="fileCount"
+                >
+                    0
+                </div>
+
+            </div>
+
+
+            <div
+                class="file-list"
+                id="fileList"
+            >
+
+                <div class="empty-state">
+
+                    <div class="empty-icon">
+                        ↑
+                    </div>
+
+                    <h3>
+                        No files uploaded
+                    </h3>
+
+                    <p>
+                        Upload assignments to see them here.
+                    </p>
+
+                    <button
+                        class="action-btn"
+                        onclick="goToDashboard()"
+                        style="
+                            width:auto;
+                            margin:auto;
+                            padding:10px 15px;
+                            text-align:center;
+                        "
+                    >
+                        Start Analysis
+                    </button>
+
+                </div>
+
+            </div>
+
+        </div>
+
+
+        <!-- RIGHT SIDE -->
+
+        <div>
+
+
+            <!-- QUICK ACTIONS -->
+
+            <div class="card" style="margin-bottom:20px;">
+
+                <div class="card-header">
+
+                    <div>
+
+                        <div class="card-title">
+                            Quick Actions
+                        </div>
+
+                        <div class="card-subtitle">
+                            Manage your workflow
+                        </div>
+
+                    </div>
+
+                </div>
+
+
+                <div class="actions">
+
+                    <button
+                        class="action-btn"
+                        onclick="goToDashboard()"
+                    >
+
+                        <div class="action-icon">
+                            +
+                        </div>
+
+                        <div class="action-content">
+
+                            <div class="action-title">
+                                New Analysis
+                            </div>
+
+                            <div class="action-desc">
+                                Compare assignments
+                            </div>
+
+                        </div>
+
+                        <div class="arrow">
+                            →
+                        </div>
+
+                    </button>
+
+
+                    <button
+                        class="action-btn"
+                        onclick="openReport()"
+                    >
+
+                        <div class="action-icon">
+                            ≡
+                        </div>
+
+                        <div class="action-content">
+
+                            <div class="action-title">
+                                Detailed Report
+                            </div>
+
+                            <div class="action-desc">
+                                View latest analysis
+                            </div>
+
+                        </div>
+
+                        <div class="arrow">
+                            →
+                        </div>
+
+                    </button>
+
+
+                    <button
+                        class="action-btn"
+                        onclick="refreshProfile()"
+                    >
+
+                        <div class="action-icon">
+                            ↻
+                        </div>
+
+                        <div class="action-content">
+
+                            <div class="action-title">
+                                Refresh Data
+                            </div>
+
+                            <div class="action-desc">
+                                Sync uploaded files
+                            </div>
+
+                        </div>
+
+                        <div class="arrow">
+                            →
+                        </div>
+
+                    </button>
+
+                </div>
+
+            </div>
+
+
+            <!-- ACCOUNT DETAILS -->
+
+            <div class="card">
+
+                <div class="card-header">
+
+                    <div>
+
+                        <div class="card-title">
+                            Account Details
+                        </div>
+
+                        <div class="card-subtitle">
+                            Your account information
+                        </div>
+
+                    </div>
+
+                </div>
+
+
+                <div class="details">
+
+                    <div class="detail-row">
+
+                        <span class="detail-label">
+                            Name
+                        </span>
+
+                        <span
+                            class="detail-value"
+                            id="detailName"
+                        >
+                            —
+                        </span>
+
+                    </div>
+
+
+                    <div class="detail-row">
+
+                        <span class="detail-label">
+                            Email
+                        </span>
+
+                        <span
+                            class="detail-value"
+                            id="detailEmail"
+                        >
+                            —
+                        </span>
+
+                    </div>
+
+
+                    <div class="detail-row">
+
+                        <span class="detail-label">
+                            Status
+                        </span>
+
+                        <span
+                            class="detail-value"
+                            style="color:#16a34a;"
+                        >
+                            Active
+                        </span>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </section>
+
+</main>
+
+
+<div
+    class="toast"
+    id="toast"
+>
+    Data refreshed
+</div>
+
+
+
+
+</body>
+</html>

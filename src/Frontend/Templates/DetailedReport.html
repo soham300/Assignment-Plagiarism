@@ -1,0 +1,3501 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Detailed Analysis Report — AssignCheck</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap"
+        rel="stylesheet">
+
+    <style>
+
+        /* =====================================================
+           ROOT
+        ===================================================== */
+
+        :root {
+            --primary: #6c63ff;
+            --primary-dark: #574fd6;
+            --primary-soft: #f0efff;
+
+            --success: #20a36a;
+            --success-soft: #eaf9f2;
+
+            --warning: #e6a21a;
+            --warning-soft: #fff7df;
+
+            --danger: #e05252;
+            --danger-soft: #fff0f0;
+
+            --info: #3984e8;
+            --info-soft: #edf5ff;
+
+            --text: #17172b;
+            --text-secondary: #68687b;
+            --text-muted: #9696a8;
+
+            --border: #e8e8f0;
+            --bg: #f6f7fb;
+            --card: #ffffff;
+
+            --shadow:
+                0 10px 30px rgba(30, 30, 70, 0.06);
+
+            --radius: 18px;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        html {
+            scroll-behavior: smooth;
+        }
+
+        body {
+            font-family: "Inter", sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            line-height: 1.6;
+        }
+
+        button {
+            font-family: inherit;
+        }
+
+        /* =====================================================
+           HEADER
+        ===================================================== */
+
+        .topbar {
+            height: 76px;
+            background: rgba(255, 255, 255, 0.94);
+            backdrop-filter: blur(15px);
+            border-bottom: 1px solid var(--border);
+
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+
+            padding: 0 34px;
+
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .brand {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-size: 19px;
+            font-weight: 800;
+            letter-spacing: -0.4px;
+        }
+
+        .brand-icon {
+            width: 38px;
+            height: 38px;
+            border-radius: 12px;
+
+            display: grid;
+            place-items: center;
+
+            background: linear-gradient(
+                135deg,
+                var(--primary),
+                #8d86ff
+            );
+
+            color: white;
+            font-weight: 800;
+            box-shadow: 0 8px 20px rgba(108, 99, 255, 0.25);
+        }
+
+        .header-actions {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .header-btn {
+            border: 1px solid var(--border);
+            background: white;
+            color: var(--text-secondary);
+
+            height: 40px;
+            padding: 0 15px;
+
+            border-radius: 10px;
+
+            font-size: 13px;
+            font-weight: 600;
+
+            cursor: pointer;
+
+            transition: 0.2s ease;
+        }
+
+        .header-btn:hover {
+            border-color: var(--primary);
+            color: var(--primary);
+            transform: translateY(-1px);
+        }
+
+        .header-btn.primary {
+            background: var(--primary);
+            color: white;
+            border-color: var(--primary);
+        }
+
+        .header-btn.primary:hover {
+            background: var(--primary-dark);
+            color: white;
+        }
+
+        /* =====================================================
+           PAGE
+        ===================================================== */
+
+        .page {
+            width: min(1280px, calc(100% - 40px));
+            margin: 0 auto;
+            padding: 34px 0 70px;
+        }
+
+        /* =====================================================
+           REPORT INTRO
+        ===================================================== */
+
+        .report-heading {
+            display: flex;
+            align-items: flex-end;
+            justify-content: space-between;
+            gap: 30px;
+            margin-bottom: 25px;
+        }
+
+        .heading-left h1 {
+            font-size: 30px;
+            line-height: 1.2;
+            letter-spacing: -1px;
+            margin-bottom: 7px;
+        }
+
+        .heading-left p {
+            color: var(--text-secondary);
+            font-size: 14px;
+        }
+
+        .report-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 7px;
+
+            padding: 8px 12px;
+
+            border-radius: 30px;
+
+            background: var(--primary-soft);
+            color: var(--primary);
+
+            font-size: 12px;
+            font-weight: 700;
+
+            margin-bottom: 10px;
+        }
+
+        .report-badge span {
+            width: 7px;
+            height: 7px;
+            border-radius: 50%;
+            background: var(--primary);
+        }
+
+        /* =====================================================
+           HERO
+        ===================================================== */
+
+        .hero {
+            display: grid;
+            grid-template-columns: 310px 1fr;
+            gap: 22px;
+
+            margin-bottom: 22px;
+        }
+
+        .score-card {
+            background:
+                linear-gradient(
+                    145deg,
+                    #ffffff,
+                    #f8f7ff
+                );
+
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+
+            padding: 28px;
+
+            box-shadow: var(--shadow);
+
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+
+            min-height: 250px;
+        }
+
+        .score-label {
+            color: var(--text-secondary);
+            font-size: 13px;
+            font-weight: 600;
+            margin-bottom: 14px;
+        }
+
+        .score-circle {
+            width: 155px;
+            height: 155px;
+            border-radius: 50%;
+
+            display: grid;
+            place-items: center;
+
+            background:
+                conic-gradient(
+                    var(--primary) var(--score, 0%),
+                    #e9e8f6 0
+                );
+
+            position: relative;
+
+            margin-bottom: 15px;
+        }
+
+        .score-circle::after {
+            content: "";
+            position: absolute;
+            width: 119px;
+            height: 119px;
+            border-radius: 50%;
+            background: white;
+        }
+
+        .score-value {
+            position: relative;
+            z-index: 2;
+
+            font-size: 34px;
+            font-weight: 800;
+            letter-spacing: -1px;
+        }
+
+        .score-status {
+            font-size: 12px;
+            font-weight: 700;
+
+            padding: 6px 10px;
+            border-radius: 8px;
+
+            background: var(--primary-soft);
+            color: var(--primary);
+        }
+
+        /* =====================================================
+           FILE PAIR CARD
+        ===================================================== */
+
+        .pair-card {
+            background: white;
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            box-shadow: var(--shadow);
+
+            padding: 28px;
+
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+
+        .pair-label {
+            font-size: 12px;
+            color: var(--text-muted);
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: .7px;
+
+            margin-bottom: 17px;
+        }
+
+        .file-pair {
+            display: grid;
+            grid-template-columns: 1fr 55px 1fr;
+            align-items: center;
+            gap: 18px;
+        }
+
+        .file-box {
+            min-width: 0;
+
+            border: 1px solid var(--border);
+            border-radius: 14px;
+
+            padding: 17px;
+
+            background: #fafaff;
+        }
+
+        .file-icon {
+            width: 40px;
+            height: 40px;
+
+            display: grid;
+            place-items: center;
+
+            border-radius: 10px;
+
+            background: var(--primary-soft);
+            color: var(--primary);
+
+            font-size: 17px;
+            font-weight: 800;
+
+            margin-bottom: 11px;
+        }
+
+        .file-name {
+            font-size: 14px;
+            font-weight: 700;
+
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .file-desc {
+            margin-top: 4px;
+            color: var(--text-muted);
+            font-size: 11px;
+        }
+
+        .vs {
+            width: 44px;
+            height: 44px;
+
+            border-radius: 50%;
+
+            display: grid;
+            place-items: center;
+
+            background: var(--text);
+            color: white;
+
+            font-size: 11px;
+            font-weight: 800;
+        }
+
+        /* =====================================================
+           STAT GRID
+        ===================================================== */
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 16px;
+
+            margin-bottom: 25px;
+        }
+
+        .stat-card {
+            background: white;
+            border: 1px solid var(--border);
+            border-radius: 16px;
+
+            padding: 20px;
+
+            box-shadow: var(--shadow);
+
+            position: relative;
+            overflow: hidden;
+        }
+
+        .stat-top {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+
+            margin-bottom: 14px;
+        }
+
+        .stat-icon {
+            width: 38px;
+            height: 38px;
+
+            display: grid;
+            place-items: center;
+
+            border-radius: 11px;
+
+            font-size: 15px;
+            font-weight: 800;
+        }
+
+        .icon-purple {
+            background: var(--primary-soft);
+            color: var(--primary);
+        }
+
+        .icon-green {
+            background: var(--success-soft);
+            color: var(--success);
+        }
+
+        .icon-orange {
+            background: var(--warning-soft);
+            color: var(--warning);
+        }
+
+        .icon-blue {
+            background: var(--info-soft);
+            color: var(--info);
+        }
+
+        .stat-title {
+            font-size: 12px;
+            color: var(--text-muted);
+            font-weight: 600;
+        }
+
+        .stat-value {
+            font-size: 25px;
+            font-weight: 800;
+            letter-spacing: -.5px;
+        }
+
+        .stat-sub {
+            margin-top: 3px;
+            font-size: 11px;
+            color: var(--text-muted);
+        }
+
+        /* =====================================================
+           SECTION
+        ===================================================== */
+
+        .section {
+            margin-top: 25px;
+        }
+
+        .section-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+
+            margin-bottom: 13px;
+        }
+
+        .section-title {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .section-title h2 {
+            font-size: 18px;
+            letter-spacing: -.3px;
+        }
+
+        .section-title p {
+            color: var(--text-muted);
+            font-size: 12px;
+        }
+
+        .section-number {
+            width: 30px;
+            height: 30px;
+
+            display: grid;
+            place-items: center;
+
+            border-radius: 9px;
+
+            background: var(--primary-soft);
+            color: var(--primary);
+
+            font-size: 12px;
+            font-weight: 800;
+        }
+
+        /* =====================================================
+           DETECTION GRID
+        ===================================================== */
+
+        .detection-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 16px;
+        }
+
+        .detection-card {
+            background: white;
+            border: 1px solid var(--border);
+            border-radius: 16px;
+
+            padding: 20px;
+
+            box-shadow: var(--shadow);
+        }
+
+        .detection-card-head {
+            display: flex;
+            align-items: center;
+            gap: 11px;
+
+            margin-bottom: 16px;
+        }
+
+        .detection-icon {
+            width: 38px;
+            height: 38px;
+
+            display: grid;
+            place-items: center;
+
+            border-radius: 10px;
+
+            font-size: 15px;
+            font-weight: 800;
+        }
+
+        .detection-card h3 {
+            font-size: 13px;
+        }
+
+        .detection-card small {
+            color: var(--text-muted);
+            font-size: 10px;
+        }
+
+        .detection-number {
+            font-size: 28px;
+            font-weight: 800;
+            line-height: 1.1;
+        }
+
+        .detection-caption {
+            color: var(--text-muted);
+            font-size: 11px;
+            margin-top: 5px;
+        }
+
+        /* =====================================================
+           CONTENT CARD
+        ===================================================== */
+
+        .content-card {
+            background: white;
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            box-shadow: var(--shadow);
+            overflow: hidden;
+        }
+
+        .content-card-header {
+            padding: 17px 20px;
+
+            border-bottom: 1px solid var(--border);
+
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .content-card-header h3 {
+            font-size: 13px;
+        }
+
+        .count-badge {
+            background: var(--primary-soft);
+            color: var(--primary);
+
+            padding: 5px 9px;
+            border-radius: 7px;
+
+            font-size: 10px;
+            font-weight: 800;
+        }
+
+        /* =====================================================
+           LISTS
+        ===================================================== */
+
+        .result-list {
+            list-style: none;
+        }
+
+        .result-list li {
+            padding: 14px 20px;
+
+            border-bottom: 1px solid #f0f0f5;
+
+            font-size: 12px;
+            color: var(--text-secondary);
+
+            display: flex;
+            align-items: flex-start;
+            gap: 9px;
+        }
+
+        .result-list li:last-child {
+            border-bottom: none;
+        }
+
+        .result-list li::before {
+            content: "✓";
+
+            flex: 0 0 auto;
+
+            width: 20px;
+            height: 20px;
+
+            display: grid;
+            place-items: center;
+
+            border-radius: 6px;
+
+            background: var(--success-soft);
+            color: var(--success);
+
+            font-size: 10px;
+            font-weight: 800;
+        }
+
+        /* =====================================================
+           TWO COLUMN
+        ===================================================== */
+
+        .two-column {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 18px;
+        }
+
+        /* =====================================================
+           MATCHING PHRASES
+        ===================================================== */
+
+        .phrase-list {
+            max-height: 420px;
+            overflow-y: auto;
+        }
+
+        .phrase {
+            padding: 14px 20px;
+
+            border-bottom: 1px solid #f0f0f5;
+
+            font-family: monospace;
+            font-size: 11px;
+
+            color: #4d4d60;
+            background: white;
+        }
+
+        .phrase:last-child {
+            border-bottom: none;
+        }
+
+        .phrase:hover {
+            background: #fafaff;
+        }
+
+        /* =====================================================
+           EMPTY
+        ===================================================== */
+
+        .empty-state {
+            padding: 35px 20px;
+            text-align: center;
+            color: var(--text-muted);
+            font-size: 12px;
+        }
+
+        .empty-icon {
+            width: 42px;
+            height: 42px;
+
+            margin: 0 auto 10px;
+
+            border-radius: 12px;
+
+            display: grid;
+            place-items: center;
+
+            background: #f4f4f8;
+
+            font-size: 16px;
+        }
+
+        /* =====================================================
+           TABLE
+        ===================================================== */
+
+        .table-wrap {
+            overflow-x: auto;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        th {
+            text-align: left;
+
+            padding: 13px 18px;
+
+            background: #fafaff;
+
+            color: var(--text-muted);
+
+            font-size: 10px;
+            text-transform: uppercase;
+
+            letter-spacing: .5px;
+        }
+
+        td {
+            padding: 13px 18px;
+
+            border-top: 1px solid #f0f0f5;
+
+            font-size: 12px;
+            color: var(--text-secondary);
+        }
+
+        .word-error {
+            color: var(--danger);
+            font-weight: 700;
+        }
+
+        .suggestion {
+            color: var(--success);
+            font-weight: 700;
+        }
+
+        /* =====================================================
+           AI CARD
+        ===================================================== */
+
+        .ai-card {
+            background: white;
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            box-shadow: var(--shadow);
+
+            padding: 22px;
+        }
+
+        .ai-top {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+
+            margin-bottom: 18px;
+        }
+
+        .ai-score {
+            font-size: 34px;
+            font-weight: 800;
+        }
+
+        .ai-level {
+            padding: 7px 11px;
+            border-radius: 8px;
+
+            font-size: 11px;
+            font-weight: 800;
+
+            background: var(--warning-soft);
+            color: var(--warning);
+        }
+
+        .ai-bar {
+            height: 9px;
+            background: #ececf4;
+            border-radius: 10px;
+            overflow: hidden;
+
+            margin-bottom: 15px;
+        }
+
+        .ai-fill {
+            height: 100%;
+            width: 0;
+
+            background: linear-gradient(
+                90deg,
+                var(--primary),
+                #9b95ff
+            );
+
+            border-radius: inherit;
+
+            transition: width .8s ease;
+        }
+
+        .ai-note {
+            font-size: 11px;
+            color: var(--text-muted);
+            margin-bottom: 15px;
+        }
+
+        .indicator {
+            padding: 10px 12px;
+
+            border-radius: 9px;
+
+            background: #fafaff;
+
+            border: 1px solid #eeeeF5;
+
+            font-size: 11px;
+            color: var(--text-secondary);
+
+            margin-top: 8px;
+        }
+
+        /* =====================================================
+           FILE TEXT
+        ===================================================== */
+
+        .text-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 18px;
+        }
+
+        .text-panel {
+            background: white;
+            border: 1px solid var(--border);
+            border-radius: 16px;
+
+            box-shadow: var(--shadow);
+
+            overflow: hidden;
+        }
+
+        .text-header {
+            padding: 16px 18px;
+
+            border-bottom: 1px solid var(--border);
+
+            background: #fafaff;
+
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .text-header-icon {
+            width: 30px;
+            height: 30px;
+
+            display: grid;
+            place-items: center;
+
+            border-radius: 8px;
+
+            background: var(--primary-soft);
+            color: var(--primary);
+
+            font-size: 11px;
+            font-weight: 800;
+        }
+
+        .text-header strong {
+            font-size: 12px;
+
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .text-body {
+            padding: 18px;
+
+            height: 430px;
+
+            overflow-y: auto;
+
+            font-size: 12px;
+            color: var(--text-secondary);
+
+            line-height: 1.75;
+        }
+
+        .text-body p {
+            margin-bottom: 12px;
+        }
+
+        /* =====================================================
+           FOOTER
+        ===================================================== */
+
+        .report-footer {
+            margin-top: 40px;
+
+            padding-top: 22px;
+
+            border-top: 1px solid var(--border);
+
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+
+            color: var(--text-muted);
+            font-size: 11px;
+        }
+
+        /* =====================================================
+           ERROR
+        ===================================================== */
+
+        .error-page {
+            min-height: calc(100vh - 76px);
+
+            display: none;
+
+            align-items: center;
+            justify-content: center;
+
+            padding: 30px;
+        }
+
+        .error-card {
+            width: min(470px, 100%);
+
+            background: white;
+
+            border: 1px solid var(--border);
+            border-radius: 20px;
+
+            box-shadow: var(--shadow);
+
+            padding: 38px;
+
+            text-align: center;
+        }
+
+        .error-icon {
+            width: 55px;
+            height: 55px;
+
+            margin: 0 auto 17px;
+
+            display: grid;
+            place-items: center;
+
+            border-radius: 15px;
+
+            background: var(--danger-soft);
+            color: var(--danger);
+
+            font-weight: 800;
+        }
+
+        .error-card h2 {
+            font-size: 20px;
+            margin-bottom: 7px;
+        }
+
+        .error-card p {
+            font-size: 12px;
+            color: var(--text-muted);
+            margin-bottom: 20px;
+        }
+
+        /* =====================================================
+           PRINT
+        ===================================================== */
+
+        @media print {
+
+            .topbar {
+                position: static;
+            }
+
+            .header-actions {
+                display: none;
+            }
+
+            .page {
+                width: 100%;
+                padding: 20px;
+            }
+
+            .stat-card,
+            .score-card,
+            .pair-card,
+            .content-card,
+            .detection-card,
+            .ai-card,
+            .text-panel {
+                box-shadow: none;
+            }
+
+        }
+
+        /* =====================================================
+           RESPONSIVE
+        ===================================================== */
+
+        @media (max-width: 1000px) {
+
+            .stats-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            .detection-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            .hero {
+                grid-template-columns: 1fr;
+            }
+
+        }
+
+        @media (max-width: 720px) {
+
+            .topbar {
+                padding: 0 16px;
+            }
+
+            .brand span {
+                display: none;
+            }
+
+            .page {
+                width: min(100% - 24px, 1280px);
+                padding-top: 24px;
+            }
+
+            .report-heading {
+                display: block;
+            }
+
+            .heading-left h1 {
+                font-size: 24px;
+            }
+
+            .stats-grid,
+            .detection-grid,
+            .two-column,
+            .text-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .file-pair {
+                grid-template-columns: 1fr;
+            }
+
+            .vs {
+                margin: -7px auto;
+            }
+
+            .header-btn {
+                padding: 0 10px;
+            }
+
+            .header-btn span {
+                display: none;
+            }
+
+            .score-circle {
+                width: 140px;
+                height: 140px;
+            }
+
+            .score-circle::after {
+                width: 106px;
+                height: 106px;
+            }
+
+        }
+
+    </style>
+</head>
+
+<body>
+
+    <!-- =====================================================
+         HEADER
+    ====================================================== -->
+
+    <header class="topbar">
+
+        <div class="brand">
+            <div class="brand-icon">A</div>
+            <span>AssignCheck</span>
+        </div>
+
+        <div class="header-actions">
+
+            <button
+                class="header-btn"
+                onclick="goBack()">
+                ← <span>Back</span>
+            </button>
+
+            <button
+                class="header-btn"
+                onclick="window.print()">
+                ⤓ <span>Print Report</span>
+            </button>
+
+        </div>
+
+    </header>
+
+
+    <!-- =====================================================
+         ERROR
+    ====================================================== -->
+
+    <section
+        class="error-page"
+        id="reportError">
+
+        <div class="error-card">
+
+            <div class="error-icon">
+                !
+            </div>
+
+            <h2>
+                Report Not Available
+            </h2>
+
+            <p>
+                No analysis report was found.
+                Please run an assignment analysis first.
+            </p>
+
+            <button
+                class="header-btn primary"
+                onclick="goBack()">
+                ← Back to Analysis
+            </button>
+
+        </div>
+
+    </section>
+
+
+    <!-- =====================================================
+         MAIN REPORT
+    ====================================================== -->
+
+    <main
+        class="page"
+        id="reportPage">
+
+        <!-- Heading -->
+
+        <section class="report-heading">
+
+            <div class="heading-left">
+
+                <div class="report-badge">
+                    <span></span>
+                    Analysis Complete
+                </div>
+
+                <h1>
+                    Detailed Analysis Report
+                </h1>
+
+                <p id="generatedText">
+                    Comprehensive assignment comparison and detection report.
+                </p>
+
+            </div>
+
+        </section>
+
+
+        <!-- =================================================
+             HERO
+        ================================================== -->
+
+        <section class="hero">
+
+            <div class="score-card">
+
+                <div class="score-label">
+                    Overall Similarity
+                </div>
+
+                <div
+                    class="score-circle"
+                    id="scoreCircle">
+
+                    <div
+                        class="score-value"
+                        id="heroScore">
+                        0%
+                    </div>
+
+                </div>
+
+                <div
+                    class="score-status"
+                    id="scoreStatus">
+                    Calculating
+                </div>
+
+            </div>
+
+
+            <div class="pair-card">
+
+                <div class="pair-label">
+                    Files Compared
+                </div>
+
+                <div class="file-pair">
+
+                    <div class="file-box">
+
+                        <div class="file-icon">
+                            A
+                        </div>
+
+                        <div
+                            class="file-name"
+                            id="pairLeft">
+                            —
+                        </div>
+
+                        <div class="file-desc">
+                            Student File
+                        </div>
+
+                    </div>
+
+                    <div class="vs">
+                        VS
+                    </div>
+
+                    <div class="file-box">
+
+                        <div class="file-icon">
+                            B
+                        </div>
+
+                        <div
+                            class="file-name"
+                            id="pairRight">
+                            —
+                        </div>
+
+                        <div class="file-desc">
+                            Comparison File
+                        </div>
+
+                    </div>
+
+                </div>
+
+                <p
+                    id="pairSub"
+                    style="
+                        margin-top:18px;
+                        color:#9696a8;
+                        font-size:11px;
+                    ">
+                </p>
+
+            </div>
+
+        </section>
+
+
+        <!-- =================================================
+             STATS
+        ================================================== -->
+
+        <section class="stats-grid">
+
+            <div class="stat-card">
+
+                <div class="stat-top">
+
+                    <div class="stat-title">
+                        Files Analyzed
+                    </div>
+
+                    <div class="stat-icon icon-purple">
+                        F
+                    </div>
+
+                </div>
+
+                <div
+                    class="stat-value"
+                    id="mFiles">
+                    0
+                </div>
+
+                <div class="stat-sub">
+                    Documents processed
+                </div>
+
+            </div>
+
+
+            <div class="stat-card">
+
+                <div class="stat-top">
+
+                    <div class="stat-title">
+                        Matching 4-grams
+                    </div>
+
+                    <div class="stat-icon icon-green">
+                        M
+                    </div>
+
+                </div>
+
+                <div
+                    class="stat-value"
+                    id="mMatching">
+                    0
+                </div>
+
+                <div class="stat-sub">
+                    Unique matching phrases
+                </div>
+
+            </div>
+
+
+            <div class="stat-card">
+
+                <div class="stat-top">
+
+                    <div class="stat-title">
+                        Different 4-grams
+                    </div>
+
+                    <div class="stat-icon icon-orange">
+                        D
+                    </div>
+
+                </div>
+
+                <div
+                    class="stat-value"
+                    id="mDifferent">
+                    0
+                </div>
+
+                <div class="stat-sub">
+                    Unique differences
+                </div>
+
+            </div>
+
+
+            <div class="stat-card">
+
+                <div class="stat-top">
+
+                    <div class="stat-title">
+                        Matching Phrases
+                    </div>
+
+                    <div class="stat-icon icon-blue">
+                        P
+                    </div>
+
+                </div>
+
+                <div
+                    class="stat-value"
+                    id="mPhrases">
+                    0
+                </div>
+
+                <div class="stat-sub">
+                    Detected across files
+                </div>
+
+            </div>
+
+        </section>
+
+
+        <!-- =================================================
+             DETECTION OVERVIEW
+        ================================================== -->
+
+        <section class="section">
+
+            <div class="section-header">
+
+                <div class="section-title">
+
+                    <div class="section-number">
+                        01
+                    </div>
+
+                    <div>
+                        <h2>Detection Overview</h2>
+                        <p>Key findings from the analysis</p>
+                    </div>
+
+                </div>
+
+            </div>
+
+
+            <div class="detection-grid">
+
+                <div class="detection-card">
+
+                    <div class="detection-card-head">
+
+                        <div class="detection-icon icon-orange">
+                            S
+                        </div>
+
+                        <div>
+                            <h3>Spelling Issues</h3>
+                            <small>Detected mistakes</small>
+                        </div>
+
+                    </div>
+
+                    <div
+                        class="detection-number"
+                        id="overviewSpelling">
+                        0
+                    </div>
+
+                    <div class="detection-caption">
+                        Common spelling errors
+                    </div>
+
+                </div>
+
+
+                <div class="detection-card">
+
+                    <div class="detection-card-head">
+
+                        <div class="detection-icon icon-danger"
+                            style="
+                                background:var(--danger-soft);
+                                color:var(--danger);
+                            ">
+                            P
+                        </div>
+
+                        <div>
+                            <h3>Copied Content</h3>
+                            <small>8-word matches</small>
+                        </div>
+
+                    </div>
+
+                    <div
+                        class="detection-number"
+                        id="overviewCopied">
+                        0
+                    </div>
+
+                    <div class="detection-caption">
+                        Potential copied phrases
+                    </div>
+
+                </div>
+
+
+                <div class="detection-card">
+
+                    <div class="detection-card-head">
+
+                        <div class="detection-icon icon-purple">
+                            AI
+                        </div>
+
+                        <div>
+                            <h3>AI-like Content</h3>
+                            <small>Heuristic score</small>
+                        </div>
+
+                    </div>
+
+                    <div
+                        class="detection-number"
+                        id="overviewAI">
+                        0%
+                    </div>
+
+                    <div
+                        class="detection-caption"
+                        id="overviewAILevel">
+                        Low
+                    </div>
+
+                </div>
+
+            </div>
+
+        </section>
+
+
+        <!-- =================================================
+             MATCHING / DIFFERENCES
+        ================================================== -->
+
+        <section class="section">
+
+            <div class="section-header">
+
+                <div class="section-title">
+
+                    <div class="section-number">
+                        02
+                    </div>
+
+                    <div>
+                        <h2>Similarity Analysis</h2>
+                        <p>Detailed matching and difference information</p>
+                    </div>
+
+                </div>
+
+            </div>
+
+
+            <div class="two-column">
+
+                <div class="content-card">
+
+                    <div class="content-card-header">
+
+                        <h3>
+                            Matching Sections
+                        </h3>
+
+                        <span
+                            class="count-badge"
+                            id="matchingBadge">
+                            0
+                        </span>
+
+                    </div>
+
+                    <ul
+                        class="result-list"
+                        id="matchList">
+                    </ul>
+
+                </div>
+
+
+                <div class="content-card">
+
+                    <div class="content-card-header">
+
+                        <h3>
+                            Different Sections
+                        </h3>
+
+                        <span
+                            class="count-badge"
+                            id="differentBadge">
+                            0
+                        </span>
+
+                    </div>
+
+                    <ul
+                        class="result-list"
+                        id="diffList">
+                    </ul>
+
+                </div>
+
+            </div>
+
+        </section>
+
+
+        <!-- =================================================
+             MATCHING PHRASES
+        ================================================== -->
+
+        <section class="section">
+
+            <div class="section-header">
+
+                <div class="section-title">
+
+                    <div class="section-number">
+                        03
+                    </div>
+
+                    <div>
+                        <h2>Matching Phrases</h2>
+                        <p>Common 8-word sequences found between documents</p>
+                    </div>
+
+                </div>
+
+            </div>
+
+
+            <div class="content-card">
+
+                <div class="content-card-header">
+
+                    <h3>
+                        Copied / Matching Content
+                    </h3>
+
+                    <span
+                        class="count-badge"
+                        id="copiedPhraseCount">
+                        0
+                    </span>
+
+                </div>
+
+                <div
+                    class="phrase-list"
+                    id="copiedPhraseList">
+                </div>
+
+            </div>
+
+        </section>
+
+
+        <!-- =================================================
+             SPELLING
+        ================================================== -->
+
+        <section class="section">
+
+            <div class="section-header">
+
+                <div class="section-title">
+
+                    <div class="section-number">
+                        04
+                    </div>
+
+                    <div>
+                        <h2>Spelling Detection</h2>
+                        <p>Common spelling mistakes and suggested corrections</p>
+                    </div>
+
+                </div>
+
+            </div>
+
+
+            <div class="content-card">
+
+                <div class="table-wrap">
+
+                    <table>
+
+                        <thead>
+
+                            <tr>
+                                <th>File</th>
+                                <th>Word</th>
+                                <th>Suggested Correction</th>
+                                <th>Type</th>
+                            </tr>
+
+                        </thead>
+
+                        <tbody id="spellingTable">
+                        </tbody>
+
+                    </table>
+
+                </div>
+
+            </div>
+
+        </section>
+
+
+        <!-- =================================================
+             PLAGIARISM DETAILS
+        ================================================== -->
+
+        <section class="section">
+
+            <div class="section-header">
+
+                <div class="section-title">
+
+                    <div class="section-number">
+                        05
+                    </div>
+
+                    <div>
+                        <h2>Plagiarism & Reference Detection</h2>
+                        <p>Quotes, citations, bibliography and external sources</p>
+                    </div>
+
+                </div>
+
+            </div>
+
+
+            <div class="detection-grid">
+
+                <div class="content-card">
+
+                    <div class="content-card-header">
+
+                        <h3>Quotations</h3>
+
+                        <span
+                            class="count-badge"
+                            id="quotationCount">
+                            0
+                        </span>
+
+                    </div>
+
+                    <div id="quotationList">
+                    </div>
+
+                </div>
+
+
+                <div class="content-card">
+
+                    <div class="content-card-header">
+
+                        <h3>Citations</h3>
+
+                        <span
+                            class="count-badge"
+                            id="citationCount">
+                            0
+                        </span>
+
+                    </div>
+
+                    <div id="citationList">
+                    </div>
+
+                </div>
+
+
+                <div class="content-card">
+
+                    <div class="content-card-header">
+
+                        <h3>Bibliography</h3>
+
+                        <span
+                            class="count-badge"
+                            id="bibliographyCount">
+                            0
+                        </span>
+
+                    </div>
+
+                    <div id="bibliographyList">
+                    </div>
+
+                </div>
+
+            </div>
+
+        </section>
+
+
+        <!-- =================================================
+             WEBSITES / TEMPLATE
+        ================================================== -->
+
+        <section class="section">
+
+            <div class="two-column">
+
+                <div class="content-card">
+
+                    <div class="content-card-header">
+
+                        <h3>
+                            Websites Detected
+                        </h3>
+
+                        <span
+                            class="count-badge"
+                            id="websiteCount">
+                            0
+                        </span>
+
+                    </div>
+
+                    <div id="websiteList">
+                    </div>
+
+                </div>
+
+
+                <div class="content-card">
+
+                    <div class="content-card-header">
+
+                        <h3>
+                            Assignment Template Fields
+                        </h3>
+
+                        <span
+                            class="count-badge"
+                            id="templateCount">
+                            0
+                        </span>
+
+                    </div>
+
+                    <div id="templateList">
+                    </div>
+
+                </div>
+
+            </div>
+
+        </section>
+
+
+        <!-- =================================================
+             TERMINOLOGY
+        ================================================== -->
+
+        <section class="section">
+
+            <div class="section-header">
+
+                <div class="section-title">
+
+                    <div class="section-number">
+                        06
+                    </div>
+
+                    <div>
+                        <h2>Common Academic Terminology</h2>
+                        <p>Frequently detected academic terms</p>
+                    </div>
+
+                </div>
+
+            </div>
+
+
+            <div class="two-column">
+
+                <div class="content-card">
+
+                    <div class="content-card-header">
+
+                        <h3>File A</h3>
+
+                    </div>
+
+                    <div id="terminologyA">
+                    </div>
+
+                </div>
+
+
+                <div class="content-card">
+
+                    <div class="content-card-header">
+
+                        <h3>File B</h3>
+
+                    </div>
+
+                    <div id="terminologyB">
+                    </div>
+
+                </div>
+
+            </div>
+
+        </section>
+
+
+        <!-- =================================================
+             AI CONTENT
+        ================================================== -->
+
+        <section class="section">
+
+            <div class="section-header">
+
+                <div class="section-title">
+
+                    <div class="section-number">
+                        07
+                    </div>
+
+                    <div>
+                        <h2>AI-like Content Analysis</h2>
+                        <p>Heuristic linguistic analysis</p>
+                    </div>
+
+                </div>
+
+            </div>
+
+
+            <div class="ai-card">
+
+                <div class="ai-top">
+
+                    <div>
+
+                        <div
+                            class="ai-score"
+                            id="aiScore">
+                            0%
+                        </div>
+
+                        <div
+                            style="
+                                font-size:11px;
+                                color:var(--text-muted);
+                            ">
+                            Combined heuristic score
+                        </div>
+
+                    </div>
+
+                    <div
+                        class="ai-level"
+                        id="aiLevel">
+                        Low
+                    </div>
+
+                </div>
+
+
+                <div class="ai-bar">
+
+                    <div
+                        class="ai-fill"
+                        id="aiFill">
+                    </div>
+
+                </div>
+
+
+                <div
+                    class="ai-note"
+                    id="aiNote">
+                    AI-content score is heuristic-based.
+                </div>
+
+
+                <div id="aiIndicators">
+                </div>
+
+            </div>
+
+        </section>
+
+
+        <!-- =================================================
+             SUSPICIOUS SECTIONS
+        ================================================== -->
+
+        <section class="section">
+
+            <div class="section-header">
+
+                <div class="section-title">
+
+                    <div class="section-number">
+                        08
+                    </div>
+
+                    <div>
+                        <h2>Suspicious Sections</h2>
+                        <p>Sentences flagged by the heuristic analysis</p>
+                    </div>
+
+                </div>
+
+            </div>
+
+
+            <div class="content-card">
+
+                <div
+                    id="suspiciousList">
+                </div>
+
+            </div>
+
+        </section>
+
+
+        <!-- =================================================
+             FULL TEXT
+        ================================================== -->
+
+        <section class="section">
+
+            <div class="section-header">
+
+                <div class="section-title">
+
+                    <div class="section-number">
+                        09
+                    </div>
+
+                    <div>
+                        <h2>Assignment Content</h2>
+                        <p>Extracted text from both analyzed files</p>
+                    </div>
+
+                </div>
+
+            </div>
+
+
+            <div class="text-grid">
+
+                <div class="text-panel">
+
+                    <div class="text-header">
+
+                        <div class="text-header-icon">
+                            A
+                        </div>
+
+                        <strong id="panelAName">
+                            File A
+                        </strong>
+
+                    </div>
+
+                    <div
+                        class="text-body"
+                        id="panelABody">
+                    </div>
+
+                </div>
+
+
+                <div class="text-panel">
+
+                    <div class="text-header">
+
+                        <div class="text-header-icon">
+                            B
+                        </div>
+
+                        <strong id="panelBName">
+                            File B
+                        </strong>
+
+                    </div>
+
+                    <div
+                        class="text-body"
+                        id="panelBBody">
+                    </div>
+
+                </div>
+
+            </div>
+
+        </section>
+
+
+        <!-- =================================================
+             FOOTER
+        ================================================== -->
+
+        <footer class="report-footer">
+
+            <span>
+                AssignCheck • Detailed Analysis
+            </span>
+
+            <span id="footerDate">
+                —
+            </span>
+
+        </footer>
+
+    </main>
+
+
+    <!-- =====================================================
+         JAVASCRIPT
+    ====================================================== -->
+
+    <script>
+
+        /* =====================================================
+           GET REPORT
+        ===================================================== */
+
+        const storedReport =
+            sessionStorage.getItem(
+                "assignCheckReport"
+            );
+
+        const reportPage =
+            document.getElementById(
+                "reportPage"
+            );
+
+        const reportError =
+            document.getElementById(
+                "reportError"
+            );
+
+
+        /* =====================================================
+           ESCAPE HTML
+        ===================================================== */
+
+        function escapeHTML(value) {
+
+            return String(value ?? "")
+                .replace(/&/g, "&amp;")
+                .replace(/</g, "&lt;")
+                .replace(/>/g, "&gt;")
+                .replace(/"/g, "&quot;")
+                .replace(/'/g, "&#039;");
+
+        }
+
+
+        /* =====================================================
+           EMPTY STATE
+        ===================================================== */
+
+        function emptyState(message) {
+
+            return `
+                <div class="empty-state">
+                    <div class="empty-icon">—</div>
+                    ${escapeHTML(message)}
+                </div>
+            `;
+
+        }
+
+
+        /* =====================================================
+           BACK
+        ===================================================== */
+
+        function goBack() {
+
+            if (
+                document.referrer &&
+                document.referrer !== window.location.href
+            ) {
+
+                history.back();
+
+            } else {
+
+                window.location.href =
+                    "CheckAssign.html";
+
+            }
+
+        }
+
+
+        /* =====================================================
+           FORMAT DATE
+        ===================================================== */
+
+        function formatDate(value) {
+
+            if (!value) {
+                return "—";
+            }
+
+            try {
+
+                return new Date(value)
+                    .toLocaleString(
+                        "en-IN",
+                        {
+                            dateStyle: "medium",
+                            timeStyle: "short"
+                        }
+                    );
+
+            } catch (error) {
+
+                return value;
+
+            }
+
+        }
+
+
+        /* =====================================================
+           SCORE
+        ===================================================== */
+
+        function updateScore(score) {
+
+            const value =
+                Math.round(
+                    Number(score) || 0
+                );
+
+            const scoreElement =
+                document.getElementById(
+                    "heroScore"
+                );
+
+            const circle =
+                document.getElementById(
+                    "scoreCircle"
+                );
+
+            const status =
+                document.getElementById(
+                    "scoreStatus"
+                );
+
+            if (scoreElement) {
+
+                scoreElement.textContent =
+                    value + "%";
+
+            }
+
+            if (circle) {
+
+                circle.style.setProperty(
+                    "--score",
+                    value + "%"
+                );
+
+            }
+
+            if (status) {
+
+                if (value >= 70) {
+
+                    status.textContent =
+                        "High Similarity";
+
+                    status.style.background =
+                        "var(--danger-soft)";
+
+                    status.style.color =
+                        "var(--danger)";
+
+                } else if (value >= 40) {
+
+                    status.textContent =
+                        "Moderate Similarity";
+
+                    status.style.background =
+                        "var(--warning-soft)";
+
+                    status.style.color =
+                        "var(--warning)";
+
+                } else {
+
+                    status.textContent =
+                        "Low Similarity";
+
+                    status.style.background =
+                        "var(--success-soft)";
+
+                    status.style.color =
+                        "var(--success)";
+
+                }
+
+            }
+
+        }
+
+
+        /* =====================================================
+           GENERIC ITEMS
+        ===================================================== */
+
+        function renderGenericItems(
+            container,
+            items,
+            formatter
+        ) {
+
+            if (!container) {
+                return;
+            }
+
+            if (
+                !Array.isArray(items) ||
+                items.length === 0
+            ) {
+
+                container.innerHTML =
+                    emptyState(
+                        "No items detected."
+                    );
+
+                return;
+
+            }
+
+            container.innerHTML =
+                items
+                    .map(function (item) {
+
+                        return formatter(item);
+
+                    })
+                    .join("");
+
+        }
+
+
+        /* =====================================================
+           RENDER REPORT
+        ===================================================== */
+
+        function renderReport(report) {
+
+            const detections =
+                report.detections || {};
+
+            const plagiarism =
+                detections.plagiarism || {};
+
+            const spelling =
+                detections.spelling || {};
+
+            const ai =
+                detections.aiContent || {};
+
+            const matching =
+                report.matching || {};
+
+
+            /* =================================================
+               GENERATED DATE
+            ================================================= */
+
+            const generatedText =
+                document.getElementById(
+                    "generatedText"
+                );
+
+            const footerDate =
+                document.getElementById(
+                    "footerDate"
+                );
+
+            const generatedAt =
+                formatDate(
+                    report.generatedAt
+                );
+
+            if (generatedText) {
+
+                generatedText.textContent =
+                    "Generated " +
+                    generatedAt +
+                    " • Comprehensive assignment comparison and detection report.";
+
+            }
+
+            if (footerDate) {
+
+                footerDate.textContent =
+                    generatedAt;
+
+            }
+
+
+            /* =================================================
+               SCORE
+            ================================================= */
+
+            updateScore(report.score);
+
+
+            /* =================================================
+               FILES
+            ================================================= */
+
+            const files =
+                Array.isArray(report.files)
+                    ? report.files
+                    : [];
+
+            const fileA =
+                files[0] || {
+                    name: "File A"
+                };
+
+            const fileB =
+                files[1] || {
+                    name: "File B"
+                };
+
+            const pairLeft =
+                document.getElementById(
+                    "pairLeft"
+                );
+
+            const pairRight =
+                document.getElementById(
+                    "pairRight"
+                );
+
+            const pairSub =
+                document.getElementById(
+                    "pairSub"
+                );
+
+            const panelAName =
+                document.getElementById(
+                    "panelAName"
+                );
+
+            const panelBName =
+                document.getElementById(
+                    "panelBName"
+                );
+
+            if (pairLeft) {
+
+                pairLeft.textContent =
+                    fileA.name;
+
+            }
+
+            if (pairRight) {
+
+                pairRight.textContent =
+                    fileB.name;
+
+            }
+
+            if (pairSub) {
+
+                pairSub.textContent =
+                    "Comparison between " +
+                    fileA.name +
+                    " and " +
+                    fileB.name;
+
+            }
+
+            if (panelAName) {
+
+                panelAName.textContent =
+                    fileA.name;
+
+            }
+
+            if (panelBName) {
+
+                panelBName.textContent =
+                    fileB.name;
+
+            }
+
+
+            /* =================================================
+               STATS
+            ================================================= */
+
+            document.getElementById(
+                "mFiles"
+            ).textContent =
+                files.length;
+
+            document.getElementById(
+                "mMatching"
+            ).textContent =
+                matching.count || 0;
+
+            document.getElementById(
+                "mDifferent"
+            ).textContent =
+                matching.different || 0;
+
+            document.getElementById(
+                "mPhrases"
+            ).textContent =
+                matching.count || 0;
+
+
+            /* =================================================
+               DETECTION OVERVIEW
+            ================================================= */
+
+            const copiedCount =
+                Array.isArray(
+                    plagiarism.copiedContent
+                )
+                    ? plagiarism.copiedContent.length
+                    : 0;
+
+            const spellingCount =
+                Number(
+                    spelling.total || 0
+                );
+
+            const aiScore =
+                Number(
+                    ai.score || 0
+                );
+
+            document.getElementById(
+                "overviewSpelling"
+            ).textContent =
+                spellingCount;
+
+            document.getElementById(
+                "overviewCopied"
+            ).textContent =
+                copiedCount;
+
+            document.getElementById(
+                "overviewAI"
+            ).textContent =
+                aiScore + "%";
+
+            document.getElementById(
+                "overviewAILevel"
+            ).textContent =
+                ai.level || "Low";
+
+
+            /* =================================================
+               MATCH / DIFFERENT
+            ================================================= */
+
+            const matchList =
+                document.getElementById(
+                    "matchList"
+                );
+
+            const diffList =
+                document.getElementById(
+                    "diffList"
+                );
+
+            const matchingBadge =
+                document.getElementById(
+                    "matchingBadge"
+                );
+
+            const differentBadge =
+                document.getElementById(
+                    "differentBadge"
+                );
+
+            if (matchingBadge) {
+
+                matchingBadge.textContent =
+                    matching.count || 0;
+
+            }
+
+            if (differentBadge) {
+
+                differentBadge.textContent =
+                    matching.different || 0;
+
+            }
+
+            if (matchList) {
+
+                matchList.innerHTML = `
+                    <li>
+                        Processed using overlapping
+                        4-gram windows.
+                    </li>
+
+                    <li>
+                        ${
+                            matching.count > 0
+                                ? matching.count +
+                                  " matching 4-grams detected."
+                                : "No matching 4-grams detected."
+                        }
+                    </li>
+
+                    <li>
+                        Similarity score:
+                        <b>${report.score || 0}%</b>
+                    </li>
+
+                    <li>
+                        Copied-content matches:
+                        <b>${copiedCount}</b>
+                    </li>
+
+                    <li>
+                        Spelling issues:
+                        <b>${spellingCount}</b>
+                    </li>
+
+                    <li>
+                        AI-like content score:
+                        <b>${aiScore}%</b>
+                    </li>
+                `;
+
+            }
+
+            if (diffList) {
+
+                const chunks =
+                    Array.isArray(report.chunks)
+                        ? report.chunks
+                        : [];
+
+                const firstChunkCount =
+                    chunks[0]
+                        ? chunks[0].length
+                        : 0;
+
+                const secondChunkCount =
+                    chunks[1]
+                        ? chunks[1].length
+                        : 0;
+
+                diffList.innerHTML = `
+
+                    <li>
+                        File 1 has
+                        <b>${firstChunkCount}</b>
+                        chunks.
+                    </li>
+
+                    <li>
+                        File 2 has
+                        <b>${secondChunkCount}</b>
+                        chunks.
+                    </li>
+
+                    <li>
+                        Unique matching 4-grams:
+                        <b>${matching.count || 0}</b>
+                    </li>
+
+                    <li>
+                        Unique different 4-grams:
+                        <b>${matching.different || 0}</b>
+                    </li>
+
+                    <li>
+                        Jaccard similarity:
+                        <b>${report.score || 0}%</b>
+                    </li>
+
+                    <li>
+                        Total unique 4-grams:
+                        <b>${matching.total || 0}</b>
+                    </li>
+
+                `;
+
+            }
+
+
+            /* =================================================
+               COPIED CONTENT
+            ================================================= */
+
+            const copiedList =
+                document.getElementById(
+                    "copiedPhraseList"
+                );
+
+            const copiedBadge =
+                document.getElementById(
+                    "copiedPhraseCount"
+                );
+
+            if (copiedBadge) {
+
+                copiedBadge.textContent =
+                    copiedCount;
+
+            }
+
+            if (
+                !Array.isArray(
+                    plagiarism.copiedContent
+                ) ||
+                plagiarism.copiedContent.length === 0
+            ) {
+
+                copiedList.innerHTML =
+                    emptyState(
+                        "No copied-content phrases detected."
+                    );
+
+            } else {
+
+                copiedList.innerHTML =
+                    plagiarism.copiedContent
+                        .map(function (phrase) {
+
+                            return `
+                                <div class="phrase">
+                                    ${escapeHTML(phrase)}
+                                </div>
+                            `;
+
+                        })
+                        .join("");
+
+            }
+
+
+            /* =================================================
+               SPELLING TABLE
+            ================================================= */
+
+            const spellingTable =
+                document.getElementById(
+                    "spellingTable"
+                );
+
+            const spellingFiles =
+                Array.isArray(
+                    spelling.files
+                )
+                    ? spelling.files
+                    : [];
+
+            const spellingRows = [];
+
+            spellingFiles.forEach(
+                function (fileData) {
+
+                    const mistakes =
+                        Array.isArray(
+                            fileData.mistakes
+                        )
+                            ? fileData.mistakes
+                            : [];
+
+                    mistakes.forEach(
+                        function (mistake) {
+
+                            spellingRows.push(`
+                                <tr>
+
+                                    <td>
+                                        ${
+                                            fileData.fileIndex === 0
+                                                ? escapeHTML(fileA.name)
+                                                : escapeHTML(fileB.name)
+                                        }
+                                    </td>
+
+                                    <td class="word-error">
+                                        ${escapeHTML(mistake.word)}
+                                    </td>
+
+                                    <td class="suggestion">
+                                        ${escapeHTML(mistake.suggestion)}
+                                    </td>
+
+                                    <td>
+                                        ${escapeHTML(mistake.type)}
+                                    </td>
+
+                                </tr>
+                            `);
+
+                        }
+                    );
+
+                }
+            );
+
+            if (spellingRows.length === 0) {
+
+                spellingTable.innerHTML = `
+                    <tr>
+                        <td
+                            colspan="4"
+                            style="
+                                text-align:center;
+                                color:var(--text-muted);
+                                padding:30px;
+                            ">
+                            No spelling issues detected.
+                        </td>
+                    </tr>
+                `;
+
+            } else {
+
+                spellingTable.innerHTML =
+                    spellingRows.join("");
+
+            }
+
+
+            /* =================================================
+               QUOTATIONS
+            ================================================= */
+
+            const quotations =
+                Array.isArray(
+                    plagiarism.quotations
+                )
+                    ? plagiarism.quotations
+                    : [];
+
+            document.getElementById(
+                "quotationCount"
+            ).textContent =
+                quotations.length;
+
+            renderGenericItems(
+
+                document.getElementById(
+                    "quotationList"
+                ),
+
+                quotations,
+
+                function (item) {
+
+                    return `
+                        <div class="phrase">
+                            "${escapeHTML(item.text)}"
+                            <div
+                                style="
+                                    margin-top:5px;
+                                    color:var(--text-muted);
+                                    font-size:9px;
+                                ">
+                                File ${
+                                    Number(item.fileIndex) + 1
+                                }
+                            </div>
+                        </div>
+                    `;
+
+                }
+
+            );
+
+
+            /* =================================================
+               CITATIONS
+            ================================================= */
+
+            const citations =
+                Array.isArray(
+                    plagiarism.correctCitations
+                )
+                    ? plagiarism.correctCitations
+                    : [];
+
+            document.getElementById(
+                "citationCount"
+            ).textContent =
+                citations.length;
+
+            renderGenericItems(
+
+                document.getElementById(
+                    "citationList"
+                ),
+
+                citations,
+
+                function (item) {
+
+                    return `
+                        <div class="phrase">
+                            ${escapeHTML(item.text)}
+
+                            <div
+                                style="
+                                    margin-top:4px;
+                                    color:var(--text-muted);
+                                    font-size:9px;
+                                ">
+                                ${escapeHTML(item.type || "Citation")}
+                            </div>
+                        </div>
+                    `;
+
+                }
+
+            );
+
+
+            /* =================================================
+               BIBLIOGRAPHY
+            ================================================= */
+
+            const bibliography =
+                Array.isArray(
+                    plagiarism.bibliography
+                )
+                    ? plagiarism.bibliography
+                    : [];
+
+            document.getElementById(
+                "bibliographyCount"
+            ).textContent =
+                bibliography.length;
+
+            renderGenericItems(
+
+                document.getElementById(
+                    "bibliographyList"
+                ),
+
+                bibliography,
+
+                function (item) {
+
+                    return `
+                        <div class="phrase">
+                            ${escapeHTML(item.text)}
+
+                            <div
+                                style="
+                                    margin-top:4px;
+                                    color:var(--text-muted);
+                                    font-size:9px;
+                                ">
+                                ${escapeHTML(item.type || "Reference")}
+                            </div>
+                        </div>
+                    `;
+
+                }
+
+            );
+
+
+            /* =================================================
+               WEBSITES
+            ================================================= */
+
+            const websites =
+                plagiarism.websites || {};
+
+            const websiteA =
+                Array.isArray(websites.fileA)
+                    ? websites.fileA
+                    : [];
+
+            const websiteB =
+                Array.isArray(websites.fileB)
+                    ? websites.fileB
+                    : [];
+
+            const allWebsites =
+                [
+                    ...websiteA.map(function (item) {
+
+                        return {
+                            ...item,
+                            fileIndex: 0
+                        };
+
+                    }),
+
+                    ...websiteB.map(function (item) {
+
+                        return {
+                            ...item,
+                            fileIndex: 1
+                        };
+
+                    })
+                ];
+
+            document.getElementById(
+                "websiteCount"
+            ).textContent =
+                allWebsites.length;
+
+            renderGenericItems(
+
+                document.getElementById(
+                    "websiteList"
+                ),
+
+                allWebsites,
+
+                function (item) {
+
+                    return `
+                        <div class="phrase">
+
+                            <div>
+                                ${escapeHTML(item.domain || item.url)}
+                            </div>
+
+                            <div
+                                style="
+                                    margin-top:4px;
+                                    font-size:9px;
+                                    color:var(--text-muted);
+                                ">
+                                ${escapeHTML(item.url)}
+                                • File ${Number(item.fileIndex) + 1}
+                            </div>
+
+                        </div>
+                    `;
+
+                }
+
+            );
+
+
+            /* =================================================
+               TEMPLATE
+            ================================================= */
+
+            const template =
+                Array.isArray(
+                    plagiarism.assignmentTemplate
+                )
+                    ? plagiarism.assignmentTemplate
+                    : [];
+
+            document.getElementById(
+                "templateCount"
+            ).textContent =
+                template.length;
+
+            renderGenericItems(
+
+                document.getElementById(
+                    "templateList"
+                ),
+
+                template,
+
+                function (item) {
+
+                    return `
+                        <div class="phrase">
+                            ${escapeHTML(item.text)}
+                        </div>
+                    `;
+
+                }
+
+            );
+
+
+            /* =================================================
+               TERMINOLOGY
+            ================================================= */
+
+            const terminology =
+                plagiarism.commonTerminology || {};
+
+            function terminologyHTML(items) {
+
+                if (
+                    !Array.isArray(items) ||
+                    items.length === 0
+                ) {
+
+                    return emptyState(
+                        "No common terminology detected."
+                    );
+
+                }
+
+                return items
+                    .map(function (item) {
+
+                        return `
+                            <div
+                                class="phrase"
+                                style="
+                                    display:flex;
+                                    justify-content:space-between;
+                                    gap:10px;
+                                ">
+
+                                <span>
+                                    ${escapeHTML(item.term)}
+                                </span>
+
+                                <b>
+                                    ${item.count || 0}
+                                </b>
+
+                            </div>
+                        `;
+
+                    })
+                    .join("");
+
+            }
+
+            document.getElementById(
+                "terminologyA"
+            ).innerHTML =
+                terminologyHTML(
+                    terminology.fileA
+                );
+
+            document.getElementById(
+                "terminologyB"
+            ).innerHTML =
+                terminologyHTML(
+                    terminology.fileB
+                );
+
+
+            /* =================================================
+               AI
+            ================================================= */
+
+            document.getElementById(
+                "aiScore"
+            ).textContent =
+                aiScore + "%";
+
+            document.getElementById(
+                "aiLevel"
+            ).textContent =
+                ai.level || "Low";
+
+            document.getElementById(
+                "aiFill"
+            ).style.width =
+                Math.min(
+                    100,
+                    Math.max(
+                        0,
+                        aiScore
+                    )
+                ) + "%";
+
+            document.getElementById(
+                "aiNote"
+            ).textContent =
+                ai.note ||
+                "AI-content score is heuristic-based and should not be treated as definitive proof.";
+
+
+            const indicators =
+                Array.isArray(
+                    ai.indicators
+                )
+                    ? ai.indicators
+                    : [];
+
+            const indicatorContainer =
+                document.getElementById(
+                    "aiIndicators"
+                );
+
+            if (
+                indicatorContainer
+            ) {
+
+                if (
+                    indicators.length === 0
+                ) {
+
+                    indicatorContainer.innerHTML =
+                        emptyState(
+                            "No strong AI-like indicators detected."
+                        );
+
+                } else {
+
+                    indicatorContainer.innerHTML =
+                        indicators
+                            .filter(
+                                function (
+                                    value,
+                                    index,
+                                    array
+                                ) {
+
+                                    return (
+                                        array.indexOf(value) ===
+                                        index
+                                    );
+
+                                }
+                            )
+                            .map(function (item) {
+
+                                return `
+                                    <div class="indicator">
+                                        ${escapeHTML(item)}
+                                    </div>
+                                `;
+
+                            })
+                            .join("");
+
+                }
+
+            }
+
+
+            /* =================================================
+               SUSPICIOUS SECTIONS
+            ================================================= */
+
+            const suspicious =
+                Array.isArray(
+                    ai.suspiciousSections
+                )
+                    ? ai.suspiciousSections
+                    : [];
+
+            const suspiciousContainer =
+                document.getElementById(
+                    "suspiciousList"
+                );
+
+            if (
+                suspicious.length === 0
+            ) {
+
+                suspiciousContainer.innerHTML =
+                    emptyState(
+                        "No suspicious sections detected."
+                    );
+
+            } else {
+
+                suspiciousContainer.innerHTML =
+                    suspicious
+                        .map(function (item) {
+
+                            return `
+                                <div
+                                    style="
+                                        padding:16px 20px;
+                                        border-bottom:1px solid #f0f0f5;
+                                    ">
+
+                                    <div
+                                        style="
+                                            font-size:12px;
+                                            color:var(--text);
+                                            font-weight:600;
+                                            line-height:1.6;
+                                        ">
+                                        "${escapeHTML(item.text)}"
+                                    </div>
+
+                                    <div
+                                        style="
+                                            margin-top:6px;
+                                            color:var(--warning);
+                                            font-size:10px;
+                                        ">
+                                        ${
+                                            escapeHTML(
+                                                item.reason ||
+                                                "Heuristic indicator detected."
+                                            )
+                                        }
+                                    </div>
+
+                                    <div
+                                        style="
+                                            margin-top:4px;
+                                            color:var(--text-muted);
+                                            font-size:9px;
+                                        ">
+                                        File ${
+                                            Number(item.fileIndex) + 1
+                                        }
+                                    </div>
+
+                                </div>
+                            `;
+
+                        })
+                        .join("");
+
+            }
+
+
+            /* =================================================
+               TEXT
+            ================================================= */
+
+            const text =
+                report.text || {};
+
+            const textA =
+                text[fileA.name] || "";
+
+            const textB =
+                text[fileB.name] || "";
+
+            document.getElementById(
+                "panelABody"
+            ).innerHTML =
+                formatTextToParagraphs(
+                    textA
+                );
+
+            document.getElementById(
+                "panelBBody"
+            ).innerHTML =
+                formatTextToParagraphs(
+                    textB
+                );
+
+        }
+
+
+        /* =====================================================
+           FORMAT TEXT
+        ===================================================== */
+
+        function formatTextToParagraphs(text) {
+
+            if (!text) {
+
+                return emptyState(
+                    "No content extracted."
+                );
+
+            }
+
+            const lines =
+                String(text)
+                    .split(/\n+/);
+
+            const output = [];
+
+            lines.forEach(
+                function (line) {
+
+                    line =
+                        line.trim();
+
+                    if (line) {
+
+                        output.push(
+                            "<p>" +
+                            escapeHTML(line) +
+                            "</p>"
+                        );
+
+                    }
+
+                }
+            );
+
+            return (
+                output.join("") ||
+                emptyState(
+                    "No content extracted."
+                )
+            );
+
+        }
+
+
+        /* =====================================================
+           INITIALIZE
+        ===================================================== */
+
+        if (!storedReport) {
+
+            reportPage.style.display =
+                "none";
+
+            reportError.style.display =
+                "flex";
+
+        } else {
+
+            try {
+
+                const report =
+                    JSON.parse(
+                        storedReport
+                    );
+
+                renderReport(
+                    report
+                );
+
+            } catch (error) {
+
+                console.error(
+                    "Report parsing error:",
+                    error
+                );
+
+                reportPage.style.display =
+                    "none";
+
+                reportError.style.display =
+                    "flex";
+
+            }
+
+        }
+
+    </script>
+
+</body>
+
+</html>
