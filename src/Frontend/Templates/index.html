@@ -1,5 +1,6 @@
-<!doctype html>
-<html lang="en">
+<doctype html>
+  <html lang="en">
+
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -9,9 +10,8 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
       href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Manrope:wght@400;500;600;700;800&family=Fraunces:ital,opsz,wght@0,9..144,400;1,9..144,500;1,9..144,600&family=JetBrains+Mono:wght@500;600;700&display=swap"
-      rel="stylesheet"
-    />
-
+      rel="stylesheet" />
+    
     <style>
       /* ==========================================================================
    1. DESIGN TOKENS
@@ -62,9 +62,11 @@
         padding: 0;
         box-sizing: border-box;
       }
+
       html {
         scroll-behavior: smooth;
       }
+
       body {
         font-family: var(--font-body);
         color: var(--ink-soft);
@@ -74,28 +76,34 @@
         -webkit-font-smoothing: antialiased;
         overflow-x: hidden;
       }
+
       img,
       svg {
         display: block;
         max-width: 100%;
       }
+
       a {
         text-decoration: none;
         color: inherit;
       }
+
       ul,
       ol {
         list-style: none;
       }
+
       button {
         font-family: inherit;
         border: none;
         background: none;
         cursor: pointer;
       }
+
       section[id] {
         scroll-margin-top: 90px;
       }
+
       h1,
       h2,
       h3,
@@ -107,23 +115,29 @@
         line-height: 1.15;
         letter-spacing: -0.02em;
       }
+
       .mono {
         font-family: var(--font-mono);
       }
+
       .container {
         max-width: 1240px;
         margin: 0 auto;
         padding: 0 32px;
       }
+
       .section {
         padding: 120px 0;
       }
+
       .section-alt {
         background: var(--bg-soft);
       }
+
       .section-tint {
         background: var(--bg-tint);
       }
+
       :focus-visible {
         outline: 3px solid rgba(79, 70, 229, 0.4);
         outline-offset: 3px;
@@ -140,6 +154,7 @@
         stroke-linejoin: round;
         flex: none;
       }
+
       .icf {
         width: 1.05em;
         height: 1.05em;
@@ -153,10 +168,12 @@
         margin: 0 auto 72px;
         text-align: center;
       }
+
       .sec-head.left {
         margin: 0 0 56px;
         text-align: left;
       }
+
       .overline {
         display: inline-flex;
         align-items: center;
@@ -171,6 +188,7 @@
         padding: 8px 16px;
         border-radius: 99px;
       }
+
       .overline::before {
         content: "";
         width: 8px;
@@ -179,11 +197,13 @@
         background: var(--primary);
         animation: blink 2s ease-in-out infinite;
       }
+
       .sec-head h2 {
         font-size: clamp(2rem, 4.5vw, 3.2rem);
         font-weight: 700;
         margin-bottom: 18px;
       }
+
       .sec-head p {
         color: var(--muted);
         font-size: 17px;
@@ -191,6 +211,7 @@
         max-width: 580px;
         margin: 0 auto;
       }
+
       .sec-head.left p {
         margin: 0;
       }
@@ -211,15 +232,19 @@
         cursor: pointer;
         white-space: nowrap;
       }
+
       .btn .ic {
         transition: transform 0.25s ease;
       }
+
       .btn:hover .ic.arrow {
         transform: translateX(4px);
       }
+
       .btn:active {
         transform: translateY(1px);
       }
+
       .btn-primary {
         background: var(--primary);
         color: #fff;
@@ -227,40 +252,48 @@
           0 8px 24px -6px rgba(79, 70, 229, 0.5),
           inset 0 1px 0 rgba(255, 255, 255, 0.2);
       }
+
       .btn-primary:hover {
         background: var(--primary-dark);
         transform: translateY(-2px);
         box-shadow: 0 16px 36px -8px rgba(79, 70, 229, 0.55);
       }
+
       .btn-ghost {
         border: 2px solid var(--line-strong);
         color: var(--ink);
         background: #fff;
       }
+
       .btn-ghost:hover {
         border-color: var(--primary);
         color: var(--primary);
         background: var(--primary-soft);
         transform: translateY(-2px);
       }
+
       .btn-white {
         background: #fff;
         color: var(--ink);
         box-shadow: 0 12px 32px -8px rgba(0, 0, 0, 0.2);
       }
+
       .btn-white:hover {
         background: #f8f9ff;
         transform: translateY(-2px);
       }
+
       .btn-ghost-light {
         border: 2px solid rgba(255, 255, 255, 0.3);
         color: #fff;
       }
+
       .btn-ghost-light:hover {
         background: rgba(255, 255, 255, 0.1);
         border-color: rgba(255, 255, 255, 0.6);
         transform: translateY(-2px);
       }
+
       .btn-lg {
         padding: 18px 36px;
         font-size: 17px;
@@ -280,6 +313,7 @@
         border-radius: 999px;
         box-shadow: 0 2px 8px rgba(79, 70, 229, 0.08);
       }
+
       .badge .bdot {
         width: 8px;
         height: 8px;
@@ -303,16 +337,19 @@
         border-bottom: 1px solid transparent;
         transition: all 0.3s;
       }
+
       .nav.scrolled {
         background: rgba(255, 255, 255, 0.95);
         border-bottom-color: var(--line);
         box-shadow: 0 4px 20px -8px rgba(20, 23, 51, 0.1);
       }
+
       .nav-inner {
         display: flex;
         align-items: center;
         height: 76px;
       }
+
       .brand {
         display: flex;
         align-items: center;
@@ -322,15 +359,18 @@
         font-size: 20px;
         color: var(--ink);
       }
+
       .brand svg {
         width: 38px;
         height: 38px;
       }
+
       .nav-links {
         display: flex;
         gap: 36px;
         margin-left: 64px;
       }
+
       .nav-links a {
         position: relative;
         font-size: 15px;
@@ -339,6 +379,7 @@
         padding: 8px 4px;
         transition: color 0.2s;
       }
+
       .nav-links a::after {
         content: "";
         position: absolute;
@@ -350,35 +391,44 @@
         background: var(--primary);
         transition: width 0.25s ease;
       }
+
       .nav-links a:hover {
         color: var(--ink);
       }
+
       .nav-links a:hover::after {
         width: 60%;
       }
+
       .nav-links a.active {
         color: var(--primary);
       }
+
       .nav-links a.active::after {
         width: 100%;
       }
+
       .nav-actions {
         margin-left: auto;
         display: flex;
         gap: 12px;
         align-items: center;
       }
+
       .nav-actions .btn {
         padding: 10px 20px;
         font-size: 14px;
       }
+
       .profile-wrap {
         position: relative;
         display: none;
       }
+
       .profile-wrap.show {
         display: block;
       }
+
       .pfp-btn {
         width: 42px;
         height: 42px;
@@ -393,9 +443,11 @@
         box-shadow: 0 6px 18px rgba(79, 70, 229, 0.25);
         transition: transform 0.2s ease;
       }
+
       .pfp-btn:hover {
         transform: translateY(-2px) scale(1.04);
       }
+
       .profile-menu {
         position: absolute;
         right: 0;
@@ -412,11 +464,13 @@
         transition: 0.2s ease;
         z-index: 120;
       }
+
       .profile-menu.open {
         opacity: 1;
         visibility: visible;
         transform: none;
       }
+
       .profile-menu a,
       .profile-menu button {
         display: flex;
@@ -430,18 +484,22 @@
         color: var(--ink-soft);
         text-align: left;
       }
+
       .profile-menu a:hover,
       .profile-menu button:hover {
         background: var(--primary-soft);
         color: var(--primary);
       }
+
       .profile-menu .logout-item {
         color: #dc2626;
       }
+
       .profile-menu .logout-item:hover {
         background: #fff1f2;
         color: #b91c1c;
       }
+
       .nav-toggle {
         display: none;
         margin-left: auto;
@@ -451,6 +509,7 @@
         border: 1.5px solid var(--line-strong);
         position: relative;
       }
+
       .nav-toggle span {
         position: absolute;
         left: 12px;
@@ -460,26 +519,33 @@
         background: var(--ink);
         transition: 0.3s ease;
       }
+
       .nav-toggle span:nth-child(1) {
         top: 15px;
       }
+
       .nav-toggle span:nth-child(2) {
         top: 21px;
       }
+
       .nav-toggle span:nth-child(3) {
         top: 27px;
       }
+
       .nav.open .nav-toggle span:nth-child(1) {
         top: 21px;
         transform: rotate(45deg);
       }
+
       .nav.open .nav-toggle span:nth-child(2) {
         opacity: 0;
       }
+
       .nav.open .nav-toggle span:nth-child(3) {
         top: 21px;
         transform: rotate(-45deg);
       }
+
       .mobile-menu {
         display: none;
         max-height: 0;
@@ -488,15 +554,18 @@
         transition: max-height 0.38s ease;
         background: #fff;
       }
+
       .nav.open .mobile-menu {
         max-height: 460px;
         border-top-color: var(--line);
       }
+
       .mobile-menu nav {
         display: flex;
         flex-direction: column;
         padding: 12px 24px 10px;
       }
+
       .mobile-menu nav a {
         padding: 15px 4px;
         font-weight: 700;
@@ -504,26 +573,32 @@
         border-bottom: 1px solid var(--bg-soft);
         font-size: 16px;
       }
+
       .mobile-menu nav a.active {
         color: var(--primary);
       }
+
       .mobile-cta {
         display: flex;
         gap: 12px;
         padding: 18px 24px 24px;
       }
+
       .mobile-cta .btn {
         flex: 1;
         justify-content: center;
         padding: 14px 12px;
       }
+
       .mobile-profile {
         display: none;
         position: relative;
       }
+
       .mobile-profile.show {
         display: block;
       }
+
       .mobile-profile .profile-menu {
         position: static;
         width: 100%;
@@ -539,29 +614,25 @@
         position: relative;
         overflow: hidden;
         background:
-          radial-gradient(
-            ellipse at 30% 20%,
+          radial-gradient(ellipse at 30% 20%,
             rgba(79, 70, 229, 0.06) 0%,
-            transparent 60%
-          ),
-          radial-gradient(
-            ellipse at 70% 80%,
+            transparent 60%),
+          radial-gradient(ellipse at 70% 80%,
             rgba(124, 58, 237, 0.04) 0%,
-            transparent 50%
-          );
+            transparent 50%);
       }
+
       .hero::before {
         content: "";
         position: absolute;
         inset: 0;
-        background-image: radial-gradient(
-          rgba(79, 70, 229, 0.07) 1px,
-          transparent 1px
-        );
+        background-image: radial-gradient(rgba(79, 70, 229, 0.07) 1px,
+            transparent 1px);
         background-size: 32px 32px;
         opacity: 0.5;
         pointer-events: none;
       }
+
       .hero-grid {
         display: grid;
         grid-template-columns: 1.1fr 1fr;
@@ -588,6 +659,7 @@
         margin-bottom: 24px;
         box-shadow: var(--shadow-sm);
       }
+
       .hero-eyebrow .pulse-dot {
         width: 8px;
         height: 8px;
@@ -605,12 +677,11 @@
         margin: 0 0 28px;
         line-height: 1.02;
       }
+
       .hero-copy h1 .accent {
-        background: linear-gradient(
-          135deg,
-          var(--primary) 0%,
-          var(--accent) 100%
-        );
+        background: linear-gradient(135deg,
+            var(--primary) 0%,
+            var(--accent) 100%);
         -webkit-background-clip: text;
         -webkit-text-fill-color: transparent;
         background-clip: text;
@@ -621,10 +692,12 @@
           "opsz" 144,
           "SOFT" 100;
       }
+
       .hero-copy h1 .strike {
         position: relative;
         display: inline-block;
       }
+
       .hero-copy h1 .strike::after {
         content: "";
         position: absolute;
@@ -632,11 +705,9 @@
         left: -2%;
         right: -2%;
         height: 14px;
-        background: linear-gradient(
-          90deg,
-          rgba(79, 70, 229, 0.18),
-          rgba(124, 58, 237, 0.18)
-        );
+        background: linear-gradient(90deg,
+            rgba(79, 70, 229, 0.18),
+            rgba(124, 58, 237, 0.18));
         border-radius: 6px;
         z-index: -1;
         transform: skew(-6deg);
@@ -649,6 +720,7 @@
         margin-bottom: 40px;
         line-height: 1.75;
       }
+
       .hero-desc strong {
         color: var(--ink);
         font-weight: 700;
@@ -660,6 +732,7 @@
         gap: 16px;
         margin-bottom: 40px;
       }
+
       .hero-formats {
         display: flex;
         align-items: center;
@@ -669,6 +742,7 @@
         font-weight: 600;
         color: var(--muted);
       }
+
       .fmt {
         font-family: var(--font-mono);
         font-size: 11.5px;
@@ -688,6 +762,7 @@
         padding-top: 40px;
         border-top: 1px solid var(--line);
       }
+
       .hero-stat b {
         display: block;
         font-family: var(--font-display);
@@ -696,6 +771,7 @@
         color: var(--ink);
         letter-spacing: -0.02em;
       }
+
       .hero-stat span {
         font-size: 13px;
         color: var(--muted);
@@ -708,36 +784,36 @@
         opacity: 0.5;
         pointer-events: none;
       }
+
       .hero-shape.s1 {
         width: 480px;
         height: 480px;
-        background: radial-gradient(
-          circle,
-          rgba(79, 70, 229, 0.08),
-          transparent 70%
-        );
+        background: radial-gradient(circle,
+            rgba(79, 70, 229, 0.08),
+            transparent 70%);
         top: -120px;
         right: -120px;
         animation: float-slow 20s ease-in-out infinite;
       }
+
       .hero-shape.s2 {
         width: 380px;
         height: 380px;
-        background: radial-gradient(
-          circle,
-          rgba(124, 58, 237, 0.06),
-          transparent 70%
-        );
+        background: radial-gradient(circle,
+            rgba(124, 58, 237, 0.06),
+            transparent 70%);
         bottom: -80px;
         left: -100px;
         animation: float-slow 16s ease-in-out infinite reverse;
       }
 
       @keyframes float-slow {
+
         0%,
         100% {
           transform: translate(0, 0) scale(1);
         }
+
         50% {
           transform: translate(20px, -30px) scale(1.05);
         }
@@ -754,25 +830,26 @@
         box-shadow: var(--shadow-lg);
         position: relative;
       }
+
       .stage-wrap::before {
         content: "";
         position: absolute;
         inset: -2px;
         border-radius: var(--radius-xl);
-        background: linear-gradient(
-          135deg,
-          rgba(79, 70, 229, 0.15),
-          rgba(124, 58, 237, 0.1)
-        );
+        background: linear-gradient(135deg,
+            rgba(79, 70, 229, 0.15),
+            rgba(124, 58, 237, 0.1));
         z-index: -1;
         opacity: 0.6;
       }
+
       .stage {
         position: relative;
         width: 100%;
         aspect-ratio: 100/82;
         user-select: none;
       }
+
       .links {
         position: absolute;
         inset: 0;
@@ -781,6 +858,7 @@
         z-index: 0;
         overflow: visible;
       }
+
       .link {
         stroke-width: 2;
         stroke-dasharray: 5 8;
@@ -788,9 +866,11 @@
         transition: opacity 0.6s ease 0.1s;
         animation: dashflow 1.2s linear infinite;
       }
+
       .stage.p-compare .link {
         opacity: 0.8;
       }
+
       .stage.p-reset .link {
         opacity: 0;
       }
@@ -801,22 +881,27 @@
         z-index: 2;
         transition: transform 0.9s cubic-bezier(0.3, 0.7, 0.3, 1);
       }
+
       .doc-a {
         left: 3%;
         top: 3%;
       }
+
       .doc-b {
         left: 3%;
         top: 54%;
       }
+
       .doc-c {
         left: 71%;
         top: 3%;
       }
+
       .doc-ref {
         left: 71%;
         top: 54%;
       }
+
       .doc-inner {
         background: #fff;
         border: 1.5px solid var(--line);
@@ -828,25 +913,31 @@
           border-color 0.4s,
           box-shadow 0.4s;
       }
+
       .doc-b .doc-inner {
         animation-duration: 6.8s;
         animation-delay: -1.8s;
       }
+
       .doc-c .doc-inner {
         animation-duration: 6.3s;
         animation-delay: -3.2s;
       }
+
       .doc-ref .doc-inner {
         animation-duration: 7.2s;
         animation-delay: -2.4s;
       }
+
       .stage.p-upload .doc-inner {
         border-color: #b8bfed;
         box-shadow: var(--shadow-lg);
       }
+
       .doc.pop .doc-inner {
         animation: pop 0.5s ease both;
       }
+
       .doc-head {
         display: flex;
         align-items: center;
@@ -855,17 +946,20 @@
         margin-bottom: 10px;
         border-bottom: 1.5px solid var(--line);
       }
+
       .doc-head .ic {
         width: 12px;
         height: 12px;
         color: var(--muted);
       }
+
       .doc-name {
         font-size: 9.5px;
         font-weight: 800;
         color: var(--ink);
         white-space: nowrap;
       }
+
       .doc-fmt {
         margin-left: auto;
         font-family: var(--font-mono);
@@ -877,9 +971,11 @@
         padding: 3px 6px;
         border-radius: 5px;
       }
+
       .doc-body {
         position: relative;
       }
+
       .mline {
         display: block;
         height: 6px;
@@ -891,6 +987,7 @@
           background 0.45s ease,
           box-shadow 0.45s ease;
       }
+
       .mline .tag {
         position: absolute;
         left: -2px;
@@ -908,27 +1005,34 @@
         transform: translate(0, -50%) scale(0.4);
         transition: 0.35s ease 0.1s;
       }
+
       .mline.m1 .tag {
         background: var(--s1);
       }
+
       .mline.m2 .tag {
         background: var(--s2);
       }
+
       .mline.m3 .tag {
         background: var(--s3);
       }
+
       .mline.found.m1 {
         background: var(--s1-soft);
         box-shadow: inset 0 0 0 1px #a8c4f7;
       }
+
       .mline.found.m2 {
         background: var(--s2-soft);
         box-shadow: inset 0 0 0 1px #e8c88a;
       }
+
       .mline.found.m3 {
         background: var(--s3-soft);
         box-shadow: inset 0 0 0 1px #8ed4b4;
       }
+
       .mline.found .tag {
         opacity: 1;
         transform: translate(0, -50%) scale(1);
@@ -947,9 +1051,11 @@
         border-bottom: 2px solid rgba(79, 70, 229, 0.5);
         pointer-events: none;
       }
+
       .stage.p-compare .scan {
         animation: scanmove 1.6s ease-in-out infinite;
       }
+
       .stage.p-match .scan {
         animation: none;
         opacity: 0;
@@ -958,12 +1064,15 @@
       .stage.p-compare .doc-a {
         transform: translate(9%, 7%);
       }
+
       .stage.p-compare .doc-b {
         transform: translate(9%, -7%);
       }
+
       .stage.p-compare .doc-c {
         transform: translate(-9%, 7%);
       }
+
       .stage.p-compare .doc-ref {
         transform: translate(-9%, -7%);
       }
@@ -983,18 +1092,21 @@
           box-shadow 0.5s,
           border-color 0.5s;
       }
+
       .stage.p-compare .engine {
         border-color: #b8bfed;
         box-shadow:
           var(--shadow-lg),
           0 0 0 5px rgba(79, 70, 229, 0.08);
       }
+
       .engine-head {
         display: flex;
         align-items: center;
         gap: 10px;
         margin-bottom: 12px;
       }
+
       .engine-ic {
         width: 36px;
         height: 36px;
@@ -1004,15 +1116,18 @@
         display: grid;
         place-items: center;
       }
+
       .engine-ic .ic {
         width: 18px;
         height: 18px;
       }
+
       .engine-head b {
         display: block;
         font-size: 12.5px;
         font-weight: 700;
       }
+
       .engine-status {
         display: flex;
         align-items: center;
@@ -1021,6 +1136,7 @@
         font-weight: 600;
         color: var(--muted);
       }
+
       .sdot {
         width: 8px;
         height: 8px;
@@ -1028,17 +1144,21 @@
         background: #b9bed6;
         flex: none;
       }
+
       .engine.busy .sdot {
         background: var(--primary);
         animation: blink 1s ease-in-out infinite;
       }
+
       .engine.done .sdot {
         background: var(--s3);
       }
+
       .engine.done #engStatus {
         color: var(--s3);
         font-weight: 800;
       }
+
       .engine-progress {
         height: 5px;
         border-radius: 99px;
@@ -1046,6 +1166,7 @@
         overflow: hidden;
         margin-bottom: 12px;
       }
+
       .engine-progress i {
         display: block;
         height: 100%;
@@ -1059,6 +1180,7 @@
         display: grid;
         gap: 9px;
       }
+
       .rrow {
         display: grid;
         grid-template-columns: 1fr auto;
@@ -1072,15 +1194,18 @@
         transform: translateY(8px);
         transition: 0.45s ease;
       }
+
       .rrow.show {
         opacity: 1;
         transform: none;
       }
+
       .stage.p-reset .rrow {
         opacity: 0;
         transform: translateY(-7px);
         transition: 0.5s ease;
       }
+
       .rlab {
         display: flex;
         align-items: center;
@@ -1089,6 +1214,7 @@
         font-weight: 700;
         color: var(--ink-soft);
       }
+
       .rdot {
         width: 9px;
         height: 9px;
@@ -1096,12 +1222,14 @@
         background: var(--c);
         flex: none;
       }
+
       .rval {
         font-family: var(--font-mono);
         font-size: 12px;
         font-weight: 700;
         color: var(--c);
       }
+
       .rbar {
         grid-column: 1/-1;
         height: 4px;
@@ -1109,6 +1237,7 @@
         background: #eef0f8;
         overflow: hidden;
       }
+
       .rbar i {
         display: block;
         height: 100%;
@@ -1140,6 +1269,7 @@
         padding-top: 16px;
         border-top: 1.5px dashed var(--line-strong);
       }
+
       .lg {
         display: flex;
         align-items: center;
@@ -1148,6 +1278,7 @@
         font-weight: 700;
         color: var(--muted);
       }
+
       .lg i {
         width: 18px;
         height: 18px;
@@ -1160,15 +1291,19 @@
         place-items: center;
         font-style: normal;
       }
+
       .lg.l1 i {
         background: var(--s1);
       }
+
       .lg.l2 i {
         background: var(--s2);
       }
+
       .lg.l3 i {
         background: var(--s3);
       }
+
       .loopnote {
         margin-left: auto;
         display: flex;
@@ -1188,6 +1323,7 @@
         border-top: 1px solid var(--line);
         border-bottom: 1px solid var(--line);
       }
+
       .trust-inner {
         display: flex;
         align-items: center;
@@ -1195,6 +1331,7 @@
         flex-wrap: wrap;
         gap: 24px 48px;
       }
+
       .trust-label {
         font-size: 12px;
         font-weight: 700;
@@ -1202,6 +1339,7 @@
         text-transform: uppercase;
         color: var(--muted);
       }
+
       .trust-item {
         display: flex;
         align-items: center;
@@ -1212,6 +1350,7 @@
         color: var(--ink-soft);
         opacity: 0.7;
       }
+
       .trust-item .ic {
         width: 18px;
         height: 18px;
@@ -1226,6 +1365,7 @@
         grid-template-columns: repeat(3, 1fr);
         gap: 28px;
       }
+
       .fcard {
         background: #fff;
         border: 1.5px solid var(--line);
@@ -1235,6 +1375,7 @@
         position: relative;
         overflow: hidden;
       }
+
       .fcard::before {
         content: "";
         position: absolute;
@@ -1247,14 +1388,17 @@
         transform-origin: left;
         transition: transform 0.4s ease;
       }
+
       .fcard:hover {
         transform: translateY(-8px);
         box-shadow: var(--shadow-lg);
         border-color: #c8cdeb;
       }
+
       .fcard:hover::before {
         transform: scaleX(1);
       }
+
       .ftile {
         width: 56px;
         height: 56px;
@@ -1264,30 +1408,37 @@
         margin-bottom: 22px;
         transition: transform 0.35s ease;
       }
+
       .fcard:hover .ftile {
         transform: scale(1.1) rotate(-3deg);
       }
+
       .ftile .ic {
         width: 26px;
         height: 26px;
       }
+
       .fcard:nth-child(3n + 1) .ftile {
         background: var(--primary-soft);
         color: var(--primary);
       }
+
       .fcard:nth-child(3n + 2) .ftile {
         background: var(--accent-soft);
         color: var(--accent);
       }
+
       .fcard:nth-child(3n) .ftile {
         background: #e8efff;
         color: var(--s1);
       }
+
       .fcard h3 {
         font-size: 19px;
         font-weight: 700;
         margin-bottom: 10px;
       }
+
       .fcard p {
         font-size: 15px;
         color: var(--muted);
@@ -1303,6 +1454,7 @@
         gap: 32px;
         position: relative;
       }
+
       .steps::before {
         content: "";
         position: absolute;
@@ -1310,19 +1462,19 @@
         left: 12.5%;
         right: 12.5%;
         height: 3px;
-        background: linear-gradient(
-          90deg,
-          var(--line-strong),
-          var(--primary),
-          var(--line-strong)
-        );
+        background: linear-gradient(90deg,
+            var(--line-strong),
+            var(--primary),
+            var(--line-strong));
         border-radius: 99px;
         opacity: 0.6;
       }
+
       .step {
         text-align: center;
         position: relative;
       }
+
       .step .num {
         width: 64px;
         height: 64px;
@@ -1341,12 +1493,14 @@
         transition: 0.35s ease;
         box-shadow: var(--shadow-sm);
       }
+
       .step:hover .num {
         border-color: var(--primary);
         background: var(--primary-soft);
         transform: translateY(-4px) scale(1.05);
         box-shadow: var(--shadow-md);
       }
+
       .step h4 {
         font-size: 17px;
         font-weight: 700;
@@ -1356,11 +1510,13 @@
         justify-content: center;
         gap: 8px;
       }
+
       .step h4 .ic {
         width: 16px;
         height: 16px;
         color: var(--primary);
       }
+
       .step p {
         font-size: 14px;
         color: var(--muted);
@@ -1378,15 +1534,18 @@
         gap: 64px;
         align-items: center;
       }
+
       .algo-copy h2 {
         font-size: clamp(1.8rem, 3.5vw, 2.6rem);
         margin-bottom: 18px;
       }
-      .algo-copy > p {
+
+      .algo-copy>p {
         color: var(--muted);
         margin-bottom: 32px;
         font-size: 17px;
       }
+
       .concept {
         background: #fff;
         border: 1.5px solid var(--line);
@@ -1395,11 +1554,13 @@
         margin-bottom: 18px;
         transition: all 0.3s ease;
       }
+
       .concept:hover {
         border-color: #c8cdeb;
         transform: translateX(6px);
         box-shadow: var(--shadow-md);
       }
+
       .concept h4 {
         display: flex;
         align-items: center;
@@ -1407,16 +1568,19 @@
         font-size: 17px;
         margin-bottom: 9px;
       }
+
       .concept h4 .ic {
         width: 19px;
         height: 19px;
         color: var(--primary);
       }
+
       .concept p {
         font-size: 14px;
         color: var(--muted);
         line-height: 1.7;
       }
+
       .concept code {
         font-family: var(--font-mono);
         font-size: 12.5px;
@@ -1433,6 +1597,7 @@
         padding: 32px 34px;
         box-shadow: var(--shadow-md);
       }
+
       .pipe-card h5 {
         font-size: 13px;
         font-weight: 800;
@@ -1442,9 +1607,11 @@
         margin-bottom: 24px;
         text-align: center;
       }
+
       .pipe {
         position: relative;
       }
+
       .pipe::before {
         content: "";
         position: absolute;
@@ -1455,6 +1622,7 @@
         background: linear-gradient(180deg, var(--line-strong), var(--primary));
         border-radius: 99px;
       }
+
       .pnode {
         display: flex;
         align-items: center;
@@ -1462,6 +1630,7 @@
         position: relative;
         padding: 9px 0;
       }
+
       .pcirc {
         width: 48px;
         height: 48px;
@@ -1477,28 +1646,33 @@
         transition: 0.3s ease;
         box-shadow: var(--shadow-sm);
       }
+
       .pnode:hover .pcirc {
         border-color: var(--primary);
         background: var(--primary-soft);
         transform: scale(1.1);
         box-shadow: var(--shadow-md);
       }
+
       .pnode b {
         display: block;
         font-size: 15px;
         font-weight: 700;
       }
+
       .pnode span {
         display: block;
         font-size: 12px;
         color: var(--muted);
         margin-top: 2px;
       }
+
       .pnode.last .pcirc {
         background: linear-gradient(135deg, var(--primary), var(--accent));
         border-color: var(--primary);
         color: #fff;
       }
+
       .pnode.last b {
         color: var(--primary-dark);
       }
@@ -1513,6 +1687,7 @@
         box-shadow: var(--shadow-xl);
         overflow: hidden;
       }
+
       .report-bar {
         display: flex;
         align-items: center;
@@ -1521,30 +1696,37 @@
         border-bottom: 1.5px solid var(--line);
         background: var(--bg-soft);
       }
+
       .dots {
         display: flex;
         gap: 7px;
       }
+
       .dots i {
         width: 12px;
         height: 12px;
         border-radius: 50%;
         background: var(--line-strong);
       }
+
       .dots i:first-child {
         background: #ff6b6b;
       }
+
       .dots i:nth-child(2) {
         background: #ffc554;
       }
+
       .dots i:last-child {
         background: #51cf66;
       }
+
       .rfile {
         font-family: var(--font-mono);
         font-size: 12.5px;
         color: var(--muted);
       }
+
       .rbadge {
         margin-left: auto;
         font-family: var(--font-mono);
@@ -1555,19 +1737,23 @@
         padding: 6px 14px;
         border-radius: 99px;
       }
+
       .report-body {
         display: grid;
         grid-template-columns: 1.6fr 1fr;
         gap: 0;
       }
+
       .doc-panel {
         padding: 36px 40px;
         border-right: 1.5px solid var(--line);
       }
+
       .doc-panel h4 {
         font-size: 18px;
         margin-bottom: 6px;
       }
+
       .doc-panel .doc-sub {
         display: block;
         font-size: 12.5px;
@@ -1575,12 +1761,14 @@
         margin-bottom: 24px;
         font-family: var(--font-mono);
       }
+
       .doc-panel p {
         font-size: 15.5px;
         line-height: 1.9;
         color: #3c4064;
         margin-bottom: 20px;
       }
+
       .hl {
         border-radius: 6px;
         padding: 2px 5px;
@@ -1590,42 +1778,54 @@
           opacity 0.35s,
           box-shadow 0.35s;
       }
+
       .hl sup {
         font-family: var(--font-mono);
         font-size: 10px;
         font-weight: 700;
         margin-left: 3px;
       }
+
       .hl.h1 {
         background: var(--s1-soft);
       }
+
       .hl.h1 sup {
         color: var(--s1);
       }
+
       .hl.h2 {
         background: var(--s2-soft);
       }
+
       .hl.h2 sup {
         color: var(--s2);
       }
+
       .hl.h3 {
         background: var(--s3-soft);
       }
+
       .hl.h3 sup {
         color: var(--s3);
       }
+
       .hl:hover {
         box-shadow: 0 0 0 2px currentColor;
       }
+
       .hl.h1 {
         color: #6889c4;
       }
+
       .hl.h2 {
         color: #b07a3a;
       }
+
       .hl.h3 {
         color: #3d8a6a;
       }
+
       .hl::after {
         content: attr(data-tip);
         position: absolute;
@@ -1645,24 +1845,30 @@
         transition: 0.22s ease;
         z-index: 20;
       }
+
       .hl:hover::after {
         opacity: 1;
         transform: translateX(-50%) scale(1);
       }
+
       .doc-panel.f1 .hl:not(.h1),
       .doc-panel.f2 .hl:not(.h2),
       .doc-panel.f3 .hl:not(.h3) {
         opacity: 0.2;
       }
+
       .doc-panel.f1 .hl.h1 {
         box-shadow: 0 0 0 2px var(--s1);
       }
+
       .doc-panel.f2 .hl.h2 {
         box-shadow: 0 0 0 2px var(--s2);
       }
+
       .doc-panel.f3 .hl.h3 {
         box-shadow: 0 0 0 2px var(--s3);
       }
+
       .doc-note {
         font-size: 12.5px !important;
         color: #8b90ad !important;
@@ -1678,6 +1884,7 @@
         padding: 32px 32px 36px;
         background: #fbfbfe;
       }
+
       .panel h5 {
         font-size: 13px;
         font-weight: 800;
@@ -1686,11 +1893,13 @@
         color: var(--ink);
         margin-bottom: 6px;
       }
+
       .panel .hint {
         font-size: 12px;
         color: var(--muted);
         margin-bottom: 15px;
       }
+
       .src-btn {
         display: grid;
         grid-template-columns: auto 1fr auto;
@@ -1705,11 +1914,13 @@
         margin-bottom: 11px;
         transition: 0.25s ease;
       }
+
       .src-btn:hover {
         border-color: #cfd4ee;
         transform: translateX(4px);
         box-shadow: var(--shadow-sm);
       }
+
       .src-btn .n {
         width: 26px;
         height: 26px;
@@ -1721,46 +1932,57 @@
         display: grid;
         place-items: center;
       }
+
       .src-btn[data-src="1"] .n {
         background: var(--s1);
       }
+
       .src-btn[data-src="2"] .n {
         background: var(--s2);
       }
+
       .src-btn[data-src="3"] .n {
         background: var(--s3);
       }
+
       .src-btn .s-name {
         font-size: 14px;
         font-weight: 700;
         color: var(--ink);
       }
+
       .src-btn .s-meta {
         font-size: 11.5px;
         color: var(--muted);
         font-family: var(--font-mono);
       }
+
       .src-btn.on[data-src="1"] {
         border-color: var(--s1);
         background: var(--s1-soft);
       }
+
       .src-btn.on[data-src="2"] {
         border-color: var(--s2);
         background: var(--s2-soft);
       }
+
       .src-btn.on[data-src="3"] {
         border-color: var(--s3);
         background: var(--s3-soft);
       }
+
       .score-main {
         margin: 8px 0 20px;
       }
+
       .score-num {
         display: flex;
         align-items: baseline;
         gap: 12px;
         margin-bottom: 11px;
       }
+
       .score-num b {
         font-family: var(--font-mono);
         font-size: 40px;
@@ -1771,17 +1993,20 @@
         background-clip: text;
         letter-spacing: -0.02em;
       }
+
       .score-num span {
         font-size: 13px;
         font-weight: 700;
         color: var(--muted);
       }
+
       .score-bar {
         height: 8px;
         border-radius: 99px;
         background: #eef0f8;
         overflow: hidden;
       }
+
       .score-bar i {
         display: block;
         height: 100%;
@@ -1790,9 +2015,11 @@
         background: linear-gradient(90deg, var(--primary), var(--accent));
         transition: width 1.2s ease 0.2s;
       }
+
       .report.in .score-bar i {
         width: var(--w);
       }
+
       .score-list li {
         display: flex;
         justify-content: space-between;
@@ -1803,11 +2030,13 @@
         font-weight: 600;
         color: var(--muted);
       }
+
       .score-list b {
         font-family: var(--font-mono);
         font-size: 15px;
         color: var(--ink);
       }
+
       .score-note {
         font-size: 11.5px;
         color: #8b90ad;
@@ -1838,6 +2067,7 @@
         margin-bottom: 18px;
         color: var(--ink);
       }
+
       .teacher-info .subheading em {
         font-style: italic;
         font-variation-settings:
@@ -1848,6 +2078,7 @@
         -webkit-text-fill-color: transparent;
         background-clip: text;
       }
+
       .teacher-info p {
         font-size: 16px;
         color: var(--muted);
@@ -1860,6 +2091,7 @@
         flex-direction: column;
         gap: 14px;
       }
+
       .teacher-feat {
         display: flex;
         align-items: center;
@@ -1870,11 +2102,13 @@
         border-radius: 14px;
         transition: all 0.25s ease;
       }
+
       .teacher-feat:hover {
         border-color: var(--primary);
         transform: translateX(4px);
         box-shadow: var(--shadow-sm);
       }
+
       .teacher-feat .tf-icon {
         width: 38px;
         height: 38px;
@@ -1885,19 +2119,23 @@
         place-items: center;
         flex: none;
       }
+
       .teacher-feat .tf-icon .ic {
         width: 18px;
         height: 18px;
       }
+
       .teacher-feat .tf-text {
         display: flex;
         flex-direction: column;
       }
+
       .teacher-feat span:first-child {
         font-size: 14.5px;
         font-weight: 700;
         color: var(--ink);
       }
+
       .teacher-feat span:last-child {
         font-size: 12px;
         color: var(--muted);
@@ -1912,6 +2150,7 @@
         box-shadow: var(--shadow-md);
         position: relative;
       }
+
       .teacher-stage {
         position: relative;
         width: 100%;
@@ -1927,6 +2166,7 @@
         position: relative;
         z-index: 2;
       }
+
       .t-doc {
         background: #fff;
         border: 1.5px solid var(--line);
@@ -1938,18 +2178,23 @@
         transition: all 0.6s cubic-bezier(0.3, 0.7, 0.3, 1);
         overflow: hidden;
       }
+
       .t-doc:nth-child(2) {
         animation-delay: -0.5s;
       }
+
       .t-doc:nth-child(3) {
         animation-delay: -1s;
       }
+
       .t-doc:nth-child(4) {
         animation-delay: -1.5s;
       }
+
       .t-doc:nth-child(5) {
         animation-delay: -2s;
       }
+
       .t-doc:nth-child(6) {
         animation-delay: -2.5s;
       }
@@ -1960,6 +2205,7 @@
         gap: 6px;
         margin-bottom: 8px;
       }
+
       .t-doc .t-icon {
         width: 18px;
         height: 18px;
@@ -1970,10 +2216,12 @@
         place-items: center;
         flex: none;
       }
+
       .t-doc .t-icon .ic {
         width: 10px;
         height: 10px;
       }
+
       .t-doc .t-name {
         font-size: 9px;
         font-weight: 800;
@@ -1982,16 +2230,19 @@
         overflow: hidden;
         text-overflow: ellipsis;
       }
+
       .t-doc .t-lines {
         display: flex;
         flex-direction: column;
         gap: 3px;
       }
+
       .t-doc .t-line {
         height: 3px;
         border-radius: 99px;
         background: #eef0f8;
       }
+
       .t-doc .t-bar {
         height: 3px;
         border-radius: 99px;
@@ -1999,6 +2250,7 @@
         margin-top: 8px;
         overflow: hidden;
       }
+
       .t-doc .t-bar i {
         display: block;
         height: 100%;
@@ -2007,6 +2259,7 @@
         background: var(--good);
         transition: width 1s ease;
       }
+
       .t-doc.matched .t-bar i {
         width: var(--match);
       }
@@ -2028,26 +2281,32 @@
         align-items: center;
         gap: 3px;
       }
+
       .t-doc .t-badge .b-dot {
         width: 5px;
         height: 5px;
         border-radius: 50%;
         background: #fff;
       }
+
       .t-doc.good .t-badge {
         background: var(--good);
       }
+
       .t-doc.warn .t-badge {
         background: var(--warn);
       }
+
       .t-doc.good {
         border-color: var(--good);
         box-shadow: 0 0 0 2px var(--good-soft);
       }
+
       .t-doc.warn {
         border-color: var(--warn);
         box-shadow: 0 0 0 2px var(--warn-soft);
       }
+
       .t-doc.matched .t-badge {
         opacity: 1;
         transform: scale(1);
@@ -2061,6 +2320,7 @@
         pointer-events: none;
         z-index: 1;
       }
+
       .t-connections line {
         stroke-width: 1.8;
         stroke-dasharray: 5 7;
@@ -2068,12 +2328,15 @@
         animation: dashflow 1.4s linear infinite;
         transition: opacity 0.5s ease;
       }
+
       .t-connections line.good {
         stroke: var(--good);
       }
+
       .t-connections line.warn {
         stroke: var(--warn);
       }
+
       .teacher-stage.p-comparing .t-connections line {
         opacity: 0.6;
       }
@@ -2094,6 +2357,7 @@
         gap: 14px;
         transition: all 0.5s ease;
       }
+
       .teacher-ref-card .ref-icon {
         width: 42px;
         height: 42px;
@@ -2104,13 +2368,16 @@
         place-items: center;
         flex: none;
       }
+
       .teacher-ref-card .ref-icon .ic {
         width: 22px;
         height: 22px;
       }
+
       .teacher-ref-card .ref-text {
         flex: 1;
       }
+
       .teacher-ref-card b {
         display: block;
         font-size: 12px;
@@ -2118,16 +2385,19 @@
         color: var(--ink);
         margin-bottom: 2px;
       }
+
       .teacher-ref-card span {
         font-size: 10px;
         color: var(--muted);
         font-family: var(--font-mono);
         font-weight: 600;
       }
+
       .teacher-ref-card .ref-count {
         margin-left: auto;
         text-align: right;
       }
+
       .teacher-ref-card .ref-count b {
         font-family: var(--font-mono);
         font-size: 20px;
@@ -2135,6 +2405,7 @@
         color: var(--good);
         letter-spacing: -0.02em;
       }
+
       .teacher-ref-card .ref-count span {
         font-size: 9px;
         font-weight: 700;
@@ -2149,6 +2420,7 @@
           var(--shadow-lg);
         transform: translateY(-2px);
       }
+
       .teacher-stage.p-comparing .t-doc {
         animation: none;
         transform: translateY(-3px);
@@ -2159,41 +2431,46 @@
         left: 20px;
         right: 20px;
         height: 2px;
-        background: linear-gradient(
-          90deg,
-          transparent,
-          var(--primary),
-          transparent
-        );
+        background: linear-gradient(90deg,
+            transparent,
+            var(--primary),
+            transparent);
         opacity: 0;
         pointer-events: none;
         border-radius: 99px;
         z-index: 4;
       }
+
       .teacher-stage.p-comparing .scan-line {
         animation: scan-line 2.4s ease-in-out infinite;
       }
 
       @keyframes doc-float {
+
         0%,
         100% {
           transform: translateY(0);
         }
+
         50% {
           transform: translateY(-3px);
         }
       }
+
       @keyframes scan-line {
         0% {
           top: 18px;
           opacity: 0;
         }
+
         15% {
           opacity: 1;
         }
+
         85% {
           opacity: 1;
         }
+
         100% {
           top: calc(100% - 60px);
           opacity: 0;
@@ -2210,20 +2487,24 @@
         color: var(--muted);
         font-weight: 600;
       }
+
       .teacher-legend span {
         display: flex;
         align-items: center;
         gap: 6px;
       }
+
       .teacher-legend i {
         width: 14px;
         height: 14px;
         border-radius: 4px;
         flex: none;
       }
+
       .teacher-legend .lg-good {
         background: var(--good);
       }
+
       .teacher-legend .lg-warn {
         background: var(--warn);
       }
@@ -2239,6 +2520,7 @@
         overflow: hidden;
         margin-top: 64px;
       }
+
       .dash-head {
         display: flex;
         align-items: center;
@@ -2246,13 +2528,16 @@
         padding: 22px 30px;
         border-bottom: 1.5px solid var(--line);
       }
+
       .dash-head h4 {
         font-size: 17px;
       }
+
       .dash-head .sub {
         font-size: 13px;
         color: var(--muted);
       }
+
       .dash-chip {
         margin-left: auto;
         display: inline-flex;
@@ -2265,6 +2550,7 @@
         padding: 7px 15px;
         border-radius: 99px;
       }
+
       .dash-chip i {
         width: 8px;
         height: 8px;
@@ -2272,14 +2558,17 @@
         background: var(--s3);
         animation: blink 1.6s ease-in-out infinite;
       }
+
       .tbl-scroll {
         overflow-x: auto;
       }
+
       .tbl {
         width: 100%;
         border-collapse: collapse;
         min-width: 680px;
       }
+
       .tbl th {
         text-align: left;
         font-size: 12px;
@@ -2291,6 +2580,7 @@
         border-bottom: 1.5px solid var(--line);
         background: #fbfbfe;
       }
+
       .tbl td {
         padding: 20px 30px;
         border-bottom: 1.5px solid var(--bg-soft);
@@ -2298,15 +2588,19 @@
         font-weight: 600;
         color: var(--ink-soft);
       }
+
       .tbl tbody tr {
         transition: background 0.2s;
       }
+
       .tbl tbody tr:hover {
         background: #f8f9fe;
       }
+
       .tbl tbody tr:last-child td {
         border-bottom: none;
       }
+
       .student-cell {
         display: flex;
         align-items: center;
@@ -2314,6 +2608,7 @@
         font-weight: 700;
         color: var(--ink);
       }
+
       .avatar {
         width: 38px;
         height: 38px;
@@ -2325,18 +2620,23 @@
         font-weight: 800;
         flex: none;
       }
+
       .av1 {
         background: linear-gradient(135deg, var(--primary), #6366f1);
       }
+
       .av2 {
         background: linear-gradient(135deg, var(--s1), #3b82f6);
       }
+
       .av3 {
         background: linear-gradient(135deg, var(--accent), #8b5cf6);
       }
+
       .cellbar {
         min-width: 140px;
       }
+
       .cellbar b {
         font-family: var(--font-mono);
         font-size: 14px;
@@ -2344,6 +2644,7 @@
         margin-bottom: 7px;
         color: var(--ink);
       }
+
       .bar {
         display: block;
         height: 6px;
@@ -2351,6 +2652,7 @@
         background: #eef0f8;
         overflow: hidden;
       }
+
       .bar i {
         display: block;
         height: 100%;
@@ -2359,12 +2661,15 @@
         background: var(--good);
         transition: width 1s ease 0.3s;
       }
+
       .bar i.warn {
         background: var(--warn);
       }
+
       .dash.in .bar i {
         width: var(--w);
       }
+
       .badge-st {
         display: inline-flex;
         align-items: center;
@@ -2374,20 +2679,24 @@
         padding: 6px 14px;
         border-radius: 99px;
       }
+
       .badge-st .ic {
         width: 13px;
         height: 13px;
       }
+
       .badge-st.review {
         color: #9a5b00;
         background: #fef3c7;
         border: 1.5px solid #fde68a;
       }
+
       .badge-st.normal {
         color: #067a5b;
         background: #dcfce7;
         border: 1.5px solid #bbf7d0;
       }
+
       .dash-note {
         font-size: 13px;
         color: #8b90ad;
@@ -2398,6 +2707,7 @@
         gap: 10px;
         align-items: flex-start;
       }
+
       .dash-note .ic {
         width: 15px;
         height: 15px;
@@ -2425,6 +2735,7 @@
         margin-bottom: 18px;
         color: var(--ink);
       }
+
       .student-info .subheading em {
         font-style: italic;
         font-variation-settings:
@@ -2435,6 +2746,7 @@
         -webkit-text-fill-color: transparent;
         background-clip: text;
       }
+
       .student-info p {
         font-size: 16px;
         color: var(--muted);
@@ -2448,6 +2760,7 @@
         gap: 10px;
         margin-bottom: 24px;
       }
+
       .fstep {
         display: flex;
         align-items: center;
@@ -2459,11 +2772,13 @@
         box-shadow: var(--shadow-sm);
         transition: all 0.3s ease;
       }
+
       .fstep:hover {
         transform: translateY(-3px);
         border-color: var(--primary);
         box-shadow: var(--shadow-md);
       }
+
       .fstep i {
         width: 26px;
         height: 26px;
@@ -2477,6 +2792,7 @@
         place-items: center;
         font-style: normal;
       }
+
       .fstep span {
         font-size: 13.5px;
         font-weight: 700;
@@ -2491,6 +2807,7 @@
         box-shadow: var(--shadow-md);
         position: relative;
       }
+
       .student-stage {
         position: relative;
         width: 100%;
@@ -2508,14 +2825,17 @@
         box-shadow: var(--shadow-md);
         transition: all 0.8s cubic-bezier(0.3, 0.7, 0.3, 1);
       }
+
       .s-doc-a {
         left: 3%;
         top: 8%;
       }
+
       .s-doc-b {
         right: 3%;
         top: 8%;
       }
+
       .s-doc-head {
         display: flex;
         align-items: center;
@@ -2524,6 +2844,7 @@
         padding-bottom: 10px;
         border-bottom: 1.5px solid var(--line);
       }
+
       .s-doc .s-avatar {
         width: 30px;
         height: 30px;
@@ -2535,17 +2856,21 @@
         font-weight: 800;
         flex: none;
       }
+
       .s-doc-a .s-avatar {
         background: linear-gradient(135deg, var(--primary), #6366f1);
       }
+
       .s-doc-b .s-avatar {
         background: linear-gradient(135deg, var(--s1), #3b82f6);
       }
+
       .s-doc .s-name {
         font-size: 10.5px;
         font-weight: 800;
         color: var(--ink);
       }
+
       .s-doc .s-fmt {
         margin-left: auto;
         font-family: var(--font-mono);
@@ -2556,11 +2881,13 @@
         padding: 2px 6px;
         border-radius: 4px;
       }
+
       .s-doc .s-lines {
         display: flex;
         flex-direction: column;
         gap: 5px;
       }
+
       .s-doc .s-line {
         height: 4px;
         border-radius: 99px;
@@ -2568,10 +2895,12 @@
         position: relative;
         transition: all 0.5s ease;
       }
+
       .s-doc .s-line.highlighted {
         background: var(--warn-soft);
         box-shadow: inset 0 0 0 1px var(--warn);
       }
+
       .s-doc .s-line.highlighted::after {
         content: "";
         position: absolute;
@@ -2585,6 +2914,7 @@
         opacity: 0;
         transition: all 0.35s ease;
       }
+
       .s-doc .s-line.highlighted::after {
         opacity: 1;
         transform: translateY(-50%) scale(1);
@@ -2605,6 +2935,7 @@
         transition: all 0.6s ease;
         z-index: 3;
       }
+
       .s-compare-engine .sce-icon {
         width: 44px;
         height: 44px;
@@ -2615,10 +2946,12 @@
         place-items: center;
         margin: 0 auto 10px;
       }
+
       .s-compare-engine .sce-icon .ic {
         width: 22px;
         height: 22px;
       }
+
       .s-compare-engine b {
         display: block;
         font-size: 10.5px;
@@ -2628,12 +2961,14 @@
         letter-spacing: 0.04em;
         text-transform: uppercase;
       }
+
       .s-compare-engine .sce-label {
         font-size: 9px;
         color: var(--muted);
         font-weight: 600;
         margin-bottom: 8px;
       }
+
       .s-compare-engine .sce-score {
         font-family: var(--font-mono);
         font-size: 32px;
@@ -2644,6 +2979,7 @@
         transition: all 0.5s ease;
         letter-spacing: -0.02em;
       }
+
       .s-compare-engine .sce-score small {
         font-size: 16px;
         font-weight: 600;
@@ -2656,13 +2992,16 @@
           0 0 0 5px var(--warn-soft),
           var(--shadow-lg);
       }
+
       .student-stage.p-result .sce-score {
         opacity: 1;
         transform: scale(1);
       }
+
       .student-stage.p-comparing .s-doc-a {
         transform: translateX(6%);
       }
+
       .student-stage.p-comparing .s-doc-b {
         transform: translateX(-6%);
       }
@@ -2675,6 +3014,7 @@
         pointer-events: none;
         z-index: 1;
       }
+
       .s-connection line {
         stroke: var(--warn);
         stroke-width: 2;
@@ -2683,6 +3023,7 @@
         animation: dashflow 1.2s linear infinite;
         transition: opacity 0.5s ease;
       }
+
       .student-stage.p-comparing .s-connection line {
         opacity: 0.7;
       }
@@ -2697,11 +3038,13 @@
         color: var(--muted);
         font-weight: 600;
       }
+
       .student-legend span {
         display: flex;
         align-items: center;
         gap: 6px;
       }
+
       .student-legend i {
         width: 10px;
         height: 10px;
@@ -2723,6 +3066,7 @@
         color: #92400e;
         font-weight: 600;
       }
+
       .student-warning .ic {
         width: 18px;
         height: 18px;
@@ -2738,6 +3082,7 @@
         grid-template-columns: repeat(3, 1fr);
         gap: 28px;
       }
+
       .acard {
         background: #fff;
         border: 1.5px solid var(--line);
@@ -2747,6 +3092,7 @@
         position: relative;
         overflow: hidden;
       }
+
       .acard::after {
         content: "";
         position: absolute;
@@ -2759,14 +3105,17 @@
         transform-origin: right;
         transition: transform 0.4s ease;
       }
+
       .acard:hover {
         transform: translateY(-8px);
         box-shadow: var(--shadow-lg);
       }
+
       .acard:hover::after {
         transform: scaleX(1);
         transform-origin: left;
       }
+
       .acard .ftile {
         width: 52px;
         height: 52px;
@@ -2775,10 +3124,12 @@
         place-items: center;
         margin-bottom: 20px;
       }
+
       .acard h3 {
         font-size: 18px;
         margin-bottom: 10px;
       }
+
       .acard p {
         font-size: 14.5px;
         color: var(--muted);
@@ -2789,12 +3140,10 @@
    16. FINAL CTA
    ========================================================================== */
       .cta-card {
-        background: linear-gradient(
-          135deg,
-          #141733 0%,
-          #1e2148 50%,
-          #2d2060 100%
-        );
+        background: linear-gradient(135deg,
+            #141733 0%,
+            #1e2148 50%,
+            #2d2060 100%);
         border-radius: var(--radius-xl);
         padding: 88px 40px;
         text-align: center;
@@ -2802,16 +3151,16 @@
         overflow: hidden;
         box-shadow: var(--shadow-xl);
       }
+
       .cta-card::before {
         content: "";
         position: absolute;
         inset: 0;
-        background-image: radial-gradient(
-          rgba(255, 255, 255, 0.06) 1px,
-          transparent 1px
-        );
+        background-image: radial-gradient(rgba(255, 255, 255, 0.06) 1px,
+            transparent 1px);
         background-size: 28px 28px;
       }
+
       .cta-card::after {
         content: "";
         position: absolute;
@@ -2819,13 +3168,12 @@
         right: -20%;
         width: 60%;
         height: 200%;
-        background: radial-gradient(
-          ellipse,
-          rgba(79, 70, 229, 0.2),
-          transparent 60%
-        );
+        background: radial-gradient(ellipse,
+            rgba(79, 70, 229, 0.2),
+            transparent 60%);
         pointer-events: none;
       }
+
       .cta-eyebrow {
         display: inline-block;
         font-size: 13px;
@@ -2837,6 +3185,7 @@
         position: relative;
         z-index: 1;
       }
+
       .cta-card h2 {
         color: #fff;
         font-size: clamp(2rem, 4vw, 3rem);
@@ -2846,6 +3195,7 @@
         position: relative;
         z-index: 1;
       }
+
       .cta-card p {
         color: #c3c8e6;
         max-width: 520px;
@@ -2854,6 +3204,7 @@
         position: relative;
         z-index: 1;
       }
+
       .cta-btns {
         display: flex;
         justify-content: center;
@@ -2871,12 +3222,14 @@
         padding-top: 72px;
         background: #fff;
       }
+
       .foot-grid {
         display: grid;
         grid-template-columns: 1.8fr 0.8fr 0.8fr 0.8fr;
         gap: 48px;
         padding-bottom: 56px;
       }
+
       .foot-brand p {
         font-size: 14px;
         color: var(--muted);
@@ -2884,10 +3237,12 @@
         max-width: 320px;
         line-height: 1.7;
       }
+
       .foot-fmts {
         display: flex;
         gap: 8px;
       }
+
       .foot-fmts span {
         font-family: var(--font-mono);
         font-size: 11px;
@@ -2897,6 +3252,7 @@
         border-radius: 7px;
         padding: 4px 10px;
       }
+
       .foot-col h6 {
         font-family: var(--font-display);
         font-size: 14px;
@@ -2905,6 +3261,7 @@
         text-transform: uppercase;
         letter-spacing: 0.06em;
       }
+
       .foot-col a {
         display: block;
         font-size: 14.5px;
@@ -2913,10 +3270,12 @@
         padding: 7px 0;
         transition: all 0.2s;
       }
+
       .foot-col a:hover {
         color: var(--primary);
         transform: translateX(4px);
       }
+
       .foot-bottom {
         display: flex;
         justify-content: space-between;
@@ -2951,10 +3310,12 @@
         pointer-events: none;
         transition: 0.4s ease;
       }
+
       .toast.show {
         opacity: 1;
         transform: translate(-50%, 0);
       }
+
       .toast .ic {
         color: #9ba3ff;
       }
@@ -2969,54 +3330,68 @@
           opacity 0.8s ease,
           transform 0.8s ease;
       }
+
       .reveal.in {
         opacity: 1;
         transform: none;
       }
+
       @keyframes float {
+
         0%,
         100% {
           transform: translateY(0);
         }
+
         50% {
           transform: translateY(-6px);
         }
       }
+
       @keyframes blink {
+
         0%,
         100% {
           opacity: 1;
         }
+
         50% {
           opacity: 0.3;
         }
       }
+
       @keyframes dashflow {
         to {
           stroke-dashoffset: -13;
         }
       }
+
       @keyframes pop {
         0% {
           transform: scale(0.9);
           opacity: 0.4;
         }
+
         100% {
           transform: scale(1);
           opacity: 1;
         }
       }
+
       @keyframes scanmove {
         0% {
           top: 24%;
           opacity: 0;
         }
+
         18% {
           opacity: 1;
         }
+
         82% {
           opacity: 1;
         }
+
         100% {
           top: 82%;
           opacity: 0;
@@ -3028,7 +3403,9 @@
    ========================================================================== */
       .toast {
         z-index: 400;
-      } /* keep toasts above the modal overlay */
+      }
+
+      /* keep toasts above the modal overlay */
       body.modal-open {
         overflow: hidden;
       }
@@ -3050,6 +3427,7 @@
           opacity 0.3s ease,
           visibility 0.3s ease;
       }
+
       .auth-modal.open {
         opacity: 1;
         visibility: visible;
@@ -3072,6 +3450,7 @@
           transform 0.38s cubic-bezier(0.3, 0.7, 0.3, 1),
           opacity 0.3s ease;
       }
+
       .auth-modal.open .auth-card {
         transform: none;
         opacity: 1;
@@ -3090,11 +3469,13 @@
         background: var(--bg-soft);
         transition: all 0.25s ease;
       }
+
       .auth-close:hover {
         background: #fee2e2;
         color: #dc2626;
         transform: rotate(90deg);
       }
+
       .auth-close .ic {
         width: 18px;
         height: 18px;
@@ -3109,6 +3490,7 @@
         display: grid;
         place-items: center;
       }
+
       .auth-brand svg {
         width: 36px;
         height: 36px;
@@ -3118,25 +3500,30 @@
         display: none;
         text-align: center;
       }
+
       .auth-panel.active {
         display: block;
         animation: authIn 0.4s cubic-bezier(0.3, 0.7, 0.3, 1);
       }
+
       @keyframes authIn {
         from {
           opacity: 0;
           transform: translateY(14px);
         }
+
         to {
           opacity: 1;
           transform: none;
         }
       }
+
       .auth-panel h3 {
         font-size: 26px;
         font-weight: 700;
         margin-bottom: 8px;
       }
+
       .auth-panel .auth-sub {
         font-size: 15px;
         color: var(--muted);
@@ -3146,9 +3533,11 @@
       .auth-form {
         text-align: left;
       }
+
       .auth-field {
         margin-bottom: 18px;
       }
+
       .auth-field label {
         display: block;
         font-size: 13.5px;
@@ -3156,9 +3545,11 @@
         color: var(--ink);
         margin-bottom: 8px;
       }
+
       .input-wrap {
         position: relative;
       }
+
       .auth-field input {
         width: 100%;
         font-family: var(--font-body);
@@ -3172,17 +3563,21 @@
         transition: all 0.22s ease;
         outline: none;
       }
+
       .auth-field input::placeholder {
         color: var(--muted-light);
         font-weight: 500;
       }
+
       .auth-field input:hover {
         border-color: #c3c8e6;
       }
+
       .auth-field input:focus {
         border-color: var(--primary);
         box-shadow: 0 0 0 4px rgba(79, 70, 229, 0.14);
       }
+
       .auth-field.has-toggle input {
         padding-right: 54px;
       }
@@ -3191,9 +3586,11 @@
         border-color: #ef4444;
         background: #fff7f7;
       }
+
       .auth-field.error input:focus {
         box-shadow: 0 0 0 4px rgba(239, 68, 68, 0.12);
       }
+
       .field-msg {
         display: none;
         font-size: 12.5px;
@@ -3201,6 +3598,7 @@
         color: #dc2626;
         margin-top: 7px;
       }
+
       .auth-field.error .field-msg {
         display: block;
       }
@@ -3218,20 +3616,25 @@
         color: var(--muted);
         transition: all 0.2s ease;
       }
+
       .pw-toggle:hover {
         background: var(--primary-soft);
         color: var(--primary);
       }
+
       .pw-toggle .ic {
         width: 18px;
         height: 18px;
       }
+
       .pw-toggle .ic-off {
         display: none;
       }
+
       .pw-toggle.showing .ic-on {
         display: none;
       }
+
       .pw-toggle.showing .ic-off {
         display: block;
       }
@@ -3243,6 +3646,7 @@
         gap: 12px;
         margin: 2px 0 22px;
       }
+
       .remember {
         display: flex;
         align-items: center;
@@ -3253,18 +3657,21 @@
         cursor: pointer;
         user-select: none;
       }
+
       .remember input {
         width: 17px;
         height: 17px;
         accent-color: var(--primary);
         cursor: pointer;
       }
+
       .forgot {
         font-size: 13.5px;
         font-weight: 700;
         color: var(--primary);
         transition: color 0.2s;
       }
+
       .forgot:hover {
         color: var(--primary-dark);
         text-decoration: underline;
@@ -3285,6 +3692,7 @@
         font-weight: 600;
         color: var(--muted);
       }
+
       .auth-switch button {
         font-family: var(--font-body);
         font-size: 14.5px;
@@ -3293,16 +3701,19 @@
         margin-left: 6px;
         transition: color 0.2s;
       }
+
       .auth-switch button:hover {
         color: var(--primary-dark);
         text-decoration: underline;
       }
+
       .auth-note {
         margin-top: 18px;
         text-align: center;
         font-size: 12px;
         color: var(--muted-light);
       }
+
       .auth-panel#resetPanel .auth-sub {
         margin-bottom: 24px;
       }
@@ -3315,40 +3726,49 @@
           grid-template-columns: 1fr;
           gap: 64px;
         }
+
         .hero-copy {
           text-align: center;
           max-width: 680px;
           margin: 0 auto;
         }
+
         .hero-desc {
           margin-left: auto;
           margin-right: auto;
         }
+
         .hero-cta,
         .hero-formats,
         .hero-stats {
           justify-content: center;
         }
+
         .hero-eyebrow {
           margin-left: auto;
           margin-right: auto;
         }
+
         .hero-visual {
           max-width: 700px;
           margin: 0 auto;
           width: 100%;
         }
+
         .features-grid {
           grid-template-columns: repeat(2, 1fr);
         }
+
         .algo-grid {
           grid-template-columns: 1fr;
           gap: 48px;
         }
+
         .teacher-split {
           grid-template-columns: 1fr;
           gap: 40px;
         }
+
         .student-split {
           grid-template-columns: 1fr;
           gap: 40px;
@@ -3359,11 +3779,13 @@
         .report-body {
           grid-template-columns: 1fr;
         }
+
         .doc-panel {
           border-right: none;
           border-bottom: 1.5px solid var(--line);
           padding: 28px;
         }
+
         .about-grid {
           grid-template-columns: 1fr;
           max-width: 560px;
@@ -3372,22 +3794,27 @@
       }
 
       @media (max-width: 900px) {
+
         .nav-links,
         .nav-actions {
           display: none;
         }
+
         .nav-toggle {
           display: block;
         }
+
         .mobile-menu {
           display: block;
         }
+
         .steps {
           grid-template-columns: 1fr;
           gap: 36px;
           max-width: 480px;
           margin: 0 auto;
         }
+
         .steps::before {
           top: 12px;
           bottom: 12px;
@@ -3396,6 +3823,7 @@
           width: 3px;
           height: auto;
         }
+
         .step {
           display: grid;
           grid-template-columns: 58px 1fr;
@@ -3403,12 +3831,15 @@
           text-align: left;
           align-items: start;
         }
+
         .step .num {
           margin: 0;
         }
+
         .step h4 {
           justify-content: flex-start;
         }
+
         .step p {
           margin: 0;
           max-width: none;
@@ -3421,28 +3852,36 @@
           --radius-lg: 20px;
           --radius-xl: 24px;
         }
+
         .container {
           padding: 0 20px;
         }
+
         .section {
           padding: 80px 0;
         }
+
         .hero {
           padding: 130px 0 80px;
         }
+
         .features-grid {
           grid-template-columns: 1fr;
         }
+
         .foot-grid {
           grid-template-columns: 1fr 1fr;
           gap: 36px;
         }
+
         .cta-card {
           padding: 56px 24px;
         }
+
         .hero-stats {
           gap: 28px;
         }
+
         .hero-stat b {
           font-size: 24px;
         }
@@ -3452,102 +3891,131 @@
         .hero {
           padding: 110px 0 64px;
         }
+
         .hero-copy h1 {
           font-size: 2.4rem;
         }
+
         .hero-desc {
           font-size: 16px;
         }
+
         .stage {
           aspect-ratio: 100/150;
         }
+
         .doc {
           width: 46.5%;
         }
+
         .doc-a {
           left: 2.5%;
           top: 1.5%;
         }
+
         .doc-c {
           left: 51%;
           top: 1.5%;
         }
+
         .doc-b {
           left: 2.5%;
           top: 32%;
         }
+
         .doc-ref {
           left: 51%;
           top: 32%;
         }
+
         .engine {
           left: 5%;
           width: 90%;
           top: 62%;
         }
+
         .doc-body .mline:nth-of-type(n + 6) {
           display: none;
         }
+
         .doc-name {
           font-size: 8.5px;
         }
+
         .stage.p-compare .doc-a {
           transform: translate(6%, 10%);
         }
+
         .stage.p-compare .doc-b {
           transform: translate(6%, -10%);
         }
+
         .stage.p-compare .doc-c {
           transform: translate(-6%, 10%);
         }
+
         .stage.p-compare .doc-ref {
           transform: translate(-6%, -10%);
         }
+
         .loopnote {
           display: none;
         }
+
         .student-flow {
           flex-direction: column;
           align-items: stretch;
         }
+
         .dash-chip {
           display: none;
         }
+
         .hero-cta .btn {
           flex: 1;
           justify-content: center;
         }
+
         .rbadge {
           display: none;
         }
+
         .hero-stats {
           flex-direction: column;
           gap: 16px;
           align-items: center;
         }
+
         .foot-grid {
           grid-template-columns: 1fr;
         }
+
         .teacher-stage-wrap {
           padding: 16px;
         }
+
         .student-stage-wrap {
           padding: 16px;
         }
+
         .teacher-info,
         .student-info {
           text-align: center;
         }
+
         .teacher-features,
         .student-flow {
           align-items: center;
         }
+
         .teacher-split .teacher-info {
           order: 2;
         }
+
         .student-split .student-info {
           order: 2;
         }
+
         .s-doc {
           padding: 12px;
         }
@@ -3557,13 +4025,16 @@
         .auth-modal {
           padding: 16px;
         }
+
         .auth-card {
           padding: 36px 24px 28px;
           border-radius: 20px;
         }
+
         .auth-panel h3 {
           font-size: 22px;
         }
+
         .auth-row {
           flex-direction: column;
           align-items: flex-start;
@@ -3574,20 +4045,25 @@
         .hero-copy h1 {
           font-size: 2rem;
         }
+
         .sec-head h2 {
           font-size: 1.7rem;
         }
+
         .btn {
           padding: 13px 20px;
           font-size: 14px;
         }
+
         .btn-lg {
           padding: 15px 24px;
           font-size: 15px;
         }
+
         .t-grid {
           grid-template-columns: repeat(2, 1fr);
         }
+
         .t-doc:nth-child(n + 5) {
           display: none;
         }
@@ -3599,19 +4075,19 @@
           animation-iteration-count: 1 !important;
           transition-duration: 0.01ms !important;
         }
+
         html {
           scroll-behavior: auto;
         }
       }
+
+
     </style>
   </head>
+
   <body>
     <!-- SVG ICON SPRITE -->
-    <svg
-      xmlns="http://www.w3.org/2000/svg"
-      style="display: none"
-      aria-hidden="true"
-    >
+    <svg xmlns="http://www.w3.org/2000/svg" style="display: none" aria-hidden="true">
       <symbol id="i-file" viewBox="0 0 24 24">
         <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
         <path d="M14 2v6h6" />
@@ -3692,9 +4168,7 @@
         <path d="M20 6 9 17l-5-5" />
       </symbol>
       <symbol id="i-alert" viewBox="0 0 24 24">
-        <path
-          d="M10.29 3.86 1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"
-        />
+        <path d="M10.29 3.86 1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z" />
         <path d="M12 9v4" />
         <path d="M12 17h.01" />
       </symbol>
@@ -3720,9 +4194,7 @@
         <path d="M8 5.5v13l11-6.5z" />
       </symbol>
       <symbol id="i-folder" viewBox="0 0 24 24">
-        <path
-          d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"
-        />
+        <path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z" />
       </symbol>
       <symbol id="i-zap" viewBox="0 0 24 24">
         <path d="M13 2 3 14h9l-1 8 10-12h-9l1-8z" />
@@ -3745,12 +4217,8 @@
       </symbol>
       <symbol id="i-eye-off" viewBox="0 0 24 24">
         <path d="M9.88 9.88a3 3 0 1 0 4.24 4.24" />
-        <path
-          d="M10.73 5.08A10.43 10.43 0 0 1 12 5c7 0 10 7 10 7a13.16 13.16 0 0 1-1.67 2.68"
-        />
-        <path
-          d="M6.61 6.61A13.526 13.526 0 0 0 2 12s3 7 10 7a9.74 9.74 0 0 0 5.39-1.61"
-        />
+        <path d="M10.73 5.08A10.43 10.43 0 0 1 12 5c7 0 10 7 10 7a13.16 13.16 0 0 1-1.67 2.68" />
+        <path d="M6.61 6.61A13.526 13.526 0 0 0 2 12s3 7 10 7a9.74 9.74 0 0 0 5.39-1.61" />
         <path d="m2 2 20 20" />
       </symbol>
     </svg>
@@ -3763,21 +4231,13 @@
           <svg viewBox="0 0 40 40" aria-hidden="true">
             <rect x="2" y="2" width="36" height="36" rx="11" fill="#4f46e5" />
 
-            <path
-              d="M14.5 9.5h7l6 6v13a1.6 1.6 0 0 1-1.6 1.6H14.5a1.6 1.6 0 0 1-1.6-1.6V11.1a1.6 1.6 0 0 1 1.6-1.6z"
-              fill="#fff"
-            />
+            <path d="M14.5 9.5h7l6 6v13a1.6 1.6 0 0 1-1.6 1.6H14.5a1.6 1.6 0 0 1-1.6-1.6V11.1a1.6 1.6 0 0 1 1.6-1.6z"
+              fill="#fff" />
 
             <path d="M21.5 9.5v4.9a1.1 1.1 0 0 0 1.1 1.1h4.9" fill="#c9caf5" />
 
-            <path
-              d="M16.6 22.6l2.9 2.9 5.6-6"
-              stroke="#4f46e5"
-              stroke-width="2.6"
-              fill="none"
-              stroke-linecap="round"
-              stroke-linejoin="round"
-            />
+            <path d="M16.6 22.6l2.9 2.9 5.6-6" stroke="#4f46e5" stroke-width="2.6" fill="none" stroke-linecap="round"
+              stroke-linejoin="round" />
           </svg>
 
           AssignCheck
@@ -3801,34 +4261,22 @@
         <!-- DESKTOP AUTH -->
         <div class="nav-actions">
           <!-- LOGIN -->
-          <button
-            type="button"
-            class="btn btn-ghost js-auth-open auth-logged-out"
-            data-auth="login"
-            id="loginNavButton"
-          >
+          <button type="button" class="btn btn-ghost js-auth-open auth-logged-out" data-auth="login"
+            id="loginNavButton">
             Login
           </button>
-
           <!-- SIGN UP -->
-          <button
-            type="button"
-            class="btn btn-primary js-auth-open auth-logged-out"
-            data-auth="signup"
-            id="signupNavButton"
-          >
+          <button type="button" class="btn btn-primary js-auth-open auth-logged-out" data-auth="signup"
+            id="signupNavButton">
             Sign Up
           </button>
 
+
+
           <!-- PROFILE -->
           <div class="profile-wrap" id="profileWrap">
-            <button
-              type="button"
-              class="pfp-btn"
-              id="profileButton"
-              aria-label="Open profile menu"
-              aria-expanded="false"
-            >
+            <button type="button" class="pfp-btn" id="profileButton" aria-label="Open profile menu"
+              aria-expanded="false">
               U
             </button>
 
@@ -3836,7 +4284,7 @@
             <div class="profile-menu" id="profileMenu">
               <a href="#profile" id="profileLink"> Profile </a>
 
-              <a href="../Templates/history.html" id="historyLink"> History </a>
+              <a href="#history" id="historyLink"> History </a>
 
               <button type="button" class="logout-item" id="logoutButton">
                 Logout
@@ -3846,12 +4294,7 @@
         </div>
 
         <!-- MOBILE MENU BUTTON -->
-        <button
-          class="nav-toggle"
-          id="navToggle"
-          aria-label="Toggle menu"
-          aria-expanded="false"
-        >
+        <button class="nav-toggle" id="navToggle" aria-label="Toggle menu" aria-expanded="false">
           <span></span>
           <span></span>
           <span></span>
@@ -3877,34 +4320,21 @@
         <!-- MOBILE AUTH -->
         <div class="mobile-cta">
           <!-- MOBILE LOGIN -->
-          <button
-            type="button"
-            class="btn btn-ghost js-auth-open auth-logged-out"
-            data-auth="login"
-            id="mobileLoginButton"
-          >
+          <button type="button" class="btn btn-ghost js-auth-open auth-logged-out" data-auth="login"
+            id="mobileLoginButton">
             Login
           </button>
 
           <!-- MOBILE SIGN UP -->
-          <button
-            type="button"
-            class="btn btn-primary js-auth-open auth-logged-out"
-            data-auth="signup"
-            id="mobileSignupButton"
-          >
+          <button type="button" class="btn btn-primary js-auth-open auth-logged-out" data-auth="signup"
+            id="mobileSignupButton">
             Sign Up
           </button>
 
           <!-- MOBILE PROFILE -->
           <div class="mobile-profile" id="mobileProfileWrap">
-            <button
-              type="button"
-              class="pfp-btn"
-              id="mobileProfileButton"
-              aria-label="Open profile menu"
-              aria-expanded="false"
-            >
+            <button type="button" class="pfp-btn" id="mobileProfileButton" aria-label="Open profile menu"
+              aria-expanded="false">
               U
             </button>
 
@@ -3945,14 +4375,14 @@
               by evidence, not black boxes.
             </p>
             <div class="hero-cta">
-              <a href="../Templates/CheckAssign.html" class="btn btn-primary btn-lg"
-                >Check an Assignment
-                <svg class="ic arrow"><use href="#i-arrow-r" /></svg
-              ></a>
-              <a href="#how" class="btn btn-ghost btn-lg"
-                ><svg class="icf"><use href="#i-play" /></svg> See How It
-                Works</a
-              >
+              <a href="../Templates/CheckAssign.html" class="btn btn-primary btn-lg ">Check an Assignment
+                <svg class="ic arrow">
+                  <use href="#i-arrow-r" />
+                </svg></a>
+              <a href="#how" class="btn btn-ghost btn-lg"><svg class="icf">
+                  <use href="#i-play" />
+                </svg> See How It
+                Works</a>
             </div>
             <div class="hero-formats">
               <span>Works with</span>
@@ -3974,54 +4404,29 @@
           <div class="hero-visual" style="position: relative; top:-170px">
             <div class="stage-wrap" id="stageWrap">
               <div class="stage" id="stage">
-                <svg
-                  class="links"
-                  viewBox="0 0 100 100"
-                  preserveAspectRatio="none"
-                  aria-hidden="true"
-                >
-                  <line
-                    class="link"
-                    vector-effect="non-scaling-stroke"
-                    stroke="#8f97e0"
-                  />
-                  <line
-                    class="link"
-                    vector-effect="non-scaling-stroke"
-                    stroke="#2563eb"
-                  />
-                  <line
-                    class="link"
-                    vector-effect="non-scaling-stroke"
-                    stroke="#d97706"
-                  />
-                  <line
-                    class="link"
-                    vector-effect="non-scaling-stroke"
-                    stroke="#059669"
-                  />
+                <svg class="links" viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true">
+                  <line class="link" vector-effect="non-scaling-stroke" stroke="#8f97e0" />
+                  <line class="link" vector-effect="non-scaling-stroke" stroke="#2563eb" />
+                  <line class="link" vector-effect="non-scaling-stroke" stroke="#d97706" />
+                  <line class="link" vector-effect="non-scaling-stroke" stroke="#059669" />
                 </svg>
 
                 <div class="doc doc-a">
                   <div class="doc-inner">
                     <div class="doc-head">
-                      <svg class="ic"><use href="#i-file" /></svg>
+                      <svg class="ic">
+                        <use href="#i-file" />
+                      </svg>
                       <span class="doc-name">Student A</span>
                       <span class="doc-fmt">PDF</span>
                     </div>
                     <div class="doc-body">
                       <i class="scan"></i>
                       <span class="mline" style="width: 88%"></span>
-                      <span class="mline match m1" style="width: 70%"
-                        ><i class="tag">1</i></span
-                      >
+                      <span class="mline match m1" style="width: 70%"><i class="tag">1</i></span>
                       <span class="mline" style="width: 80%"></span>
-                      <span class="mline match m2" style="width: 62%"
-                        ><i class="tag">2</i></span
-                      >
-                      <span class="mline match m3" style="width: 74%"
-                        ><i class="tag">3</i></span
-                      >
+                      <span class="mline match m2" style="width: 62%"><i class="tag">2</i></span>
+                      <span class="mline match m3" style="width: 74%"><i class="tag">3</i></span>
                       <span class="mline" style="width: 90%"></span>
                       <span class="mline" style="width: 46%"></span>
                     </div>
@@ -4031,20 +4436,18 @@
                 <div class="doc doc-b">
                   <div class="doc-inner">
                     <div class="doc-head">
-                      <svg class="ic"><use href="#i-file" /></svg>
+                      <svg class="ic">
+                        <use href="#i-file" />
+                      </svg>
                       <span class="doc-name">Student B</span>
                       <span class="doc-fmt">DOCX</span>
                     </div>
                     <div class="doc-body">
                       <i class="scan"></i>
                       <span class="mline" style="width: 86%"></span>
-                      <span class="mline match m1" style="width: 68%"
-                        ><i class="tag">1</i></span
-                      >
+                      <span class="mline match m1" style="width: 68%"><i class="tag">1</i></span>
                       <span class="mline" style="width: 78%"></span>
-                      <span class="mline match m1" style="width: 57%"
-                        ><i class="tag">1</i></span
-                      >
+                      <span class="mline match m1" style="width: 57%"><i class="tag">1</i></span>
                       <span class="mline" style="width: 84%"></span>
                       <span class="mline" style="width: 42%"></span>
                     </div>
@@ -4054,16 +4457,16 @@
                 <div class="doc doc-c">
                   <div class="doc-inner">
                     <div class="doc-head">
-                      <svg class="ic"><use href="#i-file" /></svg>
+                      <svg class="ic">
+                        <use href="#i-file" />
+                      </svg>
                       <span class="doc-name">Student C</span>
                       <span class="doc-fmt">PPTX</span>
                     </div>
                     <div class="doc-body">
                       <i class="scan"></i>
                       <span class="mline" style="width: 90%"></span>
-                      <span class="mline match m2" style="width: 72%"
-                        ><i class="tag">2</i></span
-                      >
+                      <span class="mline match m2" style="width: 72%"><i class="tag">2</i></span>
                       <span class="mline" style="width: 82%"></span>
                       <span class="mline" style="width: 60%"></span>
                       <span class="mline" style="width: 76%"></span>
@@ -4075,20 +4478,18 @@
                 <div class="doc doc-ref">
                   <div class="doc-inner">
                     <div class="doc-head">
-                      <svg class="ic"><use href="#i-file" /></svg>
+                      <svg class="ic">
+                        <use href="#i-file" />
+                      </svg>
                       <span class="doc-name">Teacher Ref</span>
                       <span class="doc-fmt">PDF</span>
                     </div>
                     <div class="doc-body">
                       <i class="scan"></i>
                       <span class="mline" style="width: 88%"></span>
-                      <span class="mline match m3" style="width: 70%"
-                        ><i class="tag">3</i></span
-                      >
+                      <span class="mline match m3" style="width: 70%"><i class="tag">3</i></span>
                       <span class="mline" style="width: 80%"></span>
-                      <span class="mline match m3" style="width: 60%"
-                        ><i class="tag">3</i></span
-                      >
+                      <span class="mline match m3" style="width: 60%"><i class="tag">3</i></span>
                       <span class="mline" style="width: 84%"></span>
                       <span class="mline" style="width: 54%"></span>
                     </div>
@@ -4097,15 +4498,12 @@
 
                 <div class="engine" id="engine">
                   <div class="engine-head">
-                    <span class="engine-ic"
-                      ><svg class="ic"><use href="#i-scan" /></svg
-                    ></span>
+                    <span class="engine-ic"><svg class="ic">
+                        <use href="#i-scan" />
+                      </svg></span>
                     <div>
                       <b>Similarity Engine</b>
-                      <span class="engine-status"
-                        ><i class="sdot"></i
-                        ><span id="engStatus">Ready</span></span
-                      >
+                      <span class="engine-status"><i class="sdot"></i><span id="engStatus">Ready</span></span>
                     </div>
                   </div>
                   <div class="engine-progress"><i id="engBar"></i></div>
@@ -4133,10 +4531,10 @@
                 <span class="lg l1"><i>1</i>Student B</span>
                 <span class="lg l2"><i>2</i>Student C</span>
                 <span class="lg l3"><i>3</i>Teacher Ref</span>
-                <span class="loopnote"
-                  ><svg class="ic"><use href="#i-refresh" /></svg>Auto-looping
-                  demo</span
-                >
+                <span class="loopnote"><svg class="ic">
+                    <use href="#i-refresh" />
+                  </svg>Auto-looping
+                  demo</span>
               </div>
             </div>
           </div>
@@ -4147,21 +4545,21 @@
       <section class="trust">
         <div class="container trust-inner">
           <span class="trust-label">Trusted Approach</span>
-          <span class="trust-item"
-            ><svg class="ic"><use href="#i-shield" /></svg>Evidence-backed
-            scores</span
-          >
-          <span class="trust-item"
-            ><svg class="ic"><use href="#i-eye" /></svg>Transparent
-            results</span
-          >
-          <span class="trust-item"
-            ><svg class="ic"><use href="#i-users" /></svg>Built for
-            classrooms</span
-          >
-          <span class="trust-item"
-            ><svg class="ic"><use href="#i-sparkle" /></svg>No black boxes</span
-          >
+          <span class="trust-item"><svg class="ic">
+              <use href="#i-shield" />
+            </svg>Evidence-backed
+            scores</span>
+          <span class="trust-item"><svg class="ic">
+              <use href="#i-eye" />
+            </svg>Transparent
+            results</span>
+          <span class="trust-item"><svg class="ic">
+              <use href="#i-users" />
+            </svg>Built for
+            classrooms</span>
+          <span class="trust-item"><svg class="ic">
+              <use href="#i-sparkle" />
+            </svg>No black boxes</span>
         </div>
       </section>
 
@@ -4179,7 +4577,9 @@
           <div class="features-grid">
             <div class="fcard reveal">
               <div class="ftile">
-                <svg class="ic"><use href="#i-file" /></svg>
+                <svg class="ic">
+                  <use href="#i-file" />
+                </svg>
               </div>
               <h3>Multi-Format File Support</h3>
               <p>
@@ -4189,7 +4589,9 @@
             </div>
             <div class="fcard reveal" style="transition-delay: 0.08s">
               <div class="ftile">
-                <svg class="ic"><use href="#i-users" /></svg>
+                <svg class="ic">
+                  <use href="#i-users" />
+                </svg>
               </div>
               <h3>Student-to-Student Comparison</h3>
               <p>
@@ -4199,7 +4601,9 @@
             </div>
             <div class="fcard reveal" style="transition-delay: 0.16s">
               <div class="ftile">
-                <svg class="ic"><use href="#i-book" /></svg>
+                <svg class="ic">
+                  <use href="#i-book" />
+                </svg>
               </div>
               <h3>Teacher Reference Matching</h3>
               <p>
@@ -4209,7 +4613,9 @@
             </div>
             <div class="fcard reveal" style="transition-delay: 0.24s">
               <div class="ftile">
-                <svg class="ic"><use href="#i-percent" /></svg>
+                <svg class="ic">
+                  <use href="#i-percent" />
+                </svg>
               </div>
               <h3>Similarity Scoring</h3>
               <p>
@@ -4219,7 +4625,9 @@
             </div>
             <div class="fcard reveal" style="transition-delay: 0.32s">
               <div class="ftile">
-                <svg class="ic"><use href="#i-pen" /></svg>
+                <svg class="ic">
+                  <use href="#i-pen" />
+                </svg>
               </div>
               <h3>Match Highlighting</h3>
               <p>
@@ -4229,7 +4637,9 @@
             </div>
             <div class="fcard reveal" style="transition-delay: 0.4s">
               <div class="ftile">
-                <svg class="ic"><use href="#i-layers" /></svg>
+                <svg class="ic">
+                  <use href="#i-layers" />
+                </svg>
               </div>
               <h3>Source-Based Results</h3>
               <p>
@@ -4256,7 +4666,9 @@
             <div class="step reveal">
               <div class="num">1</div>
               <h4>
-                <svg class="ic"><use href="#i-upload" /></svg>Upload
+                <svg class="ic">
+                  <use href="#i-upload" />
+                </svg>Upload
               </h4>
               <p>
                 Upload assignments or reference answers in PDF, DOCX, TXT or
@@ -4266,7 +4678,9 @@
             <div class="step reveal" style="transition-delay: 0.1s">
               <div class="num">2</div>
               <h4>
-                <svg class="ic"><use href="#i-type" /></svg>Extract
+                <svg class="ic">
+                  <use href="#i-type" />
+                </svg>Extract
               </h4>
               <p>
                 Extract and process text from every page and slide
@@ -4276,7 +4690,9 @@
             <div class="step reveal" style="transition-delay: 0.2s">
               <div class="num">3</div>
               <h4>
-                <svg class="ic"><use href="#i-repeat" /></svg>Compare
+                <svg class="ic">
+                  <use href="#i-repeat" />
+                </svg>Compare
               </h4>
               <p>
                 Compare text using n-grams and similarity techniques across all
@@ -4286,7 +4702,9 @@
             <div class="step reveal" style="transition-delay: 0.3s">
               <div class="num">4</div>
               <h4>
-                <svg class="ic"><use href="#i-chart" /></svg>Analyze
+                <svg class="ic">
+                  <use href="#i-chart" />
+                </svg>Analyze
               </h4>
               <p>
                 View similarity scores, matching sections and their numbered
@@ -4310,7 +4728,9 @@
             </p>
             <div class="concept">
               <h4>
-                <svg class="ic"><use href="#i-hash" /></svg>N-Grams
+                <svg class="ic">
+                  <use href="#i-hash" />
+                </svg>N-Grams
               </h4>
               <p>
                 Text is split into overlapping word sequences — for example
@@ -4321,7 +4741,9 @@
             </div>
             <div class="concept">
               <h4>
-                <svg class="ic"><use href="#i-percent" /></svg>Jaccard
+                <svg class="ic">
+                  <use href="#i-percent" />
+                </svg>Jaccard
                 Similarity
               </h4>
               <p>
@@ -4335,57 +4757,53 @@
             <h5>Analysis Pipeline</h5>
             <div class="pipe">
               <div class="pnode">
-                <span class="pcirc"
-                  ><svg class="ic"><use href="#i-file" /></svg
-                ></span>
+                <span class="pcirc"><svg class="ic">
+                    <use href="#i-file" />
+                  </svg></span>
                 <div><b>Assignment</b><span>PDF · DOCX · TXT · PPTX</span></div>
               </div>
               <div class="pnode">
-                <span class="pcirc"
-                  ><svg class="ic"><use href="#i-type" /></svg
-                ></span>
+                <span class="pcirc"><svg class="ic">
+                    <use href="#i-type" />
+                  </svg></span>
                 <div>
-                  <b>Text Extraction</b
-                  ><span>Content pulled from every page and slide</span>
+                  <b>Text Extraction</b><span>Content pulled from every page and slide</span>
                 </div>
               </div>
               <div class="pnode">
-                <span class="pcirc"
-                  ><svg class="ic"><use href="#i-list" /></svg
-                ></span>
+                <span class="pcirc"><svg class="ic">
+                    <use href="#i-list" />
+                  </svg></span>
                 <div>
-                  <b>Text Preprocessing</b
-                  ><span>Normalised, cleaned and tokenised</span>
+                  <b>Text Preprocessing</b><span>Normalised, cleaned and tokenised</span>
                 </div>
               </div>
               <div class="pnode">
-                <span class="pcirc"
-                  ><svg class="ic"><use href="#i-hash" /></svg
-                ></span>
+                <span class="pcirc"><svg class="ic">
+                    <use href="#i-hash" />
+                  </svg></span>
                 <div><b>N-Grams</b><span>Overlapping word sequences</span></div>
               </div>
               <div class="pnode">
-                <span class="pcirc"
-                  ><svg class="ic"><use href="#i-scan" /></svg
-                ></span>
+                <span class="pcirc"><svg class="ic">
+                    <use href="#i-scan" />
+                  </svg></span>
                 <div>
-                  <b>Similarity Analysis</b
-                  ><span>Jaccard index across documents</span>
+                  <b>Similarity Analysis</b><span>Jaccard index across documents</span>
                 </div>
               </div>
               <div class="pnode">
-                <span class="pcirc"
-                  ><svg class="ic"><use href="#i-pen" /></svg
-                ></span>
+                <span class="pcirc"><svg class="ic">
+                    <use href="#i-pen" />
+                  </svg></span>
                 <div>
-                  <b>Matching Sections</b
-                  ><span>Highlighted with numbered sources</span>
+                  <b>Matching Sections</b><span>Highlighted with numbered sources</span>
                 </div>
               </div>
               <div class="pnode last">
-                <span class="pcirc"
-                  ><svg class="ic"><use href="#i-percent" /></svg
-                ></span>
+                <span class="pcirc"><svg class="ic">
+                    <use href="#i-percent" />
+                  </svg></span>
                 <div>
                   <b>Similarity Score</b><span>0–100% · evidence-backed</span>
                 </div>
@@ -4421,31 +4839,26 @@
                 <p>
                   The water cycle describes the continuous movement of water on,
                   above and below the surface of the Earth.
-                  <span class="hl h1" data-tip="Matches Student Assignment B"
-                    >Energy from the sun drives evaporation, converting liquid
-                    water into water vapour<sup>1</sup></span
-                  >
+                  <span class="hl h1" data-tip="Matches Student Assignment B">Energy from the sun drives evaporation,
+                    converting liquid
+                    water into water vapour<sup>1</sup></span>
                   that rises slowly into the atmosphere.
                 </p>
                 <p>
-                  <span class="hl h2" data-tip="Matches Student Assignment C"
-                    >As water vapour rises it cools and condenses around tiny
-                    particles, gradually forming clouds<sup>2</sup></span
-                  >.
-                  <span class="hl h3" data-tip="Matches Teacher Reference"
-                    >Precipitation returns water to the surface as rain, snow,
-                    sleet or hail<sup>3</sup></span
-                  >, completing the main stages of the cycle.
+                  <span class="hl h2" data-tip="Matches Student Assignment C">As water vapour rises it cools and
+                    condenses around tiny
+                    particles, gradually forming clouds<sup>2</sup></span>.
+                  <span class="hl h3" data-tip="Matches Teacher Reference">Precipitation returns water to the surface as
+                    rain, snow,
+                    sleet or hail<sup>3</sup></span>, completing the main stages of the cycle.
                 </p>
                 <p>
-                  <span class="hl h1" data-tip="Matches Student Assignment B"
-                    >Runoff gathers in rivers, lakes and oceans, where the cycle
-                    quietly begins again<sup>1</sup></span
-                  >.
-                  <span class="hl h3" data-tip="Matches Teacher Reference"
-                    >In this way the planet maintains a natural balance of water
-                    between land, atmosphere and ocean<sup>3</sup></span
-                  >
+                  <span class="hl h1" data-tip="Matches Student Assignment B">Runoff gathers in rivers, lakes and
+                    oceans, where the cycle
+                    quietly begins again<sup>1</sup></span>.
+                  <span class="hl h3" data-tip="Matches Teacher Reference">In this way the planet maintains a natural
+                    balance of water
+                    between land, atmosphere and ocean<sup>3</sup></span>
                   — a process every ecosystem depends on.
                 </p>
                 <p class="doc-note">
@@ -4486,12 +4899,10 @@
                   </div>
                   <ul class="score-list">
                     <li>
-                      <span>Matching Sections</span
-                      ><b data-count="12" data-suffix="">0</b>
+                      <span>Matching Sections</span><b data-count="12" data-suffix="">0</b>
                     </li>
                     <li>
-                      <span>Reference Match</span
-                      ><b data-count="86" data-suffix="%">0%</b>
+                      <span>Reference Match</span><b data-count="86" data-suffix="%">0%</b>
                     </li>
                     <li><span>Sources Compared</span><b>3</b></li>
                   </ul>
@@ -4525,36 +4936,13 @@
               <div class="teacher-stage" id="teacherStage">
                 <div class="scan-line"></div>
 
-                <svg
-                  class="t-connections"
-                  viewBox="0 0 100 100"
-                  preserveAspectRatio="none"
-                  aria-hidden="true"
-                >
-                  <line
-                    class="t-line good"
-                    vector-effect="non-scaling-stroke"
-                  />
-                  <line
-                    class="t-line good"
-                    vector-effect="non-scaling-stroke"
-                  />
-                  <line
-                    class="t-line warn"
-                    vector-effect="non-scaling-stroke"
-                  />
-                  <line
-                    class="t-line warn"
-                    vector-effect="non-scaling-stroke"
-                  />
-                  <line
-                    class="t-line good"
-                    vector-effect="non-scaling-stroke"
-                  />
-                  <line
-                    class="t-line warn"
-                    vector-effect="non-scaling-stroke"
-                  />
+                <svg class="t-connections" viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true">
+                  <line class="t-line good" vector-effect="non-scaling-stroke" />
+                  <line class="t-line good" vector-effect="non-scaling-stroke" />
+                  <line class="t-line warn" vector-effect="non-scaling-stroke" />
+                  <line class="t-line warn" vector-effect="non-scaling-stroke" />
+                  <line class="t-line good" vector-effect="non-scaling-stroke" />
+                  <line class="t-line warn" vector-effect="non-scaling-stroke" />
                 </svg>
 
                 <div class="t-grid">
@@ -4562,7 +4950,9 @@
                     <div class="t-badge"><i class="b-dot"></i>91%</div>
                     <div class="t-doc-head">
                       <div class="t-icon">
-                        <svg class="ic"><use href="#i-file" /></svg>
+                        <svg class="ic">
+                          <use href="#i-file" />
+                        </svg>
                       </div>
                       <span class="t-name">Student A · PDF</span>
                     </div>
@@ -4578,7 +4968,9 @@
                     <div class="t-badge"><i class="b-dot"></i>88%</div>
                     <div class="t-doc-head">
                       <div class="t-icon">
-                        <svg class="ic"><use href="#i-file" /></svg>
+                        <svg class="ic">
+                          <use href="#i-file" />
+                        </svg>
                       </div>
                       <span class="t-name">Student B · DOCX</span>
                     </div>
@@ -4594,7 +4986,9 @@
                     <div class="t-badge"><i class="b-dot"></i>42%</div>
                     <div class="t-doc-head">
                       <div class="t-icon">
-                        <svg class="ic"><use href="#i-file" /></svg>
+                        <svg class="ic">
+                          <use href="#i-file" />
+                        </svg>
                       </div>
                       <span class="t-name">Student C · PPTX</span>
                     </div>
@@ -4610,7 +5004,9 @@
                     <div class="t-badge"><i class="b-dot"></i>38%</div>
                     <div class="t-doc-head">
                       <div class="t-icon">
-                        <svg class="ic"><use href="#i-file" /></svg>
+                        <svg class="ic">
+                          <use href="#i-file" />
+                        </svg>
                       </div>
                       <span class="t-name">Student D · PDF</span>
                     </div>
@@ -4626,7 +5022,9 @@
                     <div class="t-badge"><i class="b-dot"></i>85%</div>
                     <div class="t-doc-head">
                       <div class="t-icon">
-                        <svg class="ic"><use href="#i-file" /></svg>
+                        <svg class="ic">
+                          <use href="#i-file" />
+                        </svg>
                       </div>
                       <span class="t-name">Student E · DOCX</span>
                     </div>
@@ -4642,7 +5040,9 @@
                     <div class="t-badge"><i class="b-dot"></i>51%</div>
                     <div class="t-doc-head">
                       <div class="t-icon">
-                        <svg class="ic"><use href="#i-file" /></svg>
+                        <svg class="ic">
+                          <use href="#i-file" />
+                        </svg>
                       </div>
                       <span class="t-name">Student F · TXT</span>
                     </div>
@@ -4658,7 +5058,9 @@
 
                 <div class="teacher-ref-card" id="teacherRef">
                   <div class="ref-icon">
-                    <svg class="ic"><use href="#i-book" /></svg>
+                    <svg class="ic">
+                      <use href="#i-book" />
+                    </svg>
                   </div>
                   <div class="ref-text">
                     <b>Teacher's Answer Key</b>
@@ -4684,44 +5086,42 @@
               <p>
                 Drop an entire class folder and your reference answer.
                 AssignCheck compares
-                <strong
-                  >each student's submission against your model answer</strong
-                >
+                <strong>each student's submission against your model answer</strong>
                 — flagging papers that match closely and highlighting those that
                 miss key concepts.
               </p>
               <div class="teacher-features">
                 <div class="teacher-feat">
-                  <span class="tf-icon"
-                    ><svg class="ic"><use href="#i-folder" /></svg
-                  ></span>
+                  <span class="tf-icon"><svg class="ic">
+                      <use href="#i-folder" />
+                    </svg></span>
                   <div class="tf-text">
                     <span>Bulk upload</span>
                     <span>Drop an entire class folder at once</span>
                   </div>
                 </div>
                 <div class="teacher-feat">
-                  <span class="tf-icon"
-                    ><svg class="ic"><use href="#i-target" /></svg
-                  ></span>
+                  <span class="tf-icon"><svg class="ic">
+                      <use href="#i-target" />
+                    </svg></span>
                   <div class="tf-text">
                     <span>Every paper vs. your answer</span>
                     <span>See how each student performed</span>
                   </div>
                 </div>
                 <div class="teacher-feat">
-                  <span class="tf-icon"
-                    ><svg class="ic"><use href="#i-trending" /></svg
-                  ></span>
+                  <span class="tf-icon"><svg class="ic">
+                      <use href="#i-trending" />
+                    </svg></span>
                   <div class="tf-text">
                     <span>Auto-flag low matches</span>
                     <span>Focus review where it matters most</span>
                   </div>
                 </div>
                 <div class="teacher-feat">
-                  <span class="tf-icon"
-                    ><svg class="ic"><use href="#i-check" /></svg
-                  ></span>
+                  <span class="tf-icon"><svg class="ic">
+                      <use href="#i-check" />
+                    </svg></span>
                   <div class="tf-text">
                     <span>Reference Match score</span>
                     <span>Clear % match to your model answer</span>
@@ -4736,9 +5136,7 @@
             <div class="dash-head">
               <div>
                 <h4>Environmental Science — Week 6 Essay</h4>
-                <span class="sub"
-                  >24 submissions · compared against your reference answer</span
-                >
+                <span class="sub">24 submissions · compared against your reference answer</span>
               </div>
               <span class="dash-chip"><i></i>Class View</span>
             </div>
@@ -4755,88 +5153,71 @@
                 <tbody>
                   <tr>
                     <td>
-                      <span class="student-cell"
-                        ><span class="avatar av1">SA</span>Student A</span
-                      >
+                      <span class="student-cell"><span class="avatar av1">SA</span>Student A</span>
                     </td>
                     <td>
                       <div class="cellbar">
-                        <b>91%</b
-                        ><span class="bar"><i style="--w: 91%"></i></span>
+                        <b>91%</b><span class="bar"><i style="--w: 91%"></i></span>
                       </div>
                     </td>
                     <td>
                       <div class="cellbar">
-                        <b>34%</b
-                        ><span class="bar"><i style="--w: 34%"></i></span>
+                        <b>34%</b><span class="bar"><i style="--w: 34%"></i></span>
                       </div>
                     </td>
                     <td>
-                      <span class="badge-st normal"
-                        ><svg class="ic"><use href="#i-check" /></svg
-                        >Strong</span
-                      >
+                      <span class="badge-st normal"><svg class="ic">
+                          <use href="#i-check" />
+                        </svg>Strong</span>
                     </td>
                   </tr>
                   <tr>
                     <td>
-                      <span class="student-cell"
-                        ><span class="avatar av2">SB</span>Student B</span
-                      >
+                      <span class="student-cell"><span class="avatar av2">SB</span>Student B</span>
                     </td>
                     <td>
                       <div class="cellbar">
-                        <b>79%</b
-                        ><span class="bar"><i style="--w: 79%"></i></span>
+                        <b>79%</b><span class="bar"><i style="--w: 79%"></i></span>
                       </div>
                     </td>
                     <td>
                       <div class="cellbar">
-                        <b>82%</b
-                        ><span class="bar"
-                          ><i class="warn" style="--w: 82%"></i
-                        ></span>
+                        <b>82%</b><span class="bar"><i class="warn" style="--w: 82%"></i></span>
                       </div>
                     </td>
                     <td>
-                      <span class="badge-st review"
-                        ><svg class="ic"><use href="#i-alert" /></svg
-                        >Review</span
-                      >
+                      <span class="badge-st review"><svg class="ic">
+                          <use href="#i-alert" />
+                        </svg>Review</span>
                     </td>
                   </tr>
                   <tr>
                     <td>
-                      <span class="student-cell"
-                        ><span class="avatar av3">SC</span>Student C</span
-                      >
+                      <span class="student-cell"><span class="avatar av3">SC</span>Student C</span>
                     </td>
                     <td>
                       <div class="cellbar">
-                        <b>42%</b
-                        ><span class="bar"
-                          ><i class="warn" style="--w: 42%"></i
-                        ></span>
+                        <b>42%</b><span class="bar"><i class="warn" style="--w: 42%"></i></span>
                       </div>
                     </td>
                     <td>
                       <div class="cellbar">
-                        <b>22%</b
-                        ><span class="bar"><i style="--w: 22%"></i></span>
+                        <b>22%</b><span class="bar"><i style="--w: 22%"></i></span>
                       </div>
                     </td>
                     <td>
-                      <span class="badge-st review"
-                        ><svg class="ic"><use href="#i-alert" /></svg
-                        >Review</span
-                      >
+                      <span class="badge-st review"><svg class="ic">
+                          <use href="#i-alert" />
+                        </svg>Review</span>
                     </td>
                   </tr>
                 </tbody>
               </table>
             </div>
             <p class="dash-note">
-              <svg class="ic"><use href="#i-info" /></svg>"Review" means a
+              <svg class="ic">
+                <use href="#i-info" />
+              </svg>"Review" means a
               submission shows low reference match or high similarity with
               classmates — it deserves a closer look, not an automatic verdict.
               Teachers make the final call.
@@ -4874,42 +5255,25 @@
                 <div class="fstep"><i>4</i><span>Rewrite Overlaps</span></div>
               </div>
 
-              <a href="#" class="btn btn-primary btn-lg" data-demo
-                >Try Assignment Analysis
-                <svg class="ic arrow"><use href="#i-arrow-r" /></svg
-              ></a>
+              <a href="#" class="btn btn-primary btn-lg" data-demo>Try Assignment Analysis
+                <svg class="ic arrow">
+                  <use href="#i-arrow-r" />
+                </svg></a>
 
               <div class="student-warning">
-                <svg class="ic"><use href="#i-alert" /></svg>
-                <span
-                  >High similarity? It's usually easy to fix — rewrite matching
-                  sentences in your own voice.</span
-                >
+                <svg class="ic">
+                  <use href="#i-alert" />
+                </svg>
+                <span>High similarity? It's usually easy to fix — rewrite matching
+                  sentences in your own voice.</span>
               </div>
             </div>
 
             <div class="student-stage-wrap" id="studentWrap">
               <div class="student-stage" id="studentStage">
-                <svg
-                  class="s-connection"
-                  viewBox="0 0 100 100"
-                  preserveAspectRatio="none"
-                  aria-hidden="true"
-                >
-                  <line
-                    vector-effect="non-scaling-stroke"
-                    x1="42"
-                    y1="40"
-                    x2="48"
-                    y2="48"
-                  />
-                  <line
-                    vector-effect="non-scaling-stroke"
-                    x1="58"
-                    y1="40"
-                    x2="52"
-                    y2="48"
-                  />
+                <svg class="s-connection" viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true">
+                  <line vector-effect="non-scaling-stroke" x1="42" y1="40" x2="48" y2="48" />
+                  <line vector-effect="non-scaling-stroke" x1="58" y1="40" x2="52" y2="48" />
                 </svg>
 
                 <div class="s-doc s-doc-a" id="sDocA">
@@ -4930,7 +5294,9 @@
 
                 <div class="s-compare-engine" id="sEngine">
                   <div class="sce-icon">
-                    <svg class="ic"><use href="#i-scan" /></svg>
+                    <svg class="ic">
+                      <use href="#i-scan" />
+                    </svg>
                   </div>
                   <b>Comparing</b>
                   <div class="sce-label">Shared text</div>
@@ -4976,10 +5342,7 @@
           </div>
           <div class="about-grid">
             <div class="acard reveal">
-              <div
-                class="ftile"
-                style="background: var(--primary-soft); color: var(--primary)"
-              >
+              <div class="ftile" style="background: var(--primary-soft); color: var(--primary)">
                 <svg class="ic" style="width: 24px; height: 24px">
                   <use href="#i-shield" />
                 </svg>
@@ -4992,10 +5355,7 @@
               </p>
             </div>
             <div class="acard reveal" style="transition-delay: 0.1s">
-              <div
-                class="ftile"
-                style="background: var(--accent-soft); color: var(--accent)"
-              >
+              <div class="ftile" style="background: var(--accent-soft); color: var(--accent)">
                 <svg class="ic" style="width: 24px; height: 24px">
                   <use href="#i-eye" />
                 </svg>
@@ -5035,13 +5395,11 @@
               technology.
             </p>
             <div class="cta-btns">
-              <a href="#" class="btn btn-white btn-lg" data-demo
-                >Get Started
-                <svg class="ic arrow"><use href="#i-arrow-r" /></svg
-              ></a>
-              <a href="#features" class="btn btn-ghost-light btn-lg"
-                >Explore Features</a
-              >
+              <a href="#" class="btn btn-white btn-lg" data-demo>Get Started
+                <svg class="ic arrow">
+                  <use href="#i-arrow-r" />
+                </svg></a>
+              <a href="#features" class="btn btn-ghost-light btn-lg">Explore Features</a>
             </div>
           </div>
         </div>
@@ -5055,18 +5413,10 @@
           <a href="#home" class="brand">
             <svg viewBox="0 0 40 40" aria-hidden="true">
               <rect x="2" y="2" width="36" height="36" rx="11" fill="#4f46e5" />
-              <path
-                d="M14.5 9.5h7l6 6v13a1.6 1.6 0 0 1-1.6 1.6H14.5a1.6 1.6 0 0 1-1.6-1.6V11.1a1.6 1.6 0 0 1 1.6-1.6z"
-                fill="#fff"
-              />
-              <path
-                d="M16.6 22.6l2.9 2.9 5.6-6"
-                stroke="#4f46e5"
-                stroke-width="2.6"
-                fill="none"
-                stroke-linecap="round"
-                stroke-linejoin="round"
-              />
+              <path d="M14.5 9.5h7l6 6v13a1.6 1.6 0 0 1-1.6 1.6H14.5a1.6 1.6 0 0 1-1.6-1.6V11.1a1.6 1.6 0 0 1 1.6-1.6z"
+                fill="#fff" />
+              <path d="M16.6 22.6l2.9 2.9 5.6-6" stroke="#4f46e5" stroke-width="2.6" fill="none" stroke-linecap="round"
+                stroke-linejoin="round" />
             </svg>
             AssignCheck
           </a>
@@ -5101,29 +5451,18 @@
       </div>
       <div class="foot-bottom">
         <span>© 2026 AssignCheck. All rights reserved.</span>
-        <span
-          >Similarity analysis supports human review — it never replaces
-          it.</span
-        >
+        <span>Similarity analysis supports human review — it never replaces
+          it.</span>
       </div>
     </footer>
 
     <!-- AUTH MODAL -->
     <div class="auth-modal" id="authModal" aria-hidden="true">
-      <div
-        class="auth-card"
-        id="authCard"
-        role="dialog"
-        aria-modal="true"
-        aria-labelledby="authTitleLogin"
-      >
-        <button
-          class="auth-close"
-          id="authClose"
-          type="button"
-          aria-label="Close dialog"
-        >
-          <svg class="ic"><use href="#i-x" /></svg>
+      <div class="auth-card" id="authCard" role="dialog" aria-modal="true" aria-labelledby="authTitleLogin">
+        <button class="auth-close" id="authClose" type="button" aria-label="Close dialog">
+          <svg class="ic">
+            <use href="#i-x" />
+          </svg>
         </button>
 
         <!-- ============ LOGIN PANEL ============ -->
@@ -5131,22 +5470,11 @@
           <div class="auth-brand" aria-hidden="true">
             <svg viewBox="0 0 40 40">
               <rect x="2" y="2" width="36" height="36" rx="11" fill="#4f46e5" />
-              <path
-                d="M14.5 9.5h7l6 6v13a1.6 1.6 0 0 1-1.6 1.6H14.5a1.6 1.6 0 0 1-1.6-1.6V11.1a1.6 1.6 0 0 1 1.6-1.6z"
-                fill="#fff"
-              />
-              <path
-                d="M21.5 9.5v4.9a1.1 1.1 0 0 0 1.1 1.1h4.9"
-                fill="#c9caf5"
-              />
-              <path
-                d="M16.6 22.6l2.9 2.9 5.6-6"
-                stroke="#4f46e5"
-                stroke-width="2.6"
-                fill="none"
-                stroke-linecap="round"
-                stroke-linejoin="round"
-              />
+              <path d="M14.5 9.5h7l6 6v13a1.6 1.6 0 0 1-1.6 1.6H14.5a1.6 1.6 0 0 1-1.6-1.6V11.1a1.6 1.6 0 0 1 1.6-1.6z"
+                fill="#fff" />
+              <path d="M21.5 9.5v4.9a1.1 1.1 0 0 0 1.1 1.1h4.9" fill="#c9caf5" />
+              <path d="M16.6 22.6l2.9 2.9 5.6-6" stroke="#4f46e5" stroke-width="2.6" fill="none" stroke-linecap="round"
+                stroke-linejoin="round" />
             </svg>
           </div>
           <h3 id="authTitleLogin">Welcome Back</h3>
@@ -5156,12 +5484,7 @@
             <div class="auth-field" id="loginEmailField">
               <label for="loginEmail">Email Address</label>
               <div class="input-wrap">
-                <input
-                  type="email"
-                  id="loginEmail"
-                  placeholder="Enter your email"
-                  autocomplete="email"
-                />
+                <input type="email" id="loginEmail" placeholder="Enter your email" autocomplete="email" />
               </div>
               <span class="field-msg">Please enter a valid email address.</span>
             </div>
@@ -5169,20 +5492,15 @@
             <div class="auth-field has-toggle" id="loginPasswordField">
               <label for="loginPassword">Password</label>
               <div class="input-wrap">
-                <input
-                  type="password"
-                  id="loginPassword"
-                  placeholder="Enter your password"
-                  autocomplete="current-password"
-                />
-                <button
-                  type="button"
-                  class="pw-toggle"
-                  data-target="loginPassword"
-                  aria-label="Show password"
-                >
-                  <svg class="ic ic-on"><use href="#i-eye" /></svg>
-                  <svg class="ic ic-off"><use href="#i-eye-off" /></svg>
+                <input type="password" id="loginPassword" placeholder="Enter your password"
+                  autocomplete="current-password" />
+                <button type="button" class="pw-toggle" data-target="loginPassword" aria-label="Show password">
+                  <svg class="ic ic-on">
+                    <use href="#i-eye" />
+                  </svg>
+                  <svg class="ic ic-off">
+                    <use href="#i-eye-off" />
+                  </svg>
                 </button>
               </div>
               <span class="field-msg">Please enter your password.</span>
@@ -5215,22 +5533,11 @@
           <div class="auth-brand" aria-hidden="true">
             <svg viewBox="0 0 40 40">
               <rect x="2" y="2" width="36" height="36" rx="11" fill="#4f46e5" />
-              <path
-                d="M14.5 9.5h7l6 6v13a1.6 1.6 0 0 1-1.6 1.6H14.5a1.6 1.6 0 0 1-1.6-1.6V11.1a1.6 1.6 0 0 1 1.6-1.6z"
-                fill="#fff"
-              />
-              <path
-                d="M21.5 9.5v4.9a1.1 1.1 0 0 0 1.1 1.1h4.9"
-                fill="#c9caf5"
-              />
-              <path
-                d="M16.6 22.6l2.9 2.9 5.6-6"
-                stroke="#4f46e5"
-                stroke-width="2.6"
-                fill="none"
-                stroke-linecap="round"
-                stroke-linejoin="round"
-              />
+              <path d="M14.5 9.5h7l6 6v13a1.6 1.6 0 0 1-1.6 1.6H14.5a1.6 1.6 0 0 1-1.6-1.6V11.1a1.6 1.6 0 0 1 1.6-1.6z"
+                fill="#fff" />
+              <path d="M21.5 9.5v4.9a1.1 1.1 0 0 0 1.1 1.1h4.9" fill="#c9caf5" />
+              <path d="M16.6 22.6l2.9 2.9 5.6-6" stroke="#4f46e5" stroke-width="2.6" fill="none" stroke-linecap="round"
+                stroke-linejoin="round" />
             </svg>
           </div>
           <h3 id="authTitleSignup">Create Your Account</h3>
@@ -5242,12 +5549,7 @@
             <div class="auth-field" id="signupNameField">
               <label for="signupName">Full Name</label>
               <div class="input-wrap">
-                <input
-                  type="text"
-                  id="signupName"
-                  placeholder="Enter your name"
-                  autocomplete="name"
-                />
+                <input type="text" id="signupName" placeholder="Enter your name" autocomplete="name" />
               </div>
               <span class="field-msg">Please enter your full name.</span>
             </div>
@@ -5255,12 +5557,7 @@
             <div class="auth-field" id="signupEmailField">
               <label for="signupEmail">Email Address</label>
               <div class="input-wrap">
-                <input
-                  type="email"
-                  id="signupEmail"
-                  placeholder="Enter your email"
-                  autocomplete="email"
-                />
+                <input type="email" id="signupEmail" placeholder="Enter your email" autocomplete="email" />
               </div>
               <span class="field-msg">Please enter a valid email address.</span>
             </div>
@@ -5268,44 +5565,32 @@
             <div class="auth-field has-toggle" id="signupPasswordField">
               <label for="signupPassword">Password</label>
               <div class="input-wrap">
-                <input
-                  type="password"
-                  id="signupPassword"
-                  placeholder="Create a password"
-                  autocomplete="new-password"
-                />
-                <button
-                  type="button"
-                  class="pw-toggle"
-                  data-target="signupPassword"
-                  aria-label="Show password"
-                >
-                  <svg class="ic ic-on"><use href="#i-eye" /></svg>
-                  <svg class="ic ic-off"><use href="#i-eye-off" /></svg>
+                <input type="password" id="signupPassword" placeholder="Create a password"
+                  autocomplete="new-password" />
+                <button type="button" class="pw-toggle" data-target="signupPassword" aria-label="Show password">
+                  <svg class="ic ic-on">
+                    <use href="#i-eye" />
+                  </svg>
+                  <svg class="ic ic-off">
+                    <use href="#i-eye-off" />
+                  </svg>
                 </button>
               </div>
-              <span class="field-msg"
-                >Password must be at least 6 characters.</span
-              >
+              <span class="field-msg">Password must be at least 6 characters.</span>
             </div>
 
             <div class="auth-field has-toggle" id="signupConfirmField">
               <label for="signupConfirm">Confirm Password</label>
               <div class="input-wrap">
-                <input
-                  type="password"
-                  id="signupConfirm"
-                  placeholder="Confirm your password"
-                  autocomplete="new-password"
-                />
-                <button
-                  type="button"
-                  class="pw-toggle"
-                  data-target="signupConfirm"
-                  aria-label="Show password"
-                >
-                  <svg class="ic ic-on"><use href="#i-eye" /></svg>
-                  <svg class="ic ic-off"><use href="#i-eye-off" /></svg>
+                <input type="password" id="signupConfirm" placeholder="Confirm your password"
+                  autocomplete="new-password" />
+                <button type="button" class="pw-toggle" data-target="signupConfirm" aria-label="Show password">
+                  <svg class="ic ic-on">
+                    <use href="#i-eye" />
+                  </svg>
+                  <svg class="ic ic-off">
+                    <use href="#i-eye-off" />
+                  </svg>
                 </button>
               </div>
               <span class="field-msg">Passwords do not match.</span>
@@ -5331,22 +5616,11 @@
           <div class="auth-brand" aria-hidden="true">
             <svg viewBox="0 0 40 40">
               <rect x="2" y="2" width="36" height="36" rx="11" fill="#4f46e5" />
-              <path
-                d="M14.5 9.5h7l6 6v13a1.6 1.6 0 0 1-1.6 1.6H14.5a1.6 1.6 0 0 1-1.6-1.6V11.1a1.6 1.6 0 0 1 1.6-1.6z"
-                fill="#fff"
-              />
-              <path
-                d="M21.5 9.5v4.9a1.1 1.1 0 0 0 1.1 1.1h4.9"
-                fill="#c9caf5"
-              />
-              <path
-                d="M16.6 22.6l2.9 2.9 5.6-6"
-                stroke="#4f46e5"
-                stroke-width="2.6"
-                fill="none"
-                stroke-linecap="round"
-                stroke-linejoin="round"
-              />
+              <path d="M14.5 9.5h7l6 6v13a1.6 1.6 0 0 1-1.6 1.6H14.5a1.6 1.6 0 0 1-1.6-1.6V11.1a1.6 1.6 0 0 1 1.6-1.6z"
+                fill="#fff" />
+              <path d="M21.5 9.5v4.9a1.1 1.1 0 0 0 1.1 1.1h4.9" fill="#c9caf5" />
+              <path d="M16.6 22.6l2.9 2.9 5.6-6" stroke="#4f46e5" stroke-width="2.6" fill="none" stroke-linecap="round"
+                stroke-linejoin="round" />
             </svg>
           </div>
           <h3 id="authTitleReset">Reset Your Password</h3>
@@ -5356,12 +5630,7 @@
             <div class="auth-field" id="resetEmailField">
               <label for="resetEmail">Email Address</label>
               <div class="input-wrap">
-                <input
-                  type="email"
-                  id="resetEmail"
-                  placeholder="Enter your registered email"
-                  autocomplete="email"
-                />
+                <input type="email" id="resetEmail" placeholder="Enter your registered email" autocomplete="email" />
               </div>
               <span class="field-msg">Please enter a valid email address.</span>
             </div>
@@ -5369,44 +5638,32 @@
             <div class="auth-field has-toggle" id="resetPasswordField">
               <label for="resetPassword">New Password</label>
               <div class="input-wrap">
-                <input
-                  type="password"
-                  id="resetPassword"
-                  placeholder="Create a new password"
-                  autocomplete="new-password"
-                />
-                <button
-                  type="button"
-                  class="pw-toggle"
-                  data-target="resetPassword"
-                  aria-label="Show password"
-                >
-                  <svg class="ic ic-on"><use href="#i-eye" /></svg>
-                  <svg class="ic ic-off"><use href="#i-eye-off" /></svg>
+                <input type="password" id="resetPassword" placeholder="Create a new password"
+                  autocomplete="new-password" />
+                <button type="button" class="pw-toggle" data-target="resetPassword" aria-label="Show password">
+                  <svg class="ic ic-on">
+                    <use href="#i-eye" />
+                  </svg>
+                  <svg class="ic ic-off">
+                    <use href="#i-eye-off" />
+                  </svg>
                 </button>
               </div>
-              <span class="field-msg"
-                >Password must be at least 6 characters.</span
-              >
+              <span class="field-msg">Password must be at least 6 characters.</span>
             </div>
 
             <div class="auth-field has-toggle" id="resetConfirmField">
               <label for="resetConfirm">Confirm New Password</label>
               <div class="input-wrap">
-                <input
-                  type="password"
-                  id="resetConfirm"
-                  placeholder="Confirm your new password"
-                  autocomplete="new-password"
-                />
-                <button
-                  type="button"
-                  class="pw-toggle"
-                  data-target="resetConfirm"
-                  aria-label="Show password"
-                >
-                  <svg class="ic ic-on"><use href="#i-eye" /></svg>
-                  <svg class="ic ic-off"><use href="#i-eye-off" /></svg>
+                <input type="password" id="resetConfirm" placeholder="Confirm your new password"
+                  autocomplete="new-password" />
+                <button type="button" class="pw-toggle" data-target="resetConfirm" aria-label="Show password">
+                  <svg class="ic ic-on">
+                    <use href="#i-eye" />
+                  </svg>
+                  <svg class="ic ic-off">
+                    <use href="#i-eye-off" />
+                  </svg>
                 </button>
               </div>
               <span class="field-msg">Passwords do not match.</span>
@@ -5431,15 +5688,23 @@
 
     <!-- TOAST -->
     <div class="toast" id="toast" role="status">
-      <svg class="ic"><use href="#i-info" /></svg>
+      <svg class="ic">
+        <use href="#i-info" />
+      </svg>
       <span id="toastMsg"></span>
     </div>
 
-    <script src="https://cdn.jsdelivr.net/npm/bcryptjs@2.4.3/dist/bcrypt.min.js"></script>
-    <script type="module" src="../Scripts/HomeDesign.js"></script>
+    
+    <script src="https://cdn.jsdelivr.net/npm/bcryptjs@2.4.3/dist/bcrypt.min.js"></script> // this link connecting the
+    password hashing library
+    // to the browser java script so that we can use the password hashing by loading the library in the browser inbuild
+    js
 
+    <script type="module" src="../Scripts/HomeDesign.js"></script> // for conecting onr file to another we have to make
+    module to othe
     <script type="module" src="../Scripts/Homesignup.js"></script>
 
 
   </body>
-</html>
+
+  </html>

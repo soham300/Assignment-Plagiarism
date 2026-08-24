@@ -1,3 +1,5 @@
+
+
 // login  code is checking in json server and confrminig this to the local storage by putting the email
 export async function handleLogin(event) {
   event.preventDefault();
@@ -97,17 +99,13 @@ export async function handleSignup(event) {
       body: JSON.stringify(resultsection)
     });
 
-  
+  localStorage.removeItem("loggedIn");
+  localStorage.removeItem("userEmail");
   alert("Account created successfully! Please login.");
   document.getElementById("signupForm").reset();
   document.getElementById("signupPanel").classList.remove("active");
   document.getElementById("loginPanel").classList.add("active");
 }
-
-
-
-
-
 
 
 

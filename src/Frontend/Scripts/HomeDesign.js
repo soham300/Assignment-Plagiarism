@@ -511,3 +511,6 @@ $$(".foot-col a[data-auth]").forEach((link) => {
     openAuthPanel(this.getAttribute("data-auth"));
   });
 });
+
+
+
