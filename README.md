@@ -4,7 +4,7 @@
 
 The landing page introduces AssignCheck and its plagiarism detection capabilities.
 
-![Home Page](assets/screenshots/home.jpeg)
+![Home Page](Assets/Screenshots/home.jpeg)
 
 ---
 
