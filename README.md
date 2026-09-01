@@ -12,7 +12,8 @@ AssignCheck is a web-based assignment similarity and plagiarism detection system
 
 The landing page introduces AssignCheck and provides access to assignment analysis.
 
-![Home Page](Assets/Screenshots/home.jpeg# AssignCheck
+![Home Page](Assets/Screenshots/home.jpeg
+# AssignCheck
 
 > **Detect Similarity. Evaluate Smarter. Not Harder.**
 
@@ -26,7 +27,7 @@ AssignCheck is a web-based assignment similarity and plagiarism detection system
 
 The landing page introduces AssignCheck and provides access to assignment analysis.
 
-![Home Page](assets/screenshots/home.png)
+![Home Page](Assets/Screenshots/home.jpeg)
 
 ---
 
@@ -34,7 +35,7 @@ The landing page introduces AssignCheck and provides access to assignment analys
 
 Compare multiple student assignments and detect matching content between submissions.
 
-![Student vs Student](assets/screenshots/student-vs-student.png)
+![Student vs Student](Assets/Screenshots/studentstudent.jpeg)
 
 ---
 
@@ -42,7 +43,7 @@ Compare multiple student assignments and detect matching content between submiss
 
 Compare a student's assignment against a teacher/reference answer.
 
-![Teacher vs Student](assets/screenshots/teacher-vs-student.png)
+![Teacher vs Student](Assets/Screenshots/teacherstudent.jpeg)
 
 ---
 
@@ -50,7 +51,7 @@ Compare a student's assignment against a teacher/reference answer.
 
 View similarity percentage, matching sections, statistics, and detailed comparison results.
 
-![Results](assets/screenshots/results.png)
+![Results](Assets/Screenshots/results.jpeg)
 
 ---
 
@@ -58,7 +59,7 @@ View similarity percentage, matching sections, statistics, and detailed comparis
 
 Access previous analyses, reports, and similarity records.
 
-![History](assets/screenshots/history.png)
+![History](Assets/Screenshots/history.jpeg)
 
 ---
 
@@ -66,7 +67,7 @@ Access previous analyses, reports, and similarity records.
 
 Track activity, generated reports, average similarity, and account information.
 
-![Profile](assets/screenshots/profile.png)
+![Profile](Assets/Screenshots/profile.jpeg)
 
 ---
 
