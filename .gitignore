@@ -36,5 +36,5 @@ src/Frontend/styles/*
 
 !src/Frontend/styles/profile.css
 
-
+!src/Frontend/Templates/history.html
 
