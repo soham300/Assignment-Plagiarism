@@ -1,0 +1,19 @@
+{
+  "users": [
+    {
+      "name": "MUDIT GARG",
+      "email": "muditgarg307@gmail.com",
+      "password": "$2a$10$Y4SAzeUXum4jpKUwQimiI.EATT6SgiY/zMFPUQ7Ut8MBQumuXZy/a",
+      "id": "oQEyNcwFP5Y"
+    }
+  ],
+  "reports": [],
+  "filedata": [
+    {
+      "email": "muditgarg307@gmail.com",
+      "filedetails": [],
+      "id": "C-U7UwCXKOs"
+    }
+  ],
+  "$schema": "./node_modules/json-server/schema.json"
+}
