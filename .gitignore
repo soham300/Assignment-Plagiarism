@@ -28,7 +28,13 @@ src/Frontend/Templates/*
 
 src/Frontend/styles/*
 !src/Frontend/styles/.gitkeep
+!src/Frontend/Scripts/Profile.js
+!src/Frontend/Scripts/detailedReport.js
 
+!src/Frontend/Templates/DetailedReport.html
+!src/Frontend/Templates/profile.html
+
+!src/Frontend/styles/profile.css
 
 
 
