@@ -238,7 +238,7 @@ export async function updateNavbar() {
       }
 
       const user = users[0];
-      const firstLetter = user.name.charAt(0).toUpperCase();
+      const firstLetter = user.username.charAt(0).toUpperCase();
 
       // DESKTOP NAVBAR
       if (loginButton !== null) loginButton.style.display = "none";

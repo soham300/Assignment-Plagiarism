@@ -7,7 +7,6 @@ package.json
 
 
 # 3. Ignore all files inside Backend but keep the folder structure
-src/Backend/*
 !src/Backend/.gitkeep
 !src/Backend/HomeBackend.js
 !src/Backend/CheckBackend.js
