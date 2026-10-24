@@ -1,130 +1,183 @@
+// ======================================================
+// LOGIN
+// ======================================================
+
+
 export async function handleLogin(event) {
   event.preventDefault();
-  const email = document.getElementById("loginEmail").value.trim().toLowerCase();
-  const password = document.getElementById("loginPassword").value;
+
+  const emailInput = document.getElementById("loginEmail");
+  const passwordInput = document.getElementById("loginPassword");
+
+  const email = emailInput.value.trim().toLowerCase();
+  const password = passwordInput.value;
+
   if (email === "" || password === "") {
-    alert("Please enter email and password.");
+    await showCustomAlert("Please enter email and password.");
     return;
   }
-  const response = await fetch("http://localhost:3000/users");
-  const users = await response.json();
-  let foundUser = null;
-  for (let i = 0; i < users.length; i++) {
-    if (users[i].email === email && users[i].password === password) {
-      foundUser = users[i];
-      break;
+
+  try {
+    const response = await fetch(
+      "http://localhost:8005/users/login",
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({ email, password })
+      }
+    );
+
+    const result = await response.json();
+
+    if (!response.ok) {
+      await showCustomAlert(
+        result.message || "Invalid email or password."
+      );
+      return;
     }
+
+    localStorage.setItem("loggedIn", "true");
+    localStorage.setItem("userEmail", result.user.email);
+
+    await showCustomAlert("Login successful!");
+    await updateNavbar();
+    closeAuth();
+
+  } catch (error) {
+    console.error("Login error:", error);
+    await showCustomAlert("Unable to login. Please try again.");
   }
-  if (foundUser === null) {
-    alert("Invalid email or password.");
-    return;
-  }
-  localStorage.setItem("loggedIn", "true");
-  localStorage.setItem("userEmail", email);
-  alert("Login successful!");
-  await updateNavbar();
-  closeAuth();
 }
 
 
-
+// ======================================================
+// SIGNUP
+// ======================================================
 
 export async function handleSignup(event) {
   event.preventDefault();
+
   const name = document.getElementById("signupName").value.trim();
   const email = document.getElementById("signupEmail").value.trim().toLowerCase();
-  const password = document.getElementById("signupPassword").value;
-  const confirmPassword = document.getElementById("signupConfirm").value;
+  const password = document.getElementById("signupPassword").value.trim();
+  const confirmPassword = document.getElementById("signupConfirm").value.trim();
+
   if (name === "" || email === "" || password === "" || confirmPassword === "") {
-    alert("Please fill all fields.");
+    await showCustomAlert("Please fill all fields.");
     return;
   }
+
   if (password.length < 6) {
-    alert("Password must contain at least 6 characters.");
+    await showCustomAlert("Password must contain at least 6 characters.");
     return;
   }
+
   if (password !== confirmPassword) {
-    alert("Passwords do not match.");
-    return;
-  }
-  const response = await fetch("http://localhost:3000/users?email=" + encodeURIComponent(email)); // searching with given email
-  const users = await response.json();
-  if (users.length > 0) {
-    alert("An account with this email already exists.");
+    await showCustomAlert("Passwords do not match.");
     return;
   }
 
-  const newUser = {
-    name: name,
-    email: email,
-    password: password
-  };
-  await fetch("http://localhost:3000/users", {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(newUser)
-  });
-  localStorage.removeItem("loggedIn");
-  localStorage.removeItem("userEmail");
-  alert("Account created successfully! Please login.");
-  document.getElementById("signupForm").reset();
-  document.getElementById("signupPanel").classList.remove("active");
-  document.getElementById("loginPanel").classList.add("active");
+  try {
+    // const response = await fetch(
+    //   "http://localhost:8005/users?"
+    // );
+
+    // if (!response.ok) {
+    //   throw new Error("Failed to check existing users.");
+    // }
+
+    // const users = await response.json();
+
+    // if (users.length > 0) {
+    //   await showCustomAlert("An account with this email already exists.");
+    //   return;
+    // }
+
+    // Backend will hash the password automatically, so send plain text
+    const newUser = {
+      username: name,
+      email: email,
+      password: password
+    };
+
+    const userResponse = await fetch(
+      "http://localhost:8005/users",
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify(newUser)
+      }
+    );
+
+    if (!userResponse.ok) {
+      throw new Error("Failed to create user.");
+    }
+
+    // // Create file data
+    // const fileuserdata = {
+    //   email: email,
+    //   filedetails: []
+    // };
+
+    // await fetch(
+    //   "http://localhost:8005/filedata",
+    //   {
+    //     method: "POST",
+    //     headers: {
+    //       "Content-Type": "application/json"
+    //     },
+    //     body: JSON.stringify(fileuserdata)
+    //   }
+    // )
+
+
+    
+
+    // // Create file result
+    // const resultsection = {
+    //   email: email,
+    //   filesprocesed: []
+    // };
+
+    // await fetch(
+    //   "http://localhost:8005/fileresult",
+    //   {
+    //     method: "POST",
+    //     headers: {
+    //       "Content-Type": "application/json"
+    //     },
+    //     body: JSON.stringify(resultsection)
+    //   }
+    // );
+
+    localStorage.removeItem("loggedIn");
+    localStorage.removeItem("userEmail");
+
+    await showCustomAlert("Account created successfully! Please login.");
+    document.getElementById("signupForm").reset();
+    document.getElementById("signupPanel").classList.remove("active");
+    document.getElementById("loginPanel").classList.add("active");
+
+  } catch (error) {
+    console.error("Signup error:", error);
+    await showCustomAlert("Unable to create account. Please try again.");
+  }
+
+
 }
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-export async function resetPassword(event) {
-  event.preventDefault();
-  const email = document.getElementById("resetEmail").value.trim().toLowerCase();
-  const newPassword = document.getElementById("resetPassword").value;
-  const confirmPassword = document.getElementById("resetConfirm").value;
-  if (email === "" || newPassword === "" || confirmPassword === "") {
-    alert("Please fill all fields.");
-    return;
-  }
-  if (newPassword.length < 6) {
-    alert("Password must contain at least 6 characters.");
-    return;
-  }
-  if (newPassword !== confirmPassword) {
-    alert("Passwords do not match.");
-    return;
-  }
-  const response = await fetch("http://localhost:3000/users?email=" + encodeURIComponent(email));
-  const users = await response.json();
-  if (users.length === 0) {
-    alert("No account found with this email.");
-    return;
-  }
-  const user = users[0];
-  user.password = newPassword;
-  await fetch("http://localhost:3000/users/" + user.id, {
-    method: "PUT",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(user)
-  });
-  alert("Password reset successfully! Please login.");
-  document.getElementById("resetForm").reset();
-  document.getElementById("resetPanel").classList.remove("active");
-  document.getElementById("loginPanel").classList.add("active");
-}
-
+// ======================================================
+// SHOW / HIDE PASSWORD
+// ======================================================
 
 export function togglePassword(inputId, button) {
   const passwordInput = document.getElementById(inputId);
+
   if (passwordInput.type === "password") {
     passwordInput.type = "text";
     button.setAttribute("aria-label", "Hide password");
@@ -135,18 +188,27 @@ export function togglePassword(inputId, button) {
 }
 
 
-export function logoutUser() {
+// ======================================================
+// LOGOUT
+// ======================================================
+
+export async function logoutUser() {
   localStorage.removeItem("loggedIn");
   localStorage.removeItem("userEmail");
 
-  updateNavbar();
-  alert("You have been logged out.");
+  await updateNavbar();
+  await showCustomAlert("You have been logged out.");
 }
 
+
+// ======================================================
+// UPDATE NAVBAR
+// ======================================================
 
 export async function updateNavbar() {
   const loggedIn = localStorage.getItem("loggedIn") === "true";
   const userEmail = localStorage.getItem("userEmail");
+
   const loginButton = document.getElementById("loginNavButton");
   const signupButton = document.getElementById("signupNavButton");
   const profileWrap = document.getElementById("profileWrap");
@@ -155,28 +217,50 @@ export async function updateNavbar() {
   const mobileSignupButton = document.getElementById("mobileSignupButton");
   const mobileProfileWrap = document.getElementById("mobileProfileWrap");
   const mobileProfileButton = document.getElementById("mobileProfileButton");
+
   if (loggedIn && userEmail !== null) {
-    const response = await fetch("http://localhost:3000/users?email=" + encodeURIComponent(userEmail));
-    const users = await response.json();
-    if (users.length === 0) {
-      localStorage.removeItem("loggedIn");
-      localStorage.removeItem("userEmail");
-      return;
+    try {
+      const response = await fetch(
+        "https://checkassign-assignment-plagiarism.onrender.com/users?email=" +
+        encodeURIComponent(userEmail)
+      );
+
+      if (!response.ok) {
+        throw new Error("Failed to fetch user.");
+      }
+
+      const users = await response.json();
+
+      if (users.length === 0) {
+        localStorage.removeItem("loggedIn");
+        localStorage.removeItem("userEmail");
+        return;
+      }
+
+      const user = users[0];
+      const firstLetter = user.name.charAt(0).toUpperCase();
+
+      // DESKTOP NAVBAR
+      if (loginButton !== null) loginButton.style.display = "none";
+      if (signupButton !== null) signupButton.style.display = "none";
+      if (profileWrap !== null) profileWrap.classList.add("show");
+      if (profileButton !== null) profileButton.textContent = firstLetter;
+
+      // MOBILE NAVBAR
+      if (mobileLoginButton !== null) mobileLoginButton.style.display = "none";
+      if (mobileSignupButton !== null) mobileSignupButton.style.display = "none";
+      if (mobileProfileWrap !== null) mobileProfileWrap.classList.add("show");
+      if (mobileProfileButton !== null) mobileProfileButton.textContent = firstLetter;
+
+    } catch (error) {
+      console.error("Navbar update error:", error);
     }
-    const user = users[0];
-    const firstLetter = user.name.charAt(0).toUpperCase();
-    if (loginButton !== null) loginButton.style.display = "none";
-    if (signupButton !== null) signupButton.style.display = "none";
-    if (profileWrap !== null) profileWrap.classList.add("show");
-    if (profileButton !== null) profileButton.textContent = firstLetter;
-    if (mobileLoginButton !== null) mobileLoginButton.style.display = "none";
-    if (mobileSignupButton !== null) mobileSignupButton.style.display = "none";
-    if (mobileProfileWrap !== null) mobileProfileWrap.classList.add("show");
-    if (mobileProfileButton !== null) mobileProfileButton.textContent = firstLetter;
   } else {
+    // LOGGED OUT
     if (loginButton !== null) loginButton.style.display = "";
     if (signupButton !== null) signupButton.style.display = "";
     if (profileWrap !== null) profileWrap.classList.remove("show");
+
     if (mobileLoginButton !== null) mobileLoginButton.style.display = "";
     if (mobileSignupButton !== null) mobileSignupButton.style.display = "";
     if (mobileProfileWrap !== null) mobileProfileWrap.classList.remove("show");
@@ -184,11 +268,15 @@ export async function updateNavbar() {
 }
 
 
-
+// ======================================================
+// CLOSE AUTH MODAL
+// ======================================================
 
 export function closeAuth() {
   const authModal = document.getElementById("authModal");
+
   if (authModal !== null) {
+    document.activeElement?.blur();
     authModal.classList.remove("open");
     authModal.setAttribute("aria-hidden", "true");
     document.body.classList.remove("modal-open");

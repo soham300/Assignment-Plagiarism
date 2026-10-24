@@ -2,9 +2,30 @@
   "name": "assignment-plagiarism",
   "version": "1.0.0",
   "scripts": {
-    "start": "json-server --host 0.0.0.0 --port $PORT db.json"
+    "start": "nodemon server.js"
   },
   "dependencies": {
-    "json-server": "^1.0.0-beta.3"
-  }
+    "bcrypt": "^6.0.0",
+    "cors": "^2.8.6",
+    "dotenv": "^18.0.9",
+    "express": "^5.3.0",
+    "json-server": "^1.0.0-beta.3",
+    "jsonwebtoken": "^9.0.3",
+    "mongoose": "^9.11.4",
+    "nodemon": "^3.1.14"
+  },
+  "description": "The landing page introduces AssignCheck and its plagiarism detection capabilities.",
+  "main": "server.js",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/soham300/Assignment-Plagiarism.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "bugs": {
+    "url": "https://github.com/soham300/Assignment-Plagiarism/issues"
+  },
+  "homepage": "https://github.com/soham300/Assignment-Plagiarism#readme"
 }
