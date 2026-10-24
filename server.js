@@ -3,6 +3,7 @@ const express=require("express")
 const app=express()
 // app.use(express.json())
 const cors=require("cors")
+require("dotenv").config();
 const {connection}=require("./src/Backend/Config/db")   
 
 const {router}=require("./src/Backend/Routes/user.routes")

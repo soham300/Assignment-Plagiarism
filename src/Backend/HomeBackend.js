@@ -221,7 +221,7 @@ export async function updateNavbar() {
   if (loggedIn && userEmail !== null) {
     try {
       const response = await fetch(
-        "https://checkassign-assignment-plagiarism.onrender.com/users?email=" +
+        "http://localhost:8005/users/?email=" +
         encodeURIComponent(userEmail)
       );
 
