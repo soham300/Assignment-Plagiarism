@@ -1,6 +1,3 @@
-// ======================================================
-// LOGIN
-// ======================================================
 
 
 export async function handleLogin(event) {
@@ -38,8 +35,9 @@ export async function handleLogin(event) {
       return;
     }
 
-    localStorage.setItem("loggedIn", "true");
-    localStorage.setItem("userEmail", result.user.email);
+    console.log(result);
+    localStorage.setItem("token",result.token);
+
 
     await showCustomAlert("Login successful!");
     await updateNavbar();
@@ -52,9 +50,7 @@ export async function handleLogin(event) {
 }
 
 
-// ======================================================
-// SIGNUP
-// ======================================================
+
 
 export async function handleSignup(event) {
   event.preventDefault();
@@ -102,6 +98,8 @@ export async function handleSignup(event) {
       password: password
     };
 
+
+
     const userResponse = await fetch(
       "http://localhost:8005/users",
       {
@@ -113,8 +111,24 @@ export async function handleSignup(event) {
       }
     );
 
+    const result = await userResponse.json();
+    
+    if (userResponse.status === 409) {
+      await showCustomAlert(
+        result.message || "An account with this email already exists."
+      );
+      document.getElementById("signupForm").reset();
+      document.getElementById("signupPanel").classList.remove("active");
+      document.getElementById("loginPanel").classList.add("active");
+      return;
+    }
+
+    // Handle other errors  
     if (!userResponse.ok) {
-      throw new Error("Failed to create user.");
+      await showCustomAlert(
+        result.message || "Unable to create account. Please try again."
+      );
+      return;
     }
 
     // // Create file data
@@ -154,8 +168,9 @@ export async function handleSignup(event) {
     //   }
     // );
 
-    localStorage.removeItem("loggedIn");
-    localStorage.removeItem("userEmail");
+    // localStorage.removeItem("loggedIn");
+    // localStorage.removeItem("userEmail");
+    localStorage.removeItem("token");
 
     await showCustomAlert("Account created successfully! Please login.");
     document.getElementById("signupForm").reset();
@@ -171,9 +186,7 @@ export async function handleSignup(event) {
 }
 
 
-// ======================================================
-// SHOW / HIDE PASSWORD
-// ======================================================
+
 
 export function togglePassword(inputId, button) {
   const passwordInput = document.getElementById(inputId);
@@ -188,89 +201,112 @@ export function togglePassword(inputId, button) {
 }
 
 
-// ======================================================
-// LOGOUT
-// ======================================================
+
 
 export async function logoutUser() {
-  localStorage.removeItem("loggedIn");
-  localStorage.removeItem("userEmail");
+  localStorage.removeItem("token");
 
   await updateNavbar();
   await showCustomAlert("You have been logged out.");
 }
 
 
-// ======================================================
-// UPDATE NAVBAR
-// ======================================================
+
+
+
 
 export async function updateNavbar() {
-  const loggedIn = localStorage.getItem("loggedIn") === "true";
-  const userEmail = localStorage.getItem("userEmail");
+  const token = localStorage.getItem("token");
 
   const loginButton = document.getElementById("loginNavButton");
   const signupButton = document.getElementById("signupNavButton");
   const profileWrap = document.getElementById("profileWrap");
   const profileButton = document.getElementById("profileButton");
-  const mobileLoginButton = document.getElementById("mobileLoginButton");
-  const mobileSignupButton = document.getElementById("mobileSignupButton");
-  const mobileProfileWrap = document.getElementById("mobileProfileWrap");
-  const mobileProfileButton = document.getElementById("mobileProfileButton");
 
-  if (loggedIn && userEmail !== null) {
-    try {
-      const response = await fetch(
-        "http://localhost:8005/users/?email=" +
-        encodeURIComponent(userEmail)
-      );
+  const mobileLoginButton =
+    document.getElementById("mobileLoginButton");
+  const mobileSignupButton =
+    document.getElementById("mobileSignupButton");
+  const mobileProfileWrap =
+    document.getElementById("mobileProfileWrap");
+  const mobileProfileButton =
+    document.getElementById("mobileProfileButton");
 
-      if (!response.ok) {
-        throw new Error("Failed to fetch user.");
-      }
+  function showLoggedOut() {
+    if (loginButton) loginButton.style.display = "";
+    if (signupButton) signupButton.style.display = "";
+    if (profileWrap) profileWrap.classList.remove("show");
 
-      const users = await response.json();
+    if (mobileLoginButton) mobileLoginButton.style.display = "";
+    if (mobileSignupButton) mobileSignupButton.style.display = "";
+    if (mobileProfileWrap) mobileProfileWrap.classList.remove("show");
+  }
 
-      if (users.length === 0) {
-        localStorage.removeItem("loggedIn");
-        localStorage.removeItem("userEmail");
-        return;
-      }
+  function showLoggedIn(username) {
+    const firstLetter = username?.charAt(0).toUpperCase() || "?";
 
-      const user = users[0];
-      const firstLetter = user.username.charAt(0).toUpperCase();
+    if (loginButton) loginButton.style.display = "none";
+    if (signupButton) signupButton.style.display = "none";
+    if (profileWrap) profileWrap.classList.add("show");
+    if (profileButton) profileButton.textContent = firstLetter;
 
-      // DESKTOP NAVBAR
-      if (loginButton !== null) loginButton.style.display = "none";
-      if (signupButton !== null) signupButton.style.display = "none";
-      if (profileWrap !== null) profileWrap.classList.add("show");
-      if (profileButton !== null) profileButton.textContent = firstLetter;
-
-      // MOBILE NAVBAR
-      if (mobileLoginButton !== null) mobileLoginButton.style.display = "none";
-      if (mobileSignupButton !== null) mobileSignupButton.style.display = "none";
-      if (mobileProfileWrap !== null) mobileProfileWrap.classList.add("show");
-      if (mobileProfileButton !== null) mobileProfileButton.textContent = firstLetter;
-
-    } catch (error) {
-      console.error("Navbar update error:", error);
+    if (mobileLoginButton) mobileLoginButton.style.display = "none";
+    if (mobileSignupButton) mobileSignupButton.style.display = "none";
+    if (mobileProfileWrap) mobileProfileWrap.classList.add("show");
+    if (mobileProfileButton) {
+      mobileProfileButton.textContent = firstLetter;
     }
-  } else {
-    // LOGGED OUT
-    if (loginButton !== null) loginButton.style.display = "";
-    if (signupButton !== null) signupButton.style.display = "";
-    if (profileWrap !== null) profileWrap.classList.remove("show");
+  }
 
-    if (mobileLoginButton !== null) mobileLoginButton.style.display = "";
-    if (mobileSignupButton !== null) mobileSignupButton.style.display = "";
-    if (mobileProfileWrap !== null) mobileProfileWrap.classList.remove("show");
+  // Case 1: No saved token
+  if (!token) {
+    showLoggedOut();
+    return;
+  }
+
+  try {
+    const response = await fetch(
+      "http://localhost:8005/profile",
+      {
+        method: "GET",
+        headers: {
+          Authorization: `Bearer ${token}`
+        }
+      }
+    );
+
+    // Case 2: Token is invalid or expired
+    if (response.status === 401) {
+      localStorage.removeItem("token");
+      showLoggedOut();
+
+      await showCustomAlert(
+        "Your session has expired. Please log in again."
+      );
+      return;
+    }
+
+    if (!response.ok) {
+      throw new Error(
+        `Profile request failed: ${response.status}`
+      );
+    }
+
+    // Case 3: Token is valid
+    const result = await response.json();
+    console.log(result)
+    showLoggedIn(result[0].username);
+
+  } catch (error) {
+    console.error("Navbar update error:", error);
+
+    // A network error does not necessarily mean
+    // the token has expired. Keep the token.
   }
 }
 
 
-// ======================================================
-// CLOSE AUTH MODAL
-// ======================================================
+
 
 export function closeAuth() {
   const authModal = document.getElementById("authModal");

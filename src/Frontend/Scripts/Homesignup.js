@@ -7,9 +7,10 @@ import {
   closeAuth,
 } from "../../Backend/HomeBackend.js";
 
-// =========================================
-// MODAL & PANEL MANAGEMENT (FIXES ARIA ERROR)
-// =========================================
+
+updateNavbar();
+
+
 const authModal = document.getElementById("authModal");
 const loginPanel = document.getElementById("loginPanel");
 const signupPanel = document.getElementById("signupPanel");
@@ -74,9 +75,8 @@ function closeModal() {
   }
 }
 
-// =========================================
-// OPEN MODAL BUTTONS (Navbar & Footer)
-// =========================================
+
+
 const authButtons = document.querySelectorAll(".js-auth-open, [data-auth]");
 authButtons.forEach(function (button) {
   button.addEventListener("click", function (event) {
@@ -90,9 +90,7 @@ authButtons.forEach(function (button) {
   });
 });
 
-// =========================================
-// CLOSE MODAL (X button, backdrop, ESC key)
-// =========================================
+
 if (authClose) {
   authClose.addEventListener("click", closeModal);
 }
@@ -111,9 +109,7 @@ document.addEventListener("keydown", function (event) {
   }
 });
 
-// =========================================
-// PANEL SWITCHING (Inside Modal)
-// =========================================
+
 const switchButtons = document.querySelectorAll("[data-switch]");
 switchButtons.forEach(function (button) {
   button.addEventListener("click", function () {
@@ -128,9 +124,7 @@ switchButtons.forEach(function (button) {
   });
 });
 
-// =========================================
-// FORGOT PASSWORD
-// =========================================
+
 const forgotLink = document.getElementById("forgotLink");
 if (forgotLink !== null) {
   forgotLink.addEventListener("click", function (event) {
@@ -139,9 +133,7 @@ if (forgotLink !== null) {
   });
 }
 
-// =========================================
-// FORM SUBMISSIONS
-// =========================================
+
 const loginForm = document.getElementById("loginForm");
 if (loginForm !== null) {
   loginForm.addEventListener("submit", handleLogin);
@@ -235,7 +227,4 @@ document.querySelectorAll(".auth-field input").forEach((input) => {
   });
 });
 
-// =========================================
-// UPDATE NAVBAR WHEN PAGE LOADS
-// =========================================
-updateNavbar();
+

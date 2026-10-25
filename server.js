@@ -1,3 +1,6 @@
+const dns = require("node:dns");
+dns.setServers(["8.8.8.8", "1.1.1.1"]);
+
 const express=require("express")
 // C:\Users\Soham Luthra\OneDrive\Desktop\APSS\Assignment-Plagiarism\src\Backend\Config\db.js
 const app=express()
