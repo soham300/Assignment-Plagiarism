@@ -69,13 +69,15 @@ const updatefiledata = async (req, res) => {
         const updatedData = await filedata.findOneAndUpdate(
             { email: req.email },
             {
+                $setOnInsert: { email: req.email },
                 $push: {
                     filedetails: { $each: filedetails }
                 }
             },
             {
                 returnDocument: "after",
-                runValidators: true
+                runValidators: true,
+                upsert: true
             }
         );
 
