@@ -1,22 +1,19 @@
-const {default:mongooes}=require("mongoose")
 
-const fileResultSchema = new mongooes.Schema({
+const mongoose = require("mongoose");
+
+const fileResultSchema = new mongoose.Schema({
     email: {
         type: String,
         required: true,
-        unique: true,
+        unique: true
     },
 
     filesprocesed: {
-        type: [
-            [
-                mongooes.Schema.Types.Mixed
-            ]
-        ],
+        type: [[mongoose.Schema.Types.Mixed]],
         default: []
     }
 });
 
+const fileResultData = mongoose.model("fileresult", fileResultSchema);
 
-const fileResultData=mongooes.model("fileresult",fileResultSchema)
-module.exports={fileResultData}
+module.exports = { fileResultData };

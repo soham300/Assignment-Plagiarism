@@ -40,6 +40,7 @@ const createfiledata = async (req, res) => {
 
 
 const updatefiledata = async (req, res) => {
+    console.log("file data is sending its step")
     console.log("1. Update controller started");
 
     try {
@@ -63,7 +64,7 @@ const updatefiledata = async (req, res) => {
             });
         }
 
-        console.log("5. Starting MongoDB update");
+        // console.log("5. Starting MongoDB update");
 
         const updatedData = await filedata.findOneAndUpdate(
             { email: req.email },
@@ -78,7 +79,7 @@ const updatefiledata = async (req, res) => {
             }
         );
 
-        console.log("6. MongoDB update completed");
+        // console.log("6. MongoDB update completed");
 
         if (!updatedData) {
             return res.status(404).json({
@@ -87,7 +88,7 @@ const updatefiledata = async (req, res) => {
             });
         }
 
-        console.log("7. Sending success response");
+        // console.log("7. Sending success response");
 
         return res.status(200).json({
             message: "File data updated successfully",

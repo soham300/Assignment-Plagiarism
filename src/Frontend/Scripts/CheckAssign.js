@@ -526,7 +526,7 @@ analyzeBtn.addEventListener("click", async function () {
 
 
 
-    const token=localStorage.getItem("token");
+    const token = localStorage.getItem("token");
     console.log(filedetails)
 
     try {
@@ -540,9 +540,11 @@ analyzeBtn.addEventListener("click", async function () {
           },
           body: JSON.stringify({
             filedetails: filedetails
-        })
+          })
         });
     }
+
+    
     catch (err) {
       console.error("Failed to save file data:", err);
     }
@@ -586,6 +588,7 @@ analyzeBtn.addEventListener("click", async function () {
     animStatusText.textContent = "Complete";
     animStatus.classList.add("done");
     await wait(700);
+    console.log("going to display result")
     displayResults(filesToProcess, realScore);
     setProgressStep(3);
     showView(viewResults);
@@ -715,13 +718,13 @@ analyzeBtn.addEventListener("click", async function () {
 });
 
 
-console.log("soham how are you");
+console.log("soham what are you doing");
 
 async function displayResults(files, score) {
   sessionStorage.setItem("showsthedisplayornot", true);
   const fileA = files[0];
   const fileB = files[1];
-  const getemail = localStorage.getItem("userEmail");
+  // const getemail = localStorage.getItem("userEmail");
 
   const teacherView = document.getElementById("teacherResultsView");
   if (teacherView) teacherView.style.display = "none";
@@ -754,38 +757,37 @@ async function displayResults(files, score) {
     chunkCountB: secondChunkCount
   };
 
-  if (getemail) {
-    try {
-      const data = await fetch(`http://localhost:8005/fileresult`,
-        {
-          
-        }
-    );
-      const resp = await data.json();
+  // if (getemail) {
+  try {
+    // const data = await fetch(`https://checkassign-assignment-plagiarism.onrender.com/fileresult?email=${encodeURIComponent(getemail)}`);
+    // const resp = await data.json();
 
-      if (resp && resp.length > 0) {
-        const rep = resp[0];
+    const token = localStorage.getItem("token");
+    if (token) {
+      // const rep = resp[0];
 
-        let addtoarr = [];
-        addtoarr.push({ mode: "students" });
-        addtoarr.push(result);
+      const addtoarr = [
+        { mode: "students" },
+        result
+      ];
 
-        if (!rep.filesprocesed) rep.filesprocesed = [];
-        rep.filesprocesed.push(addtoarr);
-        await fetch(`https://checkassign-assignment-plagiarism.onrender.com/fileresult/${rep.id}`, {
-          method: "PUT",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(rep)
-        });
-        console.log("Result saved to database successfully");
-      }
-    } catch (err) {
-      console.error("Failed to save result to database:", err);
+      // if (!rep.filesprocesed) rep.filesprocesed = [];
+
+      await fetch("http://localhost:8005/fileresult", {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`
+        },
+        body: JSON.stringify({
+          fileresult:addtoarr})
+      });
+      console.log("Result saved to database successfully");
     }
+  } catch (err) {
+    console.error("Failed to save result to database:", err);
   }
-
   renderUI(result);
-
   try {
     sessionStorage.setItem("lastSessionMode", "students");
     sessionStorage.setItem("lastSessionResult", JSON.stringify(result));
@@ -794,48 +796,64 @@ async function displayResults(files, score) {
   }
 }
 
+
+// }
+
+
 async function displayTeacherStudentResults(results) {
-  if (!results || results.length === 0) {
-    console.error("No results to display");
-    return;
-  }
-
-  const getemail = localStorage.getItem("userEmail");
-  if (getemail) {
-    try {
-      const data = await fetch(`https://checkassign-assignment-plagiarism.onrender.com/fileresult?email=${encodeURIComponent(getemail)}`);
-      const resp = await data.json();
-      let arrtoallstudetscomparetoteacher = [];
-      arrtoallstudetscomparetoteacher.push({ mode: "teachers" });
-      for (let s = 0; s < results.length; s++) {
-        arrtoallstudetscomparetoteacher.push(results[s]);
-      }
-
-      if (resp && resp.length > 0) {
-        const rep = resp[0];
-
-        if (!rep.filesprocesed) rep.filesprocesed = [];
-        rep.filesprocesed.push(arrtoallstudetscomparetoteacher);
-        await fetch(`https://checkassign-assignment-plagiarism.onrender.com/fileresult/${rep.id}`, {
-          method: "PUT",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(rep)
-        });
-        console.log("Result saved to database successfully");
-      }
-    } catch (err) {
-      console.error("Failed to save result to database:", err);
+    if (!results || results.length === 0) {
+        console.error("No results to display");
+        return;
     }
-  }
-  renderUIforteachers(results);
 
-  try {
-    sessionStorage.setItem("lastSessionMode", "teachers");
-    sessionStorage.setItem("lastSessionResult", JSON.stringify(results));
-  } catch (e) {
-    console.error("SessionStorage save failed", e);
-  }
+    try {
+        const arrtoallstudetscomparetoteacher = [
+            { mode: "teachers" },
+            ...results
+        ];
+
+        const token = localStorage.getItem("token");
+
+        if (!token) {
+            console.error("No login token found");
+        } else {
+            const response = await fetch(
+                "http://localhost:8005/fileresult",
+                {
+                    method: "PUT",
+                    headers: {
+                        "Content-Type": "application/json",
+                        Authorization: `Bearer ${token}`
+                    },
+                    body: JSON.stringify({
+                        fileresult: arrtoallstudetscomparetoteacher
+                    })
+                }
+            );
+
+            const data = await response.json();
+
+            if (!response.ok) {
+                throw new Error(data.message || "Failed to save result");
+            }
+
+            console.log("Teacher results saved successfully", data);
+        }
+
+    } catch (err) {
+        console.error("Failed to save result:", err);
+    }
+
+    renderUIforteachers(results);
+
+    try {
+        sessionStorage.setItem("lastSessionMode", "teachers");
+        sessionStorage.setItem("lastSessionResult", JSON.stringify(results));
+    } catch (e) {
+        console.error("SessionStorage save failed", e);
+    }
 }
+
 
 function renderUIforteachers(results) {
   const studentView = document.querySelector(".results-wrap");
@@ -1149,11 +1167,20 @@ export function reconstructMatchesFromGrams(textA, textB, commonGramsSet, gramSi
 }
 
 async function loadLastSessionstudents() {
-  const getemail = localStorage.getItem("userEmail");
-  if (!getemail) return;
+
+  const token=localStorage.getItem("token");
+
 
   try {
-    const response = await fetch(`https://checkassign-assignment-plagiarism.onrender.com/fileresult?email=${encodeURIComponent(getemail)}`);
+    // const response = await fetch(`https://checkassign-assignment-plagiarism.onrender.com/fileresult?email=${encodeURIComponent(getemail)}`);
+    const response=await fetch(
+      "http://localhost:8005/fileresult",{
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`
+      }
+    }
+    )
     const resp = await response.json();
 
     if (resp && resp.length > 0 && resp[0].filesprocesed && resp[0].filesprocesed.length > 0) {

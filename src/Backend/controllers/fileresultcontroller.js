@@ -38,4 +38,60 @@ const createfileresult=async (req,res)=>{
 
 
 
-module.exports={createfileresult}
+const updatefileresult=async (req,res)=>{
+    
+    try{
+        const {fileresult}=req.body;
+        console.log("2. Request body received");
+        console.log("3. Email:", req.email);
+        if (!req.email) {
+            return res.status(400).json({
+                message: "Email was not found in the request"
+            });
+        }
+        if (!Array.isArray(fileresult)) {
+            return res.status(400).json({
+                message: "fileresult must be an array"
+            });
+        }
+
+        const updatedresult=await fileResultData.findOneAndUpdate(
+            {email:req.email},
+            {$push:{
+                filesprocesed:fileresult
+            }},
+
+            {
+                returnDocument:"after",
+                runValidators:true
+            }
+        )    
+
+        console.log("6. MongoDB update completed");
+
+        if (!updatedresult) {
+            return res.status(404).json({
+                message: "File data not found for this user",
+                email: req.email
+            });
+        }
+
+        console.log("7. Sending success response");
+
+        return res.status(200).json({
+            message: "File data updated successfully",
+            data: updatedresult
+        });
+
+
+    }
+    catch(error){
+        console.error("Update controller error:", error);
+
+        return res.status(500).json({
+            message: "Failed to update file data",
+            error: error.message
+        });
+    }
+}
+module.exports={createfileresult,updatefileresult}
