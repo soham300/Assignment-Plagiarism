@@ -131,6 +131,8 @@ export async function handleSignup(event) {
       return;
     }
 
+    console.log("soham luthra");
+
     // // Create file data
     const fileuserdata = {
       email: email,
