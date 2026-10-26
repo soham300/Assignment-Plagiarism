@@ -35,7 +35,7 @@ export async function handleLogin(event) {
       return;
     }
 
-    console.log(result);
+    // console.log(result);
     localStorage.setItem("token",result.token);
 
 
@@ -132,41 +132,42 @@ export async function handleSignup(event) {
     }
 
     // // Create file data
-    // const fileuserdata = {
-    //   email: email,
-    //   filedetails: []
-    // };
+    const fileuserdata = {
+      email: email,
+      filedetails: []
+    };
 
-    // await fetch(
-    //   "http://localhost:8005/filedata",
-    //   {
-    //     method: "POST",
-    //     headers: {
-    //       "Content-Type": "application/json"
-    //     },
-    //     body: JSON.stringify(fileuserdata)
-    //   }
-    // )
+    await fetch(
+      "http://localhost:8005/filedata",
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify(fileuserdata)
+      }
+    )
 
 
     
 
-    // // Create file result
-    // const resultsection = {
-    //   email: email,
-    //   filesprocesed: []
-    // };
+    // // // Create file result
+    const resultsection = {
+      email: email,
+      
+      filesprocesed: []
+    };
 
-    // await fetch(
-    //   "http://localhost:8005/fileresult",
-    //   {
-    //     method: "POST",
-    //     headers: {
-    //       "Content-Type": "application/json"
-    //     },
-    //     body: JSON.stringify(resultsection)
-    //   }
-    // );
+    await fetch(
+      "http://localhost:8005/fileresult",
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify(resultsection)
+      }
+    );
 
     // localStorage.removeItem("loggedIn");
     // localStorage.removeItem("userEmail");
@@ -205,7 +206,6 @@ export function togglePassword(inputId, button) {
 
 export async function logoutUser() {
   localStorage.removeItem("token");
-
   await updateNavbar();
   await showCustomAlert("You have been logged out.");
 }

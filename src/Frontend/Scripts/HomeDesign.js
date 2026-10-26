@@ -511,3 +511,49 @@
           openAuthPanel(this.getAttribute("data-auth"));
         });
       });
+
+
+
+
+
+const assignmentbutton=document.getElementById("checkAssignmentBtn")
+assignmentbutton.addEventListener("click",async function(event){
+    event.preventDefault()
+    const token = localStorage.getItem("token");
+
+    // First check whether a token exists
+    if (!token) {
+        openAuthPanel("login");
+        return;
+    }
+
+    try{
+      const response=await fetch(
+        "http://localhost:8005/profile",
+        {
+          method:"GET",
+          headers:{
+              Authorization: `Bearer ${token}`
+          }
+        }
+      )
+
+      if (response.status === 401) {
+            localStorage.removeItem("token");
+            openAuthPanel("login")
+            return;
+      }
+
+      if (!response.ok) {
+            alert("Unable to verify your login. Please try again.");
+            return;
+      }
+      
+      window.location.href=assignmentbutton.href;
+
+    }
+    catch(error){
+        console.log(error);
+        alert("Cannot connect to the server. Please try again.");
+    }
+})

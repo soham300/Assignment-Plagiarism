@@ -10,6 +10,8 @@ require("dotenv").config();
 const {connection}=require("./src/Backend/Config/db")   
 
 const {router}=require("./src/Backend/Routes/user.routes")
+const {filerouter}=require("./src/Backend/Routes/file.routes")
+const {fileresultrouter}=require("./src/Backend/Routes/file.result.routes")
 
 app.use(cors({
     origin: "http://127.0.0.1:5500",
@@ -20,7 +22,8 @@ app.use(cors({
 
 app.use(express.json())
 app.use("/",router)
-
+app.use("/",filerouter)
+app.use("/",fileresultrouter)
 
 app.listen(8005,async()=>{
     try{

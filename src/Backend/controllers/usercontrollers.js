@@ -73,7 +73,7 @@ const getuserforlogin=async (req,res)=>{
         const token=jwt.sign(
             { userId: data._id },   
             process.env.JWT_SECRET,
-            { expiresIn: "60m" }
+            { expiresIn: "30m" }
         )
 
         return res.status(200).json({
@@ -98,16 +98,13 @@ const getuserforlogin=async (req,res)=>{
 
 const getUsernameByEmail = async (req, res) => {
   try {
-
-
     const foundUser = await user.findById(req.userId)
-
     if (!foundUser) {
       return res.status(404).json({
         message: "User not found"
       });
     }
-
+    // console.log(foundUser);
     return res.status(200).json([foundUser]);
   } catch (error) {
     return res.status(500).json({

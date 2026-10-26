@@ -187,9 +187,7 @@ if (mobileProfileButton !== null && mobileProfileMenu !== null) {
   });
 }
 
-// =========================================
-// LOGOUT
-// =========================================
+
 const logoutButton = document.getElementById("logoutButton");
 if (logoutButton !== null) {
   logoutButton.addEventListener("click", function () {
@@ -206,9 +204,7 @@ if (mobileLogoutButton !== null) {
   });
 }
 
-// =========================================
-// CLOSE PROFILE MENU WHEN CLICKING OUTSIDE
-// =========================================
+
 document.addEventListener("click", function () {
   if (profileMenu !== null) {
     profileMenu.classList.remove("open");
@@ -226,5 +222,7 @@ document.querySelectorAll(".auth-field input").forEach((input) => {
     input.closest(".auth-field")?.classList.remove("error");
   });
 });
+
+
 
 

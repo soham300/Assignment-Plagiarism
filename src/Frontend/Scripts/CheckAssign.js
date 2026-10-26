@@ -4,42 +4,225 @@ import {
   createChunksLinear,
   buildthegrams,
   applyalgo,
+  getthecommongrams,
+  createAnimationDocs,
+  countUp,
+  highlightMatchesInText,
+  getFileType,
 } from "../../Backend/CheckBackend.js";
+
+
+
+export async function updateNavbar() {
+
+
+  // const profileButton = document.getElementById('profileButton');
+  const token = localStorage.getItem("token");
+
+  const loginButton = document.getElementById("loginNavButton");
+  const signupButton = document.getElementById("signupNavButton");
+  const profileWrap = document.getElementById("profileWrap");
+  const profileButton = document.getElementById("profileButton");
+
+  const mobileLoginButton =
+    document.getElementById("mobileLoginButton");
+  const mobileSignupButton =
+    document.getElementById("mobileSignupButton");
+  const mobileProfileWrap =
+    document.getElementById("mobileProfileWrap");
+  const mobileProfileButton =
+    document.getElementById("mobileProfileButton");
+
+  function showLoggedOut() {
+    if (loginButton) loginButton.style.display = "";
+    if (signupButton) signupButton.style.display = "";
+    if (profileWrap) profileWrap.classList.remove("show");
+
+    if (mobileLoginButton) mobileLoginButton.style.display = "";
+    if (mobileSignupButton) mobileSignupButton.style.display = "";
+    if (mobileProfileWrap) mobileProfileWrap.classList.remove("show");
+  }
+
+  function showLoggedIn(username) {
+    const firstLetter = username?.charAt(0).toUpperCase() || "?";
+
+    if (loginButton) loginButton.style.display = "none";
+    if (signupButton) signupButton.style.display = "none";
+    if (profileWrap) profileWrap.classList.add("show");
+    if (profileButton) profileButton.textContent = firstLetter;
+
+    if (mobileLoginButton) mobileLoginButton.style.display = "none";
+    if (mobileSignupButton) mobileSignupButton.style.display = "none";
+    if (mobileProfileWrap) mobileProfileWrap.classList.add("show");
+    if (mobileProfileButton) {
+      mobileProfileButton.textContent = firstLetter;
+    }
+  }
+
+  // Case 1: No saved token
+  if (!token) {
+    showLoggedOut();
+    return;
+  }
+
+  try {
+    const response = await fetch(
+      "http://localhost:8005/profile",
+      {
+        method: "GET",
+        headers: {
+          Authorization: `Bearer ${token}`
+        }
+      }
+    );
+
+    // Case 2: Token is invalid or expired
+    if (response.status === 401) {
+      localStorage.removeItem("token");
+      showLoggedOut();
+
+      await showCustomAlert(
+        "Your session has expired. Please log in again."
+      );
+      return;
+    }
+
+    if (!response.ok) {
+      throw new Error(
+        `Profile request failed: ${response.status}`
+      );
+    }
+
+    // Case 3: Token is valid
+    const result = await response.json();
+    console.log(result)
+    showLoggedIn(result[0].username);
+
+  } catch (error) {
+    console.error("Navbar update error:", error);
+
+    // A network error does not necessarily mean
+    // the token has expired. Keep the token.
+  }
+}
+
+
+
+// page java script
+
+// Navbar scroll effect
+const navbar = document.getElementById('navbar');
+window.addEventListener('scroll', () => {
+  if (window.scrollY > 20) {
+    navbar.classList.add('scrolled');
+  } else {
+    navbar.classList.remove('scrolled');
+  }
+});
+
+// Mobile menu toggle
+const navToggle = document.getElementById('navToggle');
+const nav = document.querySelector('.nav');
+if (navToggle) {
+  navToggle.addEventListener('click', () => {
+    nav.classList.toggle('open');
+    const isOpen = nav.classList.contains('open');
+    navToggle.setAttribute('aria-expanded', isOpen);
+  });
+}
+
+// Profile menu toggle
+const profileButton = document.getElementById('profileButton');
+const profileMenu = document.getElementById('profileMenu');
+const mobileProfileButton = document.getElementById('mobileProfileButton');
+const mobileProfileMenu = document.getElementById('mobileProfileMenu');
+
+function toggleProfileMenu(btn, menu) {
+  if (btn && menu) {
+    btn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      const isOpen = menu.classList.toggle('open');
+      btn.setAttribute('aria-expanded', isOpen);
+    });
+  }
+}
+
+toggleProfileMenu(profileButton, profileMenu);
+toggleProfileMenu(mobileProfileButton, mobileProfileMenu);
+
+// Close profile menu when clicking outside
+document.addEventListener('click', (e) => {
+  if (profileMenu && !profileMenu.contains(e.target) && profileButton && !profileButton.contains(e.target)) {
+    profileMenu.classList.remove('open');
+    profileButton.setAttribute('aria-expanded', 'false');
+  }
+  if (mobileProfileMenu && !mobileProfileMenu.contains(e.target) && mobileProfileButton && !mobileProfileButton.contains(e.target)) {
+    mobileProfileMenu.classList.remove('open');
+    mobileProfileButton.setAttribute('aria-expanded', 'false');
+  }
+});
+
+// Set user initial from localStorage
+// const userEmail = localStorage.getItem("userEmail") || "User";
+// const initial = userEmail.charAt(0).toUpperCase();
+updateNavbar()
+// if (profileButton) profileButton.textContent = ;
+// if (mobileProfileButton) mobileProfileButton.textContent = initial;
+
+// Logout logic
+const logoutButtons = document.querySelectorAll('.logout-item');
+logoutButtons.forEach(btn => {
+  btn.addEventListener('click', () => {
+
+
+  });
+});
+
+
+// let getemail = document.getElementById("userEmail");
+// async function highlightsamehovermatch() {
+//   api = await fetch("https://checkassign-assignment-plagiarism.onrender.com/fileresult/" + getemail);
+//   data = await api.json();
+
+// }
+
+
+
+
+
+
+
+// let currentuser = localStorage.getItem("loggedIn");
+// if (currentuser == null) {
+//   window.location.href = "../Templates/index.html";
+//   showCustomAlert("login first");
+// }
 
 let currentMode = "student";
 let fileList = [];
+let refStudentFiles = [];
+let refTeacherFile = null;
 let rawTextMap = {};
 let localChunks = [];
 let isRunning = false;
 
-// Main elements
 const dropZoneLeft = document.getElementById("dropLeft");
-
 const fileInputLeft = document.getElementById("fileInputLeft");
-
+const dropZoneRight = document.getElementById("dropRight");
+const fileInputRight = document.getElementById("fileInputRight");
 const analyzeBtn = document.getElementById("analyzeBtn");
 
 const viewUpload = document.getElementById("viewUpload");
-
 const viewAnimation = document.getElementById("viewAnimation");
-
 const viewResults = document.getElementById("viewResults");
 
-// Animation elements
 const aEngine = document.getElementById("aEngine");
-
 const aStage = document.getElementById("aStage");
-
 const progFill = document.getElementById("progFill");
-
 const progPct = document.getElementById("progPct");
-
 const progMsg = document.getElementById("progMsg");
-
 const aeStatus = document.getElementById("aeStatus");
-
 const animStatusText = document.getElementById("animStatusText");
-
 const animStatus = document.getElementById("animStatus");
 
 function wait(ms) {
@@ -48,15 +231,12 @@ function wait(ms) {
   });
 }
 
-// Change progress bar
 function setProgressStep(stepNumber) {
   const steps = document.querySelectorAll(".p-step");
-
   const connectors = document.querySelectorAll(".p-connector");
 
   for (let i = 0; i < steps.length; i++) {
     const step = Number(steps[i].dataset.step);
-
     if (step < stepNumber) {
       steps[i].className = "p-step done";
     } else if (step === stepNumber) {
@@ -75,26 +255,24 @@ function setProgressStep(stepNumber) {
   }
 }
 
-// Show upload, animation or result
 function showView(view) {
   viewUpload.classList.remove("active");
-
   viewAnimation.classList.remove("active");
-
   viewResults.classList.remove("active");
-
   view.classList.add("active");
-
   window.scrollTo(0, 0);
 }
 
-// Analysis mode
+function updateProgress(percent, message) {
+  if (progFill) progFill.style.width = percent + "%";
+  if (progPct) progPct.textContent = percent + "%";
+  if (progMsg) progMsg.textContent = message;
+  if (aeStatus) aeStatus.textContent = message;
+}
+
 const modeCards = document.querySelectorAll(".mode-card");
-
 const uploadLayout = document.getElementById("uploadLayout");
-
 const filePanelSingle = document.getElementById("filePanelSingle");
-
 const zoneRight = document.getElementById("zoneRight");
 
 for (let i = 0; i < modeCards.length; i++) {
@@ -103,504 +281,1115 @@ for (let i = 0; i < modeCards.length; i++) {
 
     for (let j = 0; j < modeCards.length; j++) {
       modeCards[j].classList.remove("selected");
-
       modeCards[j].setAttribute("aria-checked", "false");
     }
 
     this.classList.add("selected");
-
     this.setAttribute("aria-checked", "true");
+
+    fileList = [];
+    refStudentFiles = [];
+    refTeacherFile = null;
+    rawTextMap = {};
+    localChunks = [];
 
     if (currentMode === "reference") {
       zoneRight.style.display = "flex";
-
       filePanelSingle.style.display = "none";
-
       uploadLayout.className = "upload-layout dual";
 
       document.getElementById("labelLeft").textContent = "Student Assignment";
-
       document.getElementById("chipLeft").textContent = "S";
-
-      document.getElementById("summaryText").innerHTML =
-        "Upload a <b>student file</b> and the <b>teacher reference</b> to compare.";
+      document.getElementById("summaryText").innerHTML = "Upload a <b>student file</b> and the <b>teacher reference</b> to compare.";
     } else {
       zoneRight.style.display = "none";
-
       filePanelSingle.style.display = "flex";
-
       uploadLayout.className = "upload-layout single";
 
       document.getElementById("labelLeft").textContent = "Student Assignments";
-
       document.getElementById("chipLeft").textContent = "S1";
-
-      document.getElementById("summaryText").innerHTML =
-        "Upload <b>two student files</b> to compare them.";
+      document.getElementById("summaryText").innerHTML = "Upload <b>two or more student files</b> to compare them against each other.";
     }
 
     renderFileList();
-
     checkButtonState();
   });
 }
 
-// Show selected files
 function renderFileList() {
-  const container = document.getElementById("fileListSingle");
+  if (currentMode === "student") {
+    const container = document.getElementById("fileListSingle");
+    const badge = document.getElementById("fileCountBadgeSingle");
+    const countText = document.getElementById("fileCountSingle");
 
-  const badge = document.getElementById("fileCountBadgeSingle");
+    container.innerHTML = "";
+    addfiles(null, fileList, container);
 
-  const countText = document.getElementById("fileCountSingle");
+    if (badge) badge.textContent = fileList.length;
+    if (countText) countText.textContent = fileList.length + " files selected";
 
-  addfiles(null, fileList, container);
-
-  if (badge) {
-    badge.textContent = fileList.length;
-  }
-
-  if (countText) {
-    countText.textContent = fileList.length + " files selected";
-  }
-
-  const removeButtons = container.querySelectorAll(".f-remove");
-
-  for (let i = 0; i < removeButtons.length; i++) {
-    removeButtons[i].addEventListener("click", function (event) {
-      event.stopPropagation();
-
-      const index = Number(this.dataset.idx);
-
-      fileList.splice(index, 1);
-
-      renderFileList();
-
-      checkButtonState();
-    });
-  }
-}
-
-// Enable Analyze button
-function checkButtonState() {
-  if (fileList.length >= 2) {
-    analyzeBtn.disabled = false;
-
-    analyzeBtn.setAttribute("aria-disabled", "false");
+    const removeButtons = container.querySelectorAll(".f-remove");
+    for (let i = 0; i < removeButtons.length; i++) {
+      removeButtons[i].addEventListener("click", function (event) {
+        event.stopPropagation();
+        const index = Number(this.dataset.idx);
+        fileList.splice(index, 1);
+        renderFileList();
+        checkButtonState();
+      });
+    }
   } else {
-    analyzeBtn.disabled = true;
+    const leftContainer = document.getElementById("fileListLeft");
+    const leftCount = document.getElementById("fileCountLeft");
+    leftContainer.innerHTML = "";
+    addfiles(null, refStudentFiles, leftContainer);
+    if (leftCount) leftCount.textContent = refStudentFiles.length + (refStudentFiles.length === 1 ? " file" : " files");
 
-    analyzeBtn.setAttribute("aria-disabled", "true");
+    let leftRemoveButtons = leftContainer.querySelectorAll(".f-remove");
+    for (let i = 0; i < leftRemoveButtons.length; i++) {
+      leftRemoveButtons[i].addEventListener("click", function (event) {
+        event.stopPropagation();
+        const index = Number(this.dataset.idx);
+        refStudentFiles.splice(index, 1);
+        renderFileList();
+        checkButtonState();
+      });
+    }
+
+    const rightContainer = document.getElementById("fileListRight");
+    const rightCount = document.getElementById("fileCountRight");
+    rightContainer.innerHTML = "";
+    if (refTeacherFile) {
+      addfiles(null, [refTeacherFile], rightContainer);
+      let rightRemoveButtons = rightContainer.querySelectorAll(".f-remove");
+      for (let i = 0; i < rightRemoveButtons.length; i++) {
+        rightRemoveButtons[i].addEventListener("click", function (event) {
+          event.stopPropagation();
+          refTeacherFile = null;
+          renderFileList();
+          checkButtonState();
+        });
+      }
+    }
+    if (rightCount) rightCount.textContent = refTeacherFile ? "1 file selected" : "0 files";
   }
 }
 
-// Add files
-function handleIncomingFiles(files) {
-  for (let i = 0; i < files.length; i++) {
-    fileList.push(files[i]);
+function checkButtonState() {
+  if (currentMode === "student") {
+    if (fileList.length >= 2) {
+      analyzeBtn.disabled = false;
+      analyzeBtn.setAttribute("aria-disabled", "false");
+    } else {
+      analyzeBtn.disabled = true;
+      analyzeBtn.setAttribute("aria-disabled", "true");
+    }
+  } else {
+    if (refTeacherFile && refStudentFiles.length >= 1) {
+      analyzeBtn.disabled = false;
+      analyzeBtn.setAttribute("aria-disabled", "false");
+    } else {
+      analyzeBtn.disabled = true;
+      analyzeBtn.setAttribute("aria-disabled", "true");
+    }
   }
+}
 
+function handleIncomingFiles(files, isRightZone = false) {
+  if (currentMode === "student") {
+    if (!isRightZone) {
+      for (let i = 0; i < files.length; i++) {
+        fileList.push(files[i]);
+      }
+    }
+  } else {
+    if (isRightZone) {
+      refTeacherFile = files[0];
+    } else {
+      for (let i = 0; i < files.length; i++) {
+        refStudentFiles.push(files[i]);
+      }
+    }
+  }
   renderFileList();
-
   checkButtonState();
 }
 
-// Open file picker
-dropZoneLeft.addEventListener("click", function () {
-  fileInputLeft.click();
-});
+function setupDropZone(dropZone, fileInput, isRightZone) {
+  if (!dropZone || !fileInput) return;
 
-fileInputLeft.addEventListener("change", function () {
-  if (fileInputLeft.files) {
-    handleIncomingFiles(fileInputLeft.files);
+  dropZone.addEventListener("click", function () {
+    fileInput.click();
+  });
+
+  fileInput.addEventListener("change", function () {
+    if (fileInput.files) {
+      handleIncomingFiles(Array.from(fileInput.files), isRightZone);
+    }
+    fileInput.value = "";
+  });
+
+  const dragEvents = ["dragenter", "dragover", "dragleave", "drop"];
+  for (let i = 0; i < dragEvents.length; i++) {
+    dropZone.addEventListener(dragEvents[i], function (event) {
+      event.preventDefault();
+      event.stopPropagation();
+    });
   }
 
-  fileInputLeft.value = "";
-});
+  dropZone.addEventListener("dragover", function () {
+    dropZone.parentElement.classList.add("dragover");
+  });
 
-// Drag and drop
-const dragEvents = ["dragenter", "dragover", "dragleave", "drop"];
+  dropZone.addEventListener("dragleave", function () {
+    dropZone.parentElement.classList.remove("dragover");
+  });
 
-for (let i = 0; i < dragEvents.length; i++) {
-  dropZoneLeft.addEventListener(dragEvents[i], function (event) {
+  dropZone.addEventListener("drop", async function (event) {
     event.preventDefault();
-
     event.stopPropagation();
+    dropZone.parentElement.classList.remove("dragover");
+
+    const items = event.dataTransfer.items;
+    const files = [];
+
+    if (items && items.length > 0) {
+      for (let i = 0; i < items.length; i++) {
+        const entry = items[i].webkitGetAsEntry ? items[i].webkitGetAsEntry() : null;
+        if (entry) {
+          await processEntry(entry, files);
+        } else {
+          const file = items[i].getAsFile();
+          if (file) files.push(file);
+        }
+      }
+    } else if (event.dataTransfer.files) {
+      for (let i = 0; i < event.dataTransfer.files.length; i++) {
+        files.push(event.dataTransfer.files[i]);
+      }
+    }
+
+    handleIncomingFiles(files, isRightZone);
   });
 }
 
-dropZoneLeft.addEventListener("drop", async function (event) {
-  event.preventDefault();
+setupDropZone(dropZoneLeft, fileInputLeft, false);
+setupDropZone(dropZoneRight, fileInputRight, true);
 
-  const items = event.dataTransfer.items;
+analyzeBtn.addEventListener("click", async function () {
+  if (isRunning) return;
 
-  const files = [];
+  if (currentMode === "student") {
+    sessionStorage.setItem("modeused", "students");
+    if (fileList.length < 2) return;
+    isRunning = true;
+    analyzeBtn.disabled = true;
+    setProgressStep(2);
+    showView(viewAnimation);
+    document.getElementById("animTitle").textContent = "Comparing " + fileList.length + " assignments...";
+    createAnimationDocs(fileList);
 
-  if (items && items.length > 0) {
-    for (let i = 0; i < items.length; i++) {
-      let entry = null;
+    aStage.classList.add("p-comparing", "p-scanning");
+    aEngine.classList.add("active");
 
-      if (items[i].webkitGetAsEntry) {
-        entry = items[i].webkitGetAsEntry();
+    const filesToProcess = [fileList[0], fileList[1]];
+    localChunks = [];
+    let filedetails = [];
+
+    for (let i = 0; i < filesToProcess.length; i++) {
+      const file = filesToProcess[i];
+      let content = "";
+      try { content = await file.text(); } catch (error) { content = "Content of " + file.name; }
+      rawTextMap[file.name] = content;
+      const chunks = createChunksLinear(content, 100);
+      for (let j = 0; j < chunks.length; j++) {
+        chunks[j].grams = buildthegrams(chunks[j], 4);
       }
+      localChunks[i] = chunks;
 
-      if (entry) {
-        await processEntry(entry, files);
-      } else {
-        const file = items[i].getAsFile();
+      const xyz = { filename: file.name, filesize: file.size, chunks: chunks };
+      filedetails.push(xyz);
 
-        if (file) {
-          files.push(file);
-        }
+
+      // let ans = localStorage.getItem("loggedIn");
+      // if (ans) {
+      // // let getemail = localStorage.getItem("userEmail");
+      //   const token=localStorage.getItem("token")
+
+      // if(token){
+
+
+
+      // }
+
+    }
+
+
+
+    const token=localStorage.getItem("token");
+    console.log(filedetails)
+
+    try {
+      await fetch(
+        "http://localhost:8005/filedata/",
+        {
+          method: "PUT",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`
+          },
+          body: JSON.stringify({
+            filedetails: filedetails
+        })
+        });
+    }
+    catch (err) {
+      console.error("Failed to save file data:", err);
+    }
+
+    const stageElements = aEngine.querySelectorAll(".ae-stage");
+    const lines = aStage.querySelectorAll('.connection-line');
+    const docs = aStage.querySelectorAll('.a-doc');
+    const stageNames = ["Reading assignments...", "Extracting text...", "Creating linear chunks (100 words)...", "Generating 4-grams...", "Comparing sections (Jaccard similarity)...", "Detecting matching content...", "Generating final report..."];
+    const progressValues = [10, 25, 42, 58, 74, 90, 100];
+    const stageDelays = [800, 900, 800, 900, 1000, 900, 600];
+
+    for (let i = 0; i < stageElements.length; i++) {
+      updateProgress(progressValues[i], stageNames[i]);
+      stageElements[i].classList.add("active");
+      if (i >= 3) {
+        lines.forEach((line, idx) => {
+          if (idx <= i - 3) {
+            line.style.opacity = '0.6';
+            line.style.animation = 'dashflow 1.4s linear infinite';
+          }
+        });
+        docs.forEach((doc, docIdx) => {
+          const lines_in_doc = doc.querySelectorAll('.a-line');
+          const lineIndex = i - 3;
+          if (lines_in_doc[lineIndex] && lineIndex < lines_in_doc.length) {
+            setTimeout(() => {
+              lines_in_doc[lineIndex].classList.add('found', `hl-${(docIdx % 2) + 1}`);
+            }, docIdx * 200);
+          }
+        });
       }
+      await wait(stageDelays[i] || 700);
+      stageElements[i].classList.remove("active");
+      stageElements[i].classList.add("done");
     }
-  } else if (event.dataTransfer.files) {
-    for (let i = 0; i < event.dataTransfer.files.length; i++) {
-      files.push(event.dataTransfer.files[i]);
+
+    const realScore = await applyalgo(filesToProcess, localChunks);
+    aStage.classList.remove("p-scanning");
+    aEngine.classList.remove("active");
+    aEngine.classList.add("done");
+    animStatusText.textContent = "Complete";
+    animStatus.classList.add("done");
+    await wait(700);
+    displayResults(filesToProcess, realScore);
+    setProgressStep(3);
+    showView(viewResults);
+
+  } else {
+    sessionStorage.setItem("modeused", "teachers");
+
+    if (!refTeacherFile || refStudentFiles.length === 0) return;
+    isRunning = true;
+    analyzeBtn.disabled = true;
+    setProgressStep(2);
+    showView(viewAnimation);
+    document.getElementById("animTitle").textContent = "Comparing " + refStudentFiles.length + " student(s) with teacher reference...";
+
+    const allRefFiles = [refTeacherFile, ...refStudentFiles];
+    createAnimationDocs(allRefFiles);
+
+    aStage.classList.add("p-comparing", "p-scanning");
+    aEngine.classList.add("active");
+
+    const stageNames = ["Reading teacher reference...", "Reading student assignments...", "Creating linear chunks (100 words)...", "Generating 4-grams...", "Comparing sections (Jaccard similarity)...", "Detecting matching content...", "Generating final report..."];
+    const progressValues = [10, 25, 42, 58, 74, 90, 100];
+    const stageDelays = [800, 900, 800, 900, 1000, 900, 600];
+
+    let teacherChunks = [];
+    let studentChunksList = [];
+    let results = [];
+
+    updateProgress(progressValues[0], stageNames[0]);
+    let tContent = "";
+    try { tContent = await refTeacherFile.text(); } catch (e) { tContent = "Content of " + refTeacherFile.name; }
+    rawTextMap[refTeacherFile.name] = tContent;
+    teacherChunks = createChunksLinear(tContent, 100);
+    for (let j = 0; j < teacherChunks.length; j++) {
+      teacherChunks[j].grams = buildthegrams(teacherChunks[j], 4);
     }
+    await wait(stageDelays[0]);
+
+    updateProgress(progressValues[1], stageNames[1]);
+    for (let i = 0; i < refStudentFiles.length; i++) {
+      const file = refStudentFiles[i];
+      let sContent = "";
+      try { sContent = await file.text(); } catch (e) { sContent = "Content of " + file.name; }
+      rawTextMap[file.name] = sContent;
+      const chunks = createChunksLinear(sContent, 100);
+      for (let j = 0; j < chunks.length; j++) {
+        chunks[j].grams = buildthegrams(chunks[j], 4);
+      }
+      studentChunksList.push(chunks);
+    }
+    await wait(stageDelays[1]);
+
+    const stageElements = aEngine.querySelectorAll(".ae-stage");
+    const lines = aStage.querySelectorAll('.connection-line');
+    const docs = aStage.querySelectorAll('.a-doc');
+
+    for (let i = 2; i < stageElements.length; i++) {
+      updateProgress(progressValues[i], stageNames[i]);
+      stageElements[i].classList.add("active");
+      if (i >= 3) {
+        lines.forEach((line, idx) => {
+          if (idx <= i - 3) {
+            line.style.opacity = '0.6';
+            line.style.animation = 'dashflow 1.4s linear infinite';
+          }
+        });
+        docs.forEach((doc, docIdx) => {
+          const lines_in_doc = doc.querySelectorAll('.a-line');
+          const lineIndex = i - 3;
+          if (lines_in_doc[lineIndex] && lineIndex < lines_in_doc.length) {
+            setTimeout(() => {
+              lines_in_doc[lineIndex].classList.add('found', `hl-${(docIdx % 2) + 1}`);
+            }, docIdx * 200);
+          }
+        });
+      }
+      await wait(stageDelays[i] || 700);
+      stageElements[i].classList.remove("active");
+      stageElements[i].classList.add("done");
+    }
+
+    for (let i = 0; i < refStudentFiles.length; i++) {
+      updateProgress(74 + Math.round((i / refStudentFiles.length) * 20), "Comparing teacher with " + refStudentFiles[i].name + "...");
+      const filesToCompare = [refTeacherFile, refStudentFiles[i]];
+      const chunksToCompare = [teacherChunks, studentChunksList[i]];
+
+      const score = await applyalgo(filesToCompare, chunksToCompare);
+      const commonGrams = getthecommongrams();
+
+      const teacherText = rawTextMap[refTeacherFile.name] || "";
+      const studentText = rawTextMap[refStudentFiles[i].name] || "";
+
+      const { matchesA, matchesB } = reconstructMatchesFromGrams(teacherText, studentText, commonGrams, 4);
+
+      results.push({
+        filenames: [refTeacherFile.name, refStudentFiles[i].name],
+        teacherName: refTeacherFile.name,
+        studentName: refStudentFiles[i].name,
+        textA: teacherText,
+        textB: studentText,
+        filefirstmatches: matchesA,
+        filesecondmatches: matchesB,
+        similarwords: commonGrams.size,
+        roundedscore: Math.round(Math.max(0, Math.min(100, score))),
+        studentIndex: i + 1,
+      });
+      await wait(300);
+    }
+
+    updateProgress(100, "Generating final report...");
+    await wait(700);
+
+    aStage.classList.remove("p-scanning");
+    aEngine.classList.remove("active");
+    aEngine.classList.add("done");
+    animStatusText.textContent = "Complete";
+    animStatus.classList.add("done");
+    await wait(700);
+
+    displayTeacherStudentResults(results);
+    setProgressStep(3);
+    showView(viewResults);
   }
 
-  handleIncomingFiles(files);
+  isRunning = false;
+  checkButtonState();
 });
 
-// Animation stages
-const stageNames = [
-  "Reading assignments...",
 
-  "Extracting text...",
+console.log("soham how are you");
 
-  "Creating linear chunks (100 words)...",
+async function displayResults(files, score) {
+  sessionStorage.setItem("showsthedisplayornot", true);
+  const fileA = files[0];
+  const fileB = files[1];
+  const getemail = localStorage.getItem("userEmail");
 
-  "Generating 4-grams...",
+  const teacherView = document.getElementById("teacherResultsView");
+  if (teacherView) teacherView.style.display = "none";
 
-  "Comparing sections (Jaccard similarity)...",
+  const studentView = document.querySelector(".results-wrap");
+  if (studentView) studentView.style.display = "flex";
 
-  "Detecting matching content...",
+  const textA = rawTextMap[fileA.name] || "No content extracted.";
+  const textB = rawTextMap[fileB.name] || "No content extracted.";
 
-  "Generating final report...",
-];
+  const roundedScore = Math.min(100, Math.max(0, Math.round(score)));
+  const scoreElement = document.getElementById("resSimilarity");
+  countUp(scoreElement, roundedScore);
 
-const progressValues = [10, 25, 42, 58, 74, 90, 100];
+  let commonGramsSet = getthecommongrams();
+  const { matchesA, matchesB } = reconstructMatchesFromGrams(textA, textB, commonGramsSet);
 
-const stageDelays = [800, 900, 800, 900, 1000, 900, 600];
+  const firstChunkCount = localChunks[0] ? localChunks[0].length : 0;
+  const secondChunkCount = localChunks[1] ? localChunks[1].length : 0;
 
-function updateProgress(percent, message) {
-  if (progFill) {
-    progFill.style.width = percent + "%";
+  const result = {
+    filenames: [fileA.name, fileB.name],
+    filefirstmatches: matchesA,
+    filesecondmatches: matchesB,
+    similarwords: commonGramsSet.size,
+    roundedscore: roundedScore,
+    textA: textA,
+    textB: textB,
+    chunkCountA: firstChunkCount,
+    chunkCountB: secondChunkCount
+  };
+
+  if (getemail) {
+    try {
+      const data = await fetch(`http://localhost:8005/fileresult`,
+        {
+          
+        }
+    );
+      const resp = await data.json();
+
+      if (resp && resp.length > 0) {
+        const rep = resp[0];
+
+        let addtoarr = [];
+        addtoarr.push({ mode: "students" });
+        addtoarr.push(result);
+
+        if (!rep.filesprocesed) rep.filesprocesed = [];
+        rep.filesprocesed.push(addtoarr);
+        await fetch(`https://checkassign-assignment-plagiarism.onrender.com/fileresult/${rep.id}`, {
+          method: "PUT",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(rep)
+        });
+        console.log("Result saved to database successfully");
+      }
+    } catch (err) {
+      console.error("Failed to save result to database:", err);
+    }
   }
 
-  if (progPct) {
-    progPct.textContent = percent + "%";
-  }
+  renderUI(result);
 
-  if (progMsg) {
-    progMsg.textContent = message;
-  }
-
-  if (aeStatus) {
-    aeStatus.textContent = message;
+  try {
+    sessionStorage.setItem("lastSessionMode", "students");
+    sessionStorage.setItem("lastSessionResult", JSON.stringify(result));
+  } catch (e) {
+    console.error("SessionStorage save failed", e);
   }
 }
 
-// Analyze button
-analyzeBtn.addEventListener("click", async function () {
-  if (isRunning || fileList.length < 2) {
+async function displayTeacherStudentResults(results) {
+  if (!results || results.length === 0) {
+    console.error("No results to display");
     return;
   }
 
-  isRunning = true;
-
-  analyzeBtn.disabled = true;
-
-  setProgressStep(2);
-
-  showView(viewAnimation);
-
-  document.getElementById("animTitle").textContent =
-    "Comparing " + fileList.length + " assignments...";
-
-  aStage.classList.add("p-comparing", "p-scanning");
-
-  aEngine.classList.add("active");
-
-  updateProgress(progressValues[0], stageNames[0]);
-
-  await wait(stageDelays[0]);
-
-  // Process first two files
-  localChunks = [];
-
-  const filesToCompare = [fileList[0], fileList[1]];
-
-  for (let i = 0; i < filesToCompare.length; i++) {
-    const file = filesToCompare[i];
-
-    let content = "";
-
+  const getemail = localStorage.getItem("userEmail");
+  if (getemail) {
     try {
-      content = await file.text();
-    } catch (error) {
-      content = "Content of " + file.name;
-    }
+      const data = await fetch(`https://checkassign-assignment-plagiarism.onrender.com/fileresult?email=${encodeURIComponent(getemail)}`);
+      const resp = await data.json();
+      let arrtoallstudetscomparetoteacher = [];
+      arrtoallstudetscomparetoteacher.push({ mode: "teachers" });
+      for (let s = 0; s < results.length; s++) {
+        arrtoallstudetscomparetoteacher.push(results[s]);
+      }
 
-    rawTextMap[file.name] = content;
+      if (resp && resp.length > 0) {
+        const rep = resp[0];
 
-    // Create chunks
-    const chunks = createChunksLinear(content, 100);
-
-    // Create 4-grams
-    for (let j = 0; j < chunks.length; j++) {
-      chunks[j].grams = buildthegrams(chunks[j], 4);
-    }
-
-    localChunks[i] = chunks;
-
-    // Save to JSON Server
-    const data = {
-      filename: file.name,
-
-      filesize: file.size,
-
-      chunks: chunks,
-    };
-
-    try {
-      await fetch("http://localhost:3000/users", {
-        method: "POST",
-
-        headers: {
-          "Content-Type": "application/json",
-        },
-
-        body: JSON.stringify(data),
-      });
-    } catch (error) {
-      console.log("JSON Server notice:", error.message);
+        if (!rep.filesprocesed) rep.filesprocesed = [];
+        rep.filesprocesed.push(arrtoallstudetscomparetoteacher);
+        await fetch(`https://checkassign-assignment-plagiarism.onrender.com/fileresult/${rep.id}`, {
+          method: "PUT",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(rep)
+        });
+        console.log("Result saved to database successfully");
+      }
+    } catch (err) {
+      console.error("Failed to save result to database:", err);
     }
   }
+  renderUIforteachers(results);
 
-  // Run animation
-  const stageElements = aEngine.querySelectorAll(".ae-stage");
-
-  for (let i = 0; i < stageElements.length; i++) {
-    updateProgress(progressValues[i + 1], stageNames[i + 1]);
-
-    stageElements[i].classList.add("active");
-
-    await wait(stageDelays[i + 1] || 700);
-
-    stageElements[i].classList.remove("active");
-
-    stageElements[i].classList.add("done");
+  try {
+    sessionStorage.setItem("lastSessionMode", "teachers");
+    sessionStorage.setItem("lastSessionResult", JSON.stringify(results));
+  } catch (e) {
+    console.error("SessionStorage save failed", e);
   }
-
-  // Run actual algorithm
-  const reportData = await applyalgo(filesToCompare, localChunks);
-const completeReport = {
-  score: reportData,
-  files: filesToCompare.map(function (file) {
-    return {
-      name: file.name,
-      size: file.size,
-      type: file.type
-    };
-  }),
-  text: {
-    [filesToCompare[0].name]: rawTextMap[filesToCompare[0].name] || "",
-    [filesToCompare[1].name]: rawTextMap[filesToCompare[1].name] || ""
-  },
-  chunks: localChunks.map(function (chunks) {
-    return chunks;
-  }),
-  generatedAt: new Date().toISOString()
-};
-sessionStorage.setItem(
-  "assignCheckReport",
-  JSON.stringify(completeReport)
-);
-
-displayResults(filesToCompare, reportData);
-
-  aStage.classList.remove("p-scanning");
-
-  aEngine.classList.remove("active");
-
-  aEngine.classList.add("done");
-
-  animStatusText.textContent = "Complete";
-
-  animStatus.classList.add("done");
-
-  await wait(700);
-
-
-
-  setProgressStep(3);
-
-  showView(viewResults);
-});
-
-// Count percentage
-function countUp(element, targetNumber) {
-  let current = 0;
-
-  const increment = Math.max(1, Math.ceil(targetNumber / 30));
-
-  const timer = setInterval(function () {
-    current += increment;
-
-    if (current >= targetNumber) {
-      current = targetNumber;
-
-      clearInterval(timer);
-    }
-
-    element.textContent = current + "%";
-  }, 25);
 }
 
-// Show results
-function displayResults(files, score) {
-  const roundedScore = Math.min(100, Math.max(0, Math.round(score)));
+function renderUIforteachers(results) {
+  const studentView = document.querySelector(".results-wrap");
+  if (studentView) {
+    studentView.style.display = "none";
+  }
+
+  let teacherView = document.getElementById("teacherResultsView");
+  if (!teacherView) {
+    teacherView = document.createElement("div");
+    teacherView.id = "teacherResultsView";
+    teacherView.className = "results-wrap-teacher";
+    teacherView.innerHTML = `
+      <div class="document-viewer">
+        <div class="doc-header">
+          <h2 class="doc-title" id="docTitle">Student Document</h2>
+          <div class="doc-meta"><span>📄 Compared against Teacher Reference</span></div>
+        </div>
+        <div class="doc-content" id="docContent"></div>
+      </div>
+      <div class="sidebar">
+        <div class="matched-sources">
+          <h3>Student Files</h3>
+          <p>Select a student to view their matches with the teacher.</p>
+          <div class="source-list" id="sourceList"></div>
+        </div>
+        <div class="analysis-summary">
+          <h3>Analysis Summary</h3>
+          <div class="overall-score">
+            <div class="score-value" id="overallScore">0%</div>
+            <div class="score-label">Average Similarity</div>
+            <div class="score-bar"><div class="score-fill" id="scoreFill" style="width: 0%"></div></div>
+          </div>
+          <div class="summary-stats">
+            <div class="stat-row"><span class="stat-label">Matching Sections</span><span class="stat-value" id="matchingSections">0</span></div>
+            <div class="stat-row"><span class="stat-label">Highest Match</span><span class="stat-value" id="referenceMatch">0%</span></div>
+            <div class="stat-row"><span class="stat-label">Students Compared</span><span class="stat-value" id="sourcesCompared">0</span></div>
+          </div>
+        </div>
+      </div>
+
+      <button id="newAnalysisBtn" class="btn btn-primary res-action-btn" aria-label="Start a new plagiarism analysis">
+      <svg class="ic" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M21 12a9 9 0 1 1-9-9"/>
+        <polyline points="21 3 21 9 15 9"/>
+      </svg>
+      <span>New Analysis</span>
+    </button>
+    `;
+    document.getElementById("viewResults").appendChild(teacherView);
+  }
+
+  teacherView.style.display = "grid";
+
+  const sourceList = document.getElementById("sourceList");
+  if (sourceList) {
+    sourceList.innerHTML = "";
+
+    results.forEach((result, index) => {
+      const sourceItem = document.createElement("div");
+      const colorClass = `source-${index + 1}`;
+      sourceItem.className = `source-item ${colorClass}`;
+      sourceItem.dataset.studentIndex = index;
+
+      const fileName = result.studentName || `File ${index + 1}`;
+      const matchCount = result.filesecondmatches ? result.filesecondmatches.length : 0;
+
+      sourceItem.innerHTML = `
+        <div class="source-icon">${index + 1}</div>
+        <div class="source-info">
+          <div class="source-name" title="${fileName}">${fileName}</div>
+          <div class="source-count">${matchCount} matching sections</div>
+        </div>
+      `;
+
+      sourceItem.addEventListener("click", () => {
+        displayStudentDocument(result, index + 1);
+        document.querySelectorAll(".source-item").forEach(item => item.classList.remove("active"));
+        sourceItem.classList.add("active");
+      });
+
+      sourceList.appendChild(sourceItem);
+    });
+  }
+
+  updateTeacherStats(results);
+
+  if (results.length > 0) {
+    const firstItem = sourceList.querySelector(".source-item");
+    if (firstItem) {
+      firstItem.classList.add("active");
+      displayStudentDocument(results[0], 1);
+    }
+  }
+}
+
+function displayStudentDocument(result, colorIndex) {
+  const docTitle = document.getElementById("docTitle");
+  if (docTitle) {
+    docTitle.textContent = result.studentName ? result.studentName.replace(/\.[^/.]+$/, "") : "Student Document";
+  }
+
+  const docContent = document.getElementById("docContent");
+  if (docContent && result.textB) {
+    docContent.innerHTML = highlightStudentText(result.textB, result.filesecondmatches, colorIndex);
+  }
+}
+
+function highlightStudentText(studentText, matches, colorIndex) {
+  if (!studentText) return "<p>No content</p>";
+  if (!matches || matches.length === 0) {
+    return "<p>" + escapeHTML(studentText).replace(/\n/g, "<br>") + "</p>";
+  }
+
+  const words = studentText.split(/\s+/);
+  const positions = [];
+  let pos = 0;
+
+  for (let i = 0; i < words.length; i++) {
+    positions.push(pos);
+    pos += words[i].length + 1;
+  }
+
+  const intervals = [];
+  for (let i = 0; i < matches.length; i++) {
+    const match = matches[i];
+    if (match.startIndex >= 0 && match.endIndex <= words.length) {
+      intervals.push({
+        start: positions[match.startIndex],
+        end: positions[match.endIndex - 1] + words[match.endIndex - 1].length,
+        text: studentText.substring(positions[match.startIndex], positions[match.endIndex - 1] + words[match.endIndex - 1].length)
+      });
+    }
+  }
+
+  intervals.sort((a, b) => a.start - b.start);
+
+  let html = "";
+  let cursor = 0;
+
+  for (let i = 0; i < intervals.length; i++) {
+    const interval = intervals[i];
+    if (interval.start < cursor) continue;
+
+    if (interval.start > cursor) {
+      html += escapeHTML(studentText.substring(cursor, interval.start));
+    }
+
+    html += `<span class="highlight source-${colorIndex}">${escapeHTML(interval.text)}</span>`;
+    cursor = interval.end;
+  }
+
+  if (cursor < studentText.length) {
+    html += escapeHTML(studentText.substring(cursor));
+  }
+
+  return "<p>" + html.replace(/\n+/g, "</p><p>") + "</p>";
+}
+
+function updateTeacherStats(results) {
+  let totalScore = 0;
+  let totalMatches = 0;
+  let maxScore = 0;
+
+  results.forEach(result => {
+    totalScore += result.roundedscore || 0;
+    totalMatches += result.filesecondmatches ? result.filesecondmatches.length : 0;
+    if (result.roundedscore > maxScore) {
+      maxScore = result.roundedscore;
+    }
+  });
+
+  const avgScore = Math.round(totalScore / results.length);
+
+  const scoreEl = document.getElementById("overallScore");
+  const scoreFill = document.getElementById("scoreFill");
+  const matchesEl = document.getElementById("matchingSections");
+  const refMatchEl = document.getElementById("referenceMatch");
+  const sourcesEl = document.getElementById("sourcesCompared");
+
+  if (scoreEl) scoreEl.textContent = avgScore + "%";
+  if (scoreFill) scoreFill.style.width = avgScore + "%";
+  if (matchesEl) matchesEl.textContent = totalMatches;
+  if (refMatchEl) refMatchEl.textContent = maxScore + "%";
+  if (sourcesEl) sourcesEl.textContent = results.length;
+}
+
+function highlightMatches(text, matches) {
+  if (!text || !matches || matches.length === 0) {
+    return "<p>" + escapeHTML(text).replace(/\n/g, "<br>") + "</p>";
+  }
+  const words = text.split(/\s+/);
+  const positions = [];
+  let position = 0;
+  for (let i = 0; i < words.length; i++) {
+    positions.push(position);
+    position += words[i].length + 1;
+  }
+  const intervals = [];
+  for (let i = 0; i < matches.length; i++) {
+    const match = matches[i];
+    if (match.startIndex >= 0 && match.endIndex <= words.length) {
+      intervals.push({
+        start: positions[match.startIndex],
+        end: positions[match.endIndex - 1] + words[match.endIndex - 1].length,
+      });
+    }
+  }
+  intervals.sort(function (a, b) { return a.start - b.start; });
+
+  let html = "";
+  let cursor = 0;
+  for (let i = 0; i < intervals.length; i++) {
+    const interval = intervals[i];
+    if (interval.start < cursor) continue;
+    html += escapeHTML(text.slice(cursor, interval.start));
+    html += '<span class="highlight-match">' + escapeHTML(text.slice(interval.start, interval.end)) + "</span>";
+    cursor = interval.end;
+  }
+  html += escapeHTML(text.slice(cursor));
+  return "<p>" + html.replace(/\n+/g, "</p><p>") + "</p>";
+}
+
+function escapeHTML(value) {
+  return String(value)
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#039;");
+}
+
+export function reconstructMatchesFromGrams(textA, textB, commonGramsSet, gramSize = 4) {
+  if (!textA || !textB) return { matchesA: [], matchesB: [] };
+
+  const wordsA = textA.trim().split(/\s+/);
+  const wordsB = textB.trim().split(/\s+/);
+
+  const cleanA = wordsA.map(w => w.toLowerCase().replace(/[^a-z0-9]/g, ""));
+  const cleanB = wordsB.map(w => w.toLowerCase().replace(/[^a-z0-9]/g, ""));
+
+  const normalizedGrams = new Set();
+  if (commonGramsSet instanceof Set) {
+    commonGramsSet.forEach(item => {
+      const str = Array.isArray(item) ? item.join(" ") : String(item).trim().toLowerCase();
+      normalizedGrams.add(str);
+    });
+  } else if (Array.isArray(commonGramsSet)) {
+    commonGramsSet.forEach(item => {
+      const str = Array.isArray(item) ? item.join(" ") : String(item).trim().toLowerCase();
+      normalizedGrams.add(str);
+    });
+  }
+
+  const mapB = new Map();
+  for (let j = 0; j <= cleanB.length - gramSize; j++) {
+    const gramB = cleanB.slice(j, j + gramSize).join(" ");
+    if (!gramB || gramB.includes("  ")) continue;
+    if (!mapB.has(gramB)) mapB.set(gramB, []);
+    mapB.get(gramB).push(j);
+  }
+
+  const visitedA = new Array(wordsA.length).fill(false);
+  const visitedB = new Array(wordsB.length).fill(false);
+  const matchesA = [];
+  const matchesB = [];
+
+  for (let i = 0; i <= cleanA.length - gramSize; i++) {
+    if (visitedA[i]) continue;
+
+    const currentGram = cleanA.slice(i, i + gramSize).join(" ");
+
+    if (normalizedGrams.has(currentGram) && mapB.has(currentGram)) {
+      const matchIndicesB = mapB.get(currentGram);
+      let bestK = 0;
+      let bestBIndex = -1;
+
+      for (const j of matchIndicesB) {
+        let k = 0;
+        while (i + k < cleanA.length && j + k < cleanB.length && cleanA[i + k] !== "" && cleanA[i + k] === cleanB[j + k]) {
+          k++;
+        }
+        if (k > bestK) {
+          bestK = k;
+          bestBIndex = j;
+        }
+      }
+
+      if (bestK >= gramSize) {
+        let isBVisited = false;
+        for (let v = bestBIndex; v < bestBIndex + bestK; v++) {
+          if (visitedB[v]) {
+            isBVisited = true;
+            break;
+          }
+        }
+
+        if (!isBVisited) {
+          for (let v = i; v < i + bestK; v++) visitedA[v] = true;
+          for (let v = bestBIndex; v < bestBIndex + bestK; v++) visitedB[v] = true;
+
+          matchesA.push({ phrase: wordsA.slice(i, i + bestK).join(" "), startIndex: i, endIndex: i + bestK, length: bestK });
+          matchesB.push({ phrase: wordsB.slice(bestBIndex, bestBIndex + bestK).join(" "), startIndex: bestBIndex, endIndex: bestBIndex + bestK, length: bestK });
+        }
+        i += bestK - 1;
+      }
+    }
+  }
+
+  return { matchesA, matchesB };
+}
+
+async function loadLastSessionstudents() {
+  const getemail = localStorage.getItem("userEmail");
+  if (!getemail) return;
+
+  try {
+    const response = await fetch(`https://checkassign-assignment-plagiarism.onrender.com/fileresult?email=${encodeURIComponent(getemail)}`);
+    const resp = await response.json();
+
+    if (resp && resp.length > 0 && resp[0].filesprocesed && resp[0].filesprocesed.length > 0) {
+      const person = resp[0];
+      const lastResult = person.filesprocesed[person.filesprocesed.length - 1];
+
+      const teacherView = document.getElementById("teacherResultsView");
+      if (teacherView) teacherView.style.display = "none";
+      const studentView = document.querySelector(".results-wrap");
+      if (studentView) studentView.style.display = "flex";
+
+      setProgressStep(3);
+      showView(viewResults);
+      if (lastResult[0].mode == "students") {
+        renderUI(lastResult[1]);
+      }
+      console.log("Loaded last session from database successfully");
+    }
+  } catch (err) {
+    console.error("Failed to load last session:", err);
+  }
+}
+
+export function renderUI(result) {
+  const roundedScore = result.roundedscore;
 
   const scoreElement = document.getElementById("resSimilarity");
+  if (scoreElement) countUp(scoreElement, roundedScore);
 
-  countUp(scoreElement, roundedScore);
+  const fileAName = result.filenames[0];
+  const fileBName = result.filenames[1];
 
-  const fileA = files[0];
+  if (document.getElementById("pairLeft")) document.getElementById("pairLeft").textContent = fileAName;
+  if (document.getElementById("pairRight")) document.getElementById("pairRight").textContent = fileBName;
+  if (document.getElementById("panelAName")) document.getElementById("panelAName").textContent = fileAName;
+  if (document.getElementById("panelBName")) document.getElementById("panelBName").textContent = fileBName;
 
-  const fileB = files[1];
+  const typeA = getFileType(fileAName);
+  const typeB = getFileType(fileBName);
+  if (document.getElementById("panelAFmt")) document.getElementById("panelAFmt").textContent = typeA.label;
+  if (document.getElementById("panelBFmt")) document.getElementById("panelBFmt").textContent = typeB.label;
 
-  document.getElementById("pairLeft").textContent = fileA.name;
+  const textA = result.textA || "No content extracted.";
+  const textB = result.textB || "No content extracted.";
 
-  document.getElementById("pairRight").textContent = fileB.name;
-
-  document.getElementById("pairSub").textContent =
-    "Comparison between " + fileA.name + " and " + fileB.name;
-
-  document.getElementById("panelAName").textContent = fileA.name;
-
-  document.getElementById("panelBName").textContent = fileB.name;
-
-  const textA = rawTextMap[fileA.name] || "No content extracted.";
-
-  const textB = rawTextMap[fileB.name] || "No content extracted.";
-
-  document.getElementById("panelABody").innerHTML =
-    formatTextToParagraphs(textA);
-
-  document.getElementById("panelBBody").innerHTML =
-    formatTextToParagraphs(textB);
-
-  document.getElementById("mFiles").textContent = files.length;
-
-  let matching = 0;
-
-  if (roundedScore > 0) {
-    matching = Math.ceil(roundedScore / 10);
+  if (document.getElementById("panelABody")) {
+    document.getElementById("panelABody").innerHTML = highlightMatchesInText(textA, result.filefirstmatches);
+  }
+  if (document.getElementById("panelBBody")) {
+    document.getElementById("panelBBody").innerHTML = highlightMatchesInText(textB, result.filesecondmatches);
   }
 
-  document.getElementById("mMatching").textContent = matching;
+  if (document.getElementById("mFiles")) document.getElementById("mFiles").textContent = result.filenames.length;
+  if (document.getElementById("mMatching")) document.getElementById("mMatching").textContent = result.similarwords;
 
   let different = 0;
-
   if (roundedScore < 100) {
     different = 10 - Math.ceil(roundedScore / 10);
+    if (different < 1) different = 1;
+  }
+  if (document.getElementById("mDifferent")) document.getElementById("mDifferent").textContent = different;
+  if (document.getElementById("mPhrases")) document.getElementById("mPhrases").textContent = Math.round(roundedScore * 0.5);
 
-    if (different < 1) {
-      different = 1;
-    }
+  if (document.getElementById("diffList")) {
+    document.getElementById("diffList").innerHTML =
+      "<li>File 1 has <b>" + (result.chunkCountA || 0) + " chunks</b> (100 words per chunk).</li>" +
+      "<li>File 2 has <b>" + (result.chunkCountB || 0) + " chunks</b> (100 words per chunk).</li>" +
+      "<li>Calculated Jaccard similarity across all 4-gram sets: <b>" + roundedScore + "%</b>.</li>";
   }
 
-  document.getElementById("mDifferent").textContent = different;
-
-  document.getElementById("mPhrases").textContent = Math.round(
-    roundedScore * 0.5,
-  );
-
-  const firstChunkCount = localChunks[0] ? localChunks[0].length : 0;
-
-  const secondChunkCount = localChunks[1] ? localChunks[1].length : 0;
-
-  document.getElementById("diffList").innerHTML =
-    "<li>File 1 has <b>" +
-    firstChunkCount +
-    " chunks</b> (100 words per chunk).</li>" +
-    "<li>File 2 has <b>" +
-    secondChunkCount +
-    " chunks</b> (100 words per chunk).</li>" +
-    "<li>Calculated Jaccard similarity across all 4-gram sets: <b>" +
-    roundedScore +
-    "%</b>.</li>";
-
-  document.getElementById("matchList").innerHTML =
-    "<li>Processed using sliding 4-gram overlapping windows.</li>" +
-    "<li>" +
-    (roundedScore > 20
-      ? "Significant matching phrases detected."
-      : "Low phrase similarity across sections.") +
-    "</li>";
+  if (document.getElementById("matchList")) {
+    document.getElementById("matchList").innerHTML =
+      "<li>Processed using sliding 4-gram overlapping windows.</li>" +
+      "<li>" + (roundedScore > 20 ? "Significant matching phrases detected." : "Low phrase similarity across sections.") + "</li>";
+  }
 }
 
-// Convert text into paragraphs
-function formatTextToParagraphs(text) {
-  const lines = text.split(/\n+/);
+async function loadLastSessionsteachers() {
+  const getemail = localStorage.getItem("userEmail");
+  if (!getemail) return;
 
-  let result = "";
+  try {
+    const response = await fetch(`https://checkassign-assignment-plagiarism.onrender.com/fileresult?email=${encodeURIComponent(getemail)}`);
+    const resp = await response.json();
 
-  for (let i = 0; i < lines.length; i++) {
-    if (lines[i].trim().length > 0) {
-      result += "<p>" + lines[i] + "</p>";
+    if (resp && resp.length > 0 && resp[0].filesprocesed && resp[0].filesprocesed.length > 0) {
+      const person = resp[0];
+      const lastResult = person.filesprocesed[person.filesprocesed.length - 1];
+
+      const teacherView = document.getElementById("teacherResultsView");
+      if (teacherView) teacherView.style.display = "none";
+      const studentView = document.querySelector(".results-wrap");
+      if (studentView) studentView.style.display = "flex";
+
+      setProgressStep(3);
+      showView(viewResults);
+      if (lastResult[0].mode == "teachers") {
+        let arrtocheck = [];
+        for (let x = 1; x < lastResult.length; x++) {
+          arrtocheck.push(lastResult[x]);
+        }
+        renderUIforteachers(arrtocheck);
+      }
+      console.log("Loaded last session from database successfully");
     }
+  } catch (err) {
+    console.error("Failed to load last session:", err);
+  }
+}
+
+const savedMode = sessionStorage.getItem("lastSessionMode");
+const savedResult = sessionStorage.getItem("lastSessionResult");
+
+if (savedMode && savedResult) {
+  try {
+    const parsedResult = JSON.parse(savedResult);
+    if (savedMode === "students") {
+      const teacherView = document.getElementById("teacherResultsView");
+      if (teacherView) teacherView.style.display = "none";
+      const studentView = document.querySelector(".results-wrap");
+      if (studentView) studentView.style.display = "flex";
+
+      setProgressStep(3);
+      showView(viewResults);
+      renderUI(parsedResult);
+    } else if (savedMode === "teachers") {
+      const studentView = document.querySelector(".results-wrap");
+      if (studentView) studentView.style.display = "none";
+
+      setProgressStep(3);
+      showView(viewResults);
+      renderUIforteachers(parsedResult);
+    }
+  } catch (err) {
+    console.error("Failed to load session from sessionStorage:", err);
+    initializeDefaultView();
+  }
+} else {
+  initializeDefaultView();
+}
+
+function initializeDefaultView() {
+  isRunning = false;
+  fileList = [];
+  refStudentFiles = [];
+  refTeacherFile = null;
+  localChunks = [];
+  rawTextMap = {};
+
+  const stages = aEngine.querySelectorAll(".ae-stage");
+  for (let i = 0; i < stages.length; i++) {
+    stages[i].className = "ae-stage";
   }
 
-  return result;
+  aEngine.className = "a-engine";
+  aStage.className = "anim-stage";
+  animStatus.className = "anim-status";
+  animStatusText.textContent = "Running";
+
+  const docs = aStage.querySelectorAll('.a-doc');
+  docs.forEach(doc => doc.remove());
+
+  const lines = aStage.querySelectorAll('.connection-line');
+  lines.forEach(line => line.remove());
+
+  const teacherView = document.getElementById("teacherResultsView");
+  if (teacherView) teacherView.style.display = "none";
+  const studentView = document.querySelector(".results-wrap");
+  if (studentView) studentView.style.display = "flex";
+
+  renderFileList();
+  checkButtonState();
+  setProgressStep(1);
+  showView(viewUpload);
 }
 
-// New analysis button
-const newAnalysisBtn = document.getElementById("newAnalysisBtn");
 
-if (newAnalysisBtn) {
-  newAnalysisBtn.addEventListener("click", function () {
+// Use event delegation to catch clicks on dynamically created buttons
+document.addEventListener("click", function (event) {
+  // Check if the clicked element (or the SVG/span inside it) is the new analysis button
+  const btn = event.target.closest("#newAnalysisBtn");
+
+  if (btn) {
+    event.preventDefault(); // Prevent any default link behavior
+
+    // 1. Clear session storage to prevent loading old results
+    sessionStorage.removeItem("lastSessionMode");
+    sessionStorage.removeItem("lastSessionResult");
+    sessionStorage.removeItem("modeused");
+    sessionStorage.removeItem("showsthedisplayornot");
+
+    // 2. Reset state variables
     isRunning = false;
-
-    fileList.length = 0;
-
+    fileList = [];
+    refStudentFiles = [];
+    refTeacherFile = null;
     localChunks = [];
-
     rawTextMap = {};
 
+    // 3. Reset UI elements
     const stages = aEngine.querySelectorAll(".ae-stage");
-
     for (let i = 0; i < stages.length; i++) {
       stages[i].className = "ae-stage";
     }
 
     aEngine.className = "a-engine";
-
     aStage.className = "anim-stage";
-
     animStatus.className = "anim-status";
-
     animStatusText.textContent = "Running";
 
+    const docs = aStage.querySelectorAll('.a-doc');
+    docs.forEach(doc => doc.remove());
+
+    const lines = aStage.querySelectorAll('.connection-line');
+    lines.forEach(line => line.remove());
+
+    const teacherView = document.getElementById("teacherResultsView");
+    if (teacherView) teacherView.style.display = "none";
+
+    const studentView = document.querySelector(".results-wrap");
+    if (studentView) studentView.style.display = "flex";
+
     renderFileList();
-
     checkButtonState();
-
     setProgressStep(1);
-
     showView(viewUpload);
-  });
-}
-const viewReportBtn = document.getElementById("viewReportBtn");
 
-if (viewReportBtn) {
-  viewReportBtn.addEventListener("click", function () {
-    window.location.href = "../Templates/modified.html";
-  });
-}
+    // 4. Optional: Navigate to a fresh page. 
+    // If you prefer to just reset the UI on the current page, comment out the line below.
+    window.location.href = "../templates/checkAssign.html";
+  }
+});
 
-// Initial setup
 setProgressStep(1);
-
 checkButtonState();
+
+
+
+
