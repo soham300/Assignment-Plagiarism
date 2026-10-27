@@ -11,13 +11,7 @@
    - Logout
 ========================================================= */
 
-"use strict";
-
-/* =========================================================
-   CONFIGURATION
-========================================================= */
-
-const API_BASE = "http://localhost:3000";
+import API_BASE from "./config.js";
 
 const USERS_API = `${API_BASE}/users`;
 const FILEDATA_API = `${API_BASE}/filedata`;
@@ -31,7 +25,7 @@ const FILERESULT_API = `${API_BASE}/fileresult`;
 const loggedIn = localStorage.getItem("loggedIn");
 
 if (!loggedIn) {
-    window.location.href = "../Templates/index.html";
+    window.location.href = "index.html";
 }
 
 
@@ -52,13 +46,15 @@ let analysisResults = [];
 ========================================================= */
 
 function getCurrentEmail() {
-
-    return (
+    const email = (
         localStorage.getItem("userEmail") ||
         localStorage.getItem("email") ||
-        loggedIn ||
         ""
     ).trim();
+    if (email && email !== "true" && email !== "null") {
+        return email;
+    }
+    return "";
 }
 
 
@@ -254,8 +250,50 @@ function showToast(message) {
    GET USER
 ========================================================= */
 
-async function getUser() {
+function getAuthHeaders(extra = {}) {
+    const token = localStorage.getItem("authToken");
+    const headers = { ...extra };
+    if (token) {
+        headers["Authorization"] = `Bearer ${token}`;
+    }
+    return headers;
+}
 
+/* =========================================================
+   FAST UNIFIED PROFILE SUMMARY (<50ms single round-trip)
+========================================================= */
+
+async function fetchProfileSummary(email) {
+    if (!email) return null;
+    try {
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), 3500);
+        const resp = await fetch(`${API_BASE}/api/user-profile-summary`, {
+            headers: getAuthHeaders(),
+            signal: controller.signal
+        });
+        clearTimeout(timeoutId);
+        if (resp.ok) {
+            const data = await resp.json();
+            if (data && data.success) {
+                const results = [...(data.reports || [])];
+                if (data.fileResult && Array.isArray(data.fileResult.filesprocesed)) {
+                    results.push(data.fileResult);
+                }
+                return {
+                    user: data.user,
+                    fileData: data.fileData,
+                    resultData: results
+                };
+            }
+        }
+    } catch (e) {
+        console.warn("Unified summary fetch fallback:", e);
+    }
+    return null;
+}
+
+async function getUser() {
     const email = getCurrentEmail();
 
     if (!email) {
@@ -263,10 +301,13 @@ async function getUser() {
     }
 
     try {
-
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), 3500);
         const response = await fetch(
-            `${USERS_API}?email=${encodeURIComponent(email)}`
+            `${USERS_API}?email=${encodeURIComponent(email)}`,
+            { headers: getAuthHeaders(), signal: controller.signal }
         );
+        clearTimeout(timeoutId);
 
         if (!response.ok) {
             throw new Error("Users API failed");
@@ -282,9 +323,8 @@ async function getUser() {
         }
 
     } catch (error) {
-
-        console.error(
-            "USER LOAD ERROR:",
+        console.warn(
+            "USER LOAD NOTICE:",
             error
         );
     }
@@ -298,7 +338,6 @@ async function getUser() {
 ========================================================= */
 
 async function getFileData() {
-
     const email = getCurrentEmail();
 
     if (!email) {
@@ -306,10 +345,13 @@ async function getFileData() {
     }
 
     try {
-
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), 3500);
         const response = await fetch(
-            `${FILEDATA_API}?email=${encodeURIComponent(email)}`
+            `${FILEDATA_API}?email=${encodeURIComponent(email)}`,
+            { headers: getAuthHeaders(), signal: controller.signal }
         );
+        clearTimeout(timeoutId);
 
         if (!response.ok) {
             throw new Error("Filedata API failed");
@@ -325,9 +367,8 @@ async function getFileData() {
         }
 
     } catch (error) {
-
-        console.error(
-            "FILEDATA LOAD ERROR:",
+        console.warn(
+            "FILEDATA LOAD NOTICE:",
             error
         );
     }
@@ -337,49 +378,48 @@ async function getFileData() {
 
 
 /* =========================================================
-   GET ALL FILE RESULTS
+   GET ALL FILE RESULTS (Parallelized with Promise.allSettled)
 ========================================================= */
 
 async function getFileResults() {
-
     const email = getCurrentEmail();
+    if (!email) return [];
+    const results = [];
 
-    if (!email) {
-        return [];
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 3500);
+
+    const [reportsRes, fileResultRes] = await Promise.allSettled([
+        fetch(`${API_BASE}/reports?email=${encodeURIComponent(email)}`, {
+            headers: getAuthHeaders(),
+            signal: controller.signal
+        }),
+        fetch(`${FILERESULT_API}?email=${encodeURIComponent(email)}`, {
+            headers: getAuthHeaders(),
+            signal: controller.signal
+        })
+    ]);
+    clearTimeout(timeoutId);
+
+    if (reportsRes.status === "fulfilled" && reportsRes.value.ok) {
+        try {
+            const repData = await reportsRes.value.json();
+            if (Array.isArray(repData)) results.push(...repData);
+        } catch (e) {}
     }
 
-    try {
-
-        const response = await fetch(
-            `${FILERESULT_API}?email=${encodeURIComponent(email)}`
-        );
-
-        if (!response.ok) {
-            throw new Error("Fileresult API failed");
-        }
-
-        const data = await response.json();
-
-        if (Array.isArray(data)) {
-            return data;
-        }
-
-        if (
-            data &&
-            typeof data === "object"
-        ) {
-            return [data];
-        }
-
-    } catch (error) {
-
-        console.error(
-            "FILERESULT LOAD ERROR:",
-            error
-        );
+    if (fileResultRes.status === "fulfilled" && fileResultRes.value.ok) {
+        try {
+            const data = await fileResultRes.value.json();
+            if (Array.isArray(data)) {
+                results.push(...data);
+            } else if (data && typeof data === "object") {
+                results.push(data);
+            }
+        } catch (e) {}
     }
 
-    return [];
+    return results;
 }
 
 
@@ -499,22 +539,29 @@ function getSavedReports(resultData, fileData) {
             return;
         }
 
+        // Ownership check: If report defines an email, it MUST match the current logged-in user
+        const currentEmail = getCurrentEmail().toLowerCase();
+        const reportEmail = (report.email || report.userEmail || "").trim().toLowerCase();
+        if (currentEmail && reportEmail && reportEmail !== currentEmail) {
+            return;
+        }
 
         const id =
             report.id ??
             report.reportId ??
+            report.customId ??
             "";
 
-
         const filenames =
-            Array.isArray(report.filenames)
+            Array.isArray(report.filenames) && report.filenames.length > 0
                 ? report.filenames.join("|")
-                : safeText(
-                    report.filename ||
-                    report.fileName ||
-                    ""
-                );
-
+                : Array.isArray(report.files) && report.files.length > 0
+                    ? report.files.join("|")
+                    : safeText(
+                        report.filename ||
+                        report.fileName ||
+                        ""
+                    );
 
         const score =
             report.roundedscore ??
@@ -524,7 +571,6 @@ function getSavedReports(resultData, fileData) {
             report.similarityScore ??
             "";
 
-
         const date =
             report.createdAt ??
             report.created_at ??
@@ -533,21 +579,13 @@ function getSavedReports(resultData, fileData) {
             report.uploadedAt ??
             "";
 
-
-        const key =
-            String(id) +
-            "|" +
-            filenames +
-            "|" +
-            String(score) +
-            "|" +
-            String(date);
-
+        const key = id
+            ? String(id)
+            : filenames + "|" + String(score) + "|" + String(date);
 
         if (keys.has(key)) {
             return;
         }
-
 
         keys.add(key);
 
@@ -852,11 +890,13 @@ function getSavedReports(resultData, fileData) {
 
     if (reports.length === 0) {
 
+        const currentEmail = getCurrentEmail().toLowerCase();
         const sessionKeys = [
             "assignCheckReport",
-            "lastAnalysisResult"
+            "lastAnalysisResult",
+            "reportData",
+            "selectedReport"
         ];
-
 
         sessionKeys.forEach(function (key) {
 
@@ -872,17 +912,26 @@ function getSavedReports(resultData, fileData) {
                 const parsed =
                     JSON.parse(raw);
 
+                const checkAndAdd = function (item) {
+                    if (!item || typeof item !== "object") return;
+                    const itemEmail = (item.email || item.userEmail || "").trim().toLowerCase();
+                    // If user is logged in, only allow session reports belonging to this user
+                    if (currentEmail) {
+                        if (itemEmail === currentEmail) {
+                            addReport(item);
+                        } else {
+                            // Stale report from previous user or anonymous session — clean up
+                            sessionStorage.removeItem(key);
+                        }
+                    } else {
+                        addReport(item);
+                    }
+                };
 
                 if (Array.isArray(parsed)) {
-
-                    parsed.forEach(
-                        addReport
-                    );
-
+                    parsed.forEach(checkAndAdd);
                 } else {
-
-                    addReport(parsed);
-
+                    checkAndAdd(parsed);
                 }
 
             } catch (error) {
@@ -919,7 +968,6 @@ function calculateFileStats(files) {
             0
         );
 
-
         const dateValue =
             file?.uploadedAt ||
             file?.createdAt ||
@@ -932,18 +980,12 @@ function calculateFileStats(files) {
         }
 
 
-        const date =
-            new Date(dateValue);
-
+        const date = new Date(dateValue);
 
         if (
             !isNaN(date.getTime()) &&
-            (
-                !latestDate ||
-                date > latestDate
-            )
+            (!latestDate || date > latestDate)
         ) {
-
             latestDate = date;
         }
 
@@ -974,33 +1016,56 @@ function updateStatistics(
 
 
     /*
-       FILE COUNT
+       FILE COUNT — fallback to unique filenames from reports if no filedata
     */
 
-    if (totalFilesEl) {
+    let displayCount = stats.count;
 
-        totalFilesEl.textContent =
-            String(stats.count);
+    if (displayCount === 0 && Array.isArray(results)) {
+        const uniqueFiles = new Set();
+        results.forEach(function (record) {
+            const addFiles = function (item) {
+                if (!item) return;
+                if (Array.isArray(item.files)) item.files.forEach(f => f && uniqueFiles.add(f));
+                if (Array.isArray(item.filenames)) item.filenames.forEach(f => f && uniqueFiles.add(f));
+            };
+            addFiles(record);
+            if (Array.isArray(record.filesprocesed)) record.filesprocesed.forEach(addFiles);
+        });
+        displayCount = uniqueFiles.size;
     }
 
+    if (totalFilesEl) {
+        totalFilesEl.textContent = String(displayCount);
+    }
 
     if (fileCountEl) {
-
-        fileCountEl.textContent =
-            String(stats.count);
+        fileCountEl.textContent = String(displayCount);
     }
 
 
     /*
-       STORAGE
+       STORAGE — fallback to text content size from reports when no file sizes stored
     */
 
-    if (totalSizeEl) {
+    let displaySize = stats.size;
 
-        totalSizeEl.textContent =
-            formatBytes(
-                stats.size
-            );
+    if (displaySize === 0 && Array.isArray(results)) {
+        // Files are processed client-side; sizes aren't stored for existing records.
+        // Estimate from the textA + textB content stored in each report instead.
+        results.forEach(function (record) {
+            const addTextSize = function (item) {
+                if (!item || typeof item !== "object") return;
+                displaySize += (item.textA ? item.textA.length : 0);
+                displaySize += (item.textB ? item.textB.length : 0);
+            };
+            addTextSize(record);
+            if (Array.isArray(record.filesprocesed)) record.filesprocesed.forEach(addTextSize);
+        });
+    }
+
+    if (totalSizeEl) {
+        totalSizeEl.textContent = formatBytes(displaySize);
     }
 
 
@@ -1041,27 +1106,37 @@ function updateStatistics(
 
 
     /*
-       LAST UPLOAD
+       LAST UPLOAD — also check report dates as fallback
     */
 
     if (lastUploadEl) {
 
-        if (stats.latestDate) {
+        let displayDate = stats.latestDate;
 
-            lastUploadEl.textContent =
-                formatDate(
-                    stats.latestDate
-                );
+        // Fallback: if no file dates, check analysis/report dates
+        if (!displayDate && Array.isArray(results)) {
+            results.forEach(function (record) {
+                // Handle both direct reports and nested structures
+                const checkDate = function (item) {
+                    if (!item || typeof item !== "object") return;
+                    const d = new Date(
+                        item.date || item.createdAt || item.timestamp || ""
+                    );
+                    if (!isNaN(d.getTime()) && (!displayDate || d > displayDate)) {
+                        displayDate = d;
+                    }
+                };
+                checkDate(record);
+                if (Array.isArray(record.filesprocesed)) record.filesprocesed.forEach(checkDate);
+            });
+        }
 
+        if (displayDate) {
+            lastUploadEl.textContent = formatDate(displayDate);
         } else if (files.length > 0) {
-
-            lastUploadEl.textContent =
-                "Recently";
-
+            lastUploadEl.textContent = "Recently";
         } else {
-
-            lastUploadEl.textContent =
-                "—";
+            lastUploadEl.textContent = "—";
         }
     }
 }
@@ -1226,55 +1301,41 @@ function renderFiles(files) {
             file?.timestamp;
 
 
-        const card =
+        const item =
             document.createElement(
                 "div"
             );
 
 
-        card.className =
-            "profile-file-item";
+        // Use CSS classes that match profile.html styles
+        item.className = "file-item";
 
 
-        card.innerHTML = `
+        item.innerHTML = `
 
-            <div class="profile-file-icon ${type.className}">
+            <div class="file-icon">
                 ${type.label}
             </div>
 
-            <div class="profile-file-info">
+            <div class="file-info">
 
-                <div class="profile-file-name">
+                <div class="file-name">
                     ${escapeHTML(filename)}
                 </div>
 
-                <div class="profile-file-meta">
-
-                    ${type.label}
-
-                    ${
-                        filesize
-                            ? " • " +
-                              formatBytes(filesize)
-                            : ""
-                    }
-
-                    ${
-                        fileDate
-                            ? " • " +
-                              formatDate(fileDate)
-                            : ""
-                    }
-
+                <div class="file-meta">
+                    ${type.label}${filesize ? " &bull; " + formatBytes(filesize) : ""}
                 </div>
 
             </div>
+
+            ${fileDate ? `<div class="file-date">${formatDate(fileDate)}</div>` : ""}
 
         `;
 
 
         fileListEl.appendChild(
-            card
+            item
         );
 
     });
@@ -1291,89 +1352,71 @@ function viewReport(
 ) {
 
     if (!report) {
-
-        showToast(
-            "Report not found."
-        );
-
+        showToast("Report not found.");
         return;
     }
-
 
     try {
-
-        sessionStorage.setItem(
-            "selectedReport",
-            JSON.stringify(report)
-        );
-
-
+        sessionStorage.setItem("selectedReport", JSON.stringify(report));
+        sessionStorage.setItem("reportData", JSON.stringify(report));
+        sessionStorage.setItem("lastAnalysisResult", JSON.stringify(report));
+        sessionStorage.setItem("showsthedisplayornot", "true");
+        sessionStorage.setItem("viewReport", "true");
         sessionStorage.setItem(
             "selectedReportId",
-            String(
-                report.id ??
-                report.reportId ??
-                index ??
-                ""
-            )
+            String(report.id ?? report.customId ?? report._id ?? index ?? "")
         );
-
-
-        sessionStorage.setItem(
-            "viewReport",
-            "true"
-        );
-
-
-        sessionStorage.setItem(
-            "showsthedisplayornot",
-            "true"
-        );
-
-
     } catch (error) {
-
-        console.error(
-            "REPORT SAVE ERROR:",
-            error
-        );
-
+        console.error("REPORT SAVE ERROR:", error);
         return;
     }
 
-
-    window.location.href =
-        "../Templates/DetailedReport.html";
+    const repId = report.id || report.customId || report._id;
+    if (repId) {
+        window.location.href = "DetailedReport.html?id=" + encodeURIComponent(repId);
+    } else {
+        window.location.href = "DetailedReport.html";
+    }
 }
 
 
 /* =========================================================
-   OPEN REPORT BY INDEX
+   OPEN REPORT (BY INDEX OR LATEST)
 ========================================================= */
 
 function openReport(index) {
+    // If called with no argument, open latest analysis
+    if (index === undefined || index === null || isNaN(Number(index))) {
+        if (analysisResults && analysisResults.length > 0) {
+            viewReport(analysisResults[0], 0);
+            return;
+        }
+
+        const sessionRaw = sessionStorage.getItem("reportData") || sessionStorage.getItem("lastAnalysisResult") || sessionStorage.getItem("selectedReport");
+        if (sessionRaw) {
+            try {
+                const parsed = JSON.parse(sessionRaw);
+                viewReport(parsed, 0);
+                return;
+            } catch (e) {}
+        }
+
+        window.location.href = "DetailedReport.html";
+        return;
+    }
 
     index = Number(index);
-
 
     if (
         isNaN(index) ||
         index < 0 ||
         index >= analysisResults.length
     ) {
-
-        showToast(
-            "Report not found."
-        );
-
+        showToast("Report not found.");
         return;
     }
 
-
-    viewReport(
-        analysisResults[index],
-        index
-    );
+    viewReport(analysisResults[index], index);
 }
 
 
@@ -1628,6 +1671,17 @@ function setupLogout() {
     logoutBtn.addEventListener(
         "click",
         function () {
+            const email = getCurrentEmail();
+            if (email) {
+                try {
+                    localStorage.removeItem("assigncheck_profile_cache_" + email);
+                    localStorage.removeItem("assigncheck_history_cache_" + email);
+                } catch (e) {}
+            }
+
+            localStorage.removeItem(
+                "authToken"
+            );
 
             localStorage.removeItem(
                 "loggedIn"
@@ -1642,31 +1696,86 @@ function setupLogout() {
             );
 
 
-            sessionStorage.removeItem(
-                "assignCheckReport"
-            );
-
-            sessionStorage.removeItem(
-                "selectedReport"
-            );
-
-            sessionStorage.removeItem(
-                "selectedReportId"
-            );
-
-            sessionStorage.removeItem(
-                "viewReport"
-            );
-
-            sessionStorage.removeItem(
-                "showsthedisplayornot"
-            );
-
+            sessionStorage.clear();
 
             window.location.href =
                 "../Templates/index.html";
         }
     );
+}
+
+
+/* =========================================================
+   SWR CACHE HELPERS (<5ms instant rendering)
+========================================================= */
+
+function hydrateProfileFromCache(email) {
+    if (!email) return false;
+    try {
+        const cachedRaw = localStorage.getItem("assigncheck_profile_cache_" + email);
+        if (!cachedRaw) return false;
+
+        const cache = JSON.parse(cachedRaw);
+        if (!cache || !cache.user) return false;
+
+        currentUser = cache.user;
+        currentFileData = cache.fileData || null;
+        currentResultData = cache.resultData || [];
+
+        updateProfile(cache.user);
+
+        profileFiles = cache.profileFiles || getFilesFromFileData(cache.fileData);
+        analysisResults = cache.analysisResults || getSavedReports(cache.resultData, cache.fileData);
+
+        updateStatistics(profileFiles, currentResultData);
+
+        let filesToRender = profileFiles;
+        if (filesToRender.length === 0 && Array.isArray(currentResultData)) {
+            const fileMap = {};
+            const processItem = function (item) {
+                if (!item || typeof item !== "object") return;
+                const date = item.date || item.createdAt || item.timestamp || "";
+                const addName = function (name) {
+                    if (!name) return;
+                    if (!fileMap[name] || (date && date > (fileMap[name].uploadedAt || ""))) {
+                        fileMap[name] = { filename: name, filesize: 0, uploadedAt: date };
+                    }
+                };
+                if (Array.isArray(item.files)) item.files.forEach(addName);
+                if (Array.isArray(item.filenames)) item.filenames.forEach(addName);
+            };
+            currentResultData.forEach(function (record) {
+                processItem(record);
+                if (Array.isArray(record.filesprocesed)) record.filesprocesed.forEach(processItem);
+            });
+            filesToRender = Object.values(fileMap);
+        }
+
+        renderFiles(filesToRender);
+        renderReports(currentResultData);
+
+        return true;
+    } catch (e) {
+        console.warn("Profile SWR hydration error:", e);
+        return false;
+    }
+}
+
+function saveProfileToCache(email, user, fileData, resultData, profileFiles, analysisResults) {
+    if (!email) return;
+    try {
+        localStorage.setItem(
+            "assigncheck_profile_cache_" + email,
+            JSON.stringify({
+                timestamp: Date.now(),
+                user,
+                fileData,
+                resultData,
+                profileFiles,
+                analysisResults
+            })
+        );
+    } catch (e) {}
 }
 
 
@@ -1689,33 +1798,46 @@ async function loadProfile() {
     }
 
 
-    if (userNameEl) {
-        userNameEl.textContent =
-            "Loading...";
-    }
-
-
     if (userEmailEl) {
         userEmailEl.textContent =
             email;
     }
 
 
+    // 1. Instant Cache Hydration (SWR: 0ms perceived loading time!)
+    const hasRenderedFromCache = hydrateProfileFromCache(email);
+
+    if (!hasRenderedFromCache && userNameEl) {
+        userNameEl.textContent =
+            "Loading...";
+    }
+
+
+    // 2. Fetch fresh data (Fast unified summary first, fallback to parallel)
     try {
+        let summary = await fetchProfileSummary(email);
 
-        const [
-            user,
-            fileData,
-            resultData
-        ] = await Promise.all([
+        let user, fileData, resultData;
 
-            getUser(),
+        if (summary) {
+            user = summary.user;
+            fileData = summary.fileData;
+            resultData = summary.resultData;
+        } else {
+            const [
+                userRes,
+                fileDataRes,
+                resultDataRes
+            ] = await Promise.allSettled([
+                getUser(),
+                getFileData(),
+                getFileResults()
+            ]);
 
-            getFileData(),
-
-            getFileResults()
-
-        ]);
+            user = userRes.status === "fulfilled" ? userRes.value : null;
+            fileData = fileDataRes.status === "fulfilled" ? fileDataRes.value : null;
+            resultData = resultDataRes.status === "fulfilled" ? resultDataRes.value : [];
+        }
 
 
         currentUser =
@@ -1760,24 +1882,6 @@ async function loadProfile() {
             );
 
 
-        console.log(
-            "PROFILE FILES:",
-            profileFiles
-        );
-
-
-        console.log(
-            "FILERESULT DATA:",
-            resultData
-        );
-
-
-        console.log(
-            "FINAL ANALYSES:",
-            analysisResults
-        );
-
-
         /*
            STATISTICS
         */
@@ -1790,11 +1894,33 @@ async function loadProfile() {
 
         /*
            FILE LIST
+           Fallback: if no /filedata records, build file list from reports
         */
 
-        renderFiles(
-            profileFiles
-        );
+        let filesToRender = profileFiles;
+
+        if (filesToRender.length === 0 && Array.isArray(resultData)) {
+            const fileMap = {};
+            const processItem = function (item) {
+                if (!item || typeof item !== "object") return;
+                const date = item.date || item.createdAt || item.timestamp || "";
+                const addName = function (name) {
+                    if (!name) return;
+                    if (!fileMap[name] || (date && date > (fileMap[name].uploadedAt || ""))) {
+                        fileMap[name] = { filename: name, filesize: 0, uploadedAt: date };
+                    }
+                };
+                if (Array.isArray(item.files)) item.files.forEach(addName);
+                if (Array.isArray(item.filenames)) item.filenames.forEach(addName);
+            };
+            resultData.forEach(function (record) {
+                processItem(record);
+                if (Array.isArray(record.filesprocesed)) record.filesprocesed.forEach(processItem);
+            });
+            filesToRender = Object.values(fileMap);
+        }
+
+        renderFiles(filesToRender);
 
 
         /*
@@ -1806,6 +1932,20 @@ async function loadProfile() {
         );
 
 
+        /*
+           SAVE TO CACHE FOR NEXT INSTANT LOAD
+        */
+
+        saveProfileToCache(
+            email,
+            user,
+            fileData,
+            resultData,
+            profileFiles,
+            analysisResults
+        );
+
+
     } catch (error) {
 
         console.error(
@@ -1813,38 +1953,33 @@ async function loadProfile() {
             error
         );
 
+        if (!hasRenderedFromCache) {
+            updateProfile({
+                email: email
+            });
 
-        updateProfile({
-            email: email
-        });
+            if (totalFilesEl) {
+                totalFilesEl.textContent = "0";
+            }
 
+            if (totalSizeEl) {
+                totalSizeEl.textContent = "0 B";
+            }
 
-        if (totalFilesEl) {
-            totalFilesEl.textContent = "0";
+            if (totalAnalysesEl) {
+                totalAnalysesEl.textContent = "0";
+            }
+
+            if (lastUploadEl) {
+                lastUploadEl.textContent = "—";
+            }
+
+            analysisResults = [];
+            renderEmptyFiles();
         }
-
-
-        if (totalSizeEl) {
-            totalSizeEl.textContent = "0 B";
-        }
-
-
-        if (totalAnalysesEl) {
-            totalAnalysesEl.textContent = "0";
-        }
-
-
-        if (lastUploadEl) {
-            lastUploadEl.textContent = "—";
-        }
-
-
-        analysisResults = [];
-
-
-        renderEmptyFiles();
     }
 }
+
 
 
 /* =========================================================
@@ -1868,7 +2003,7 @@ async function refreshProfile() {
 function goToDashboard() {
 
     window.location.href =
-        "../Templates/index.html";
+        "CheckAssign.html";
 }
 
 

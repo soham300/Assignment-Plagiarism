@@ -75,20 +75,10 @@ const updatefiledata = async (req, res) => {
             },
             {
                 returnDocument: "after",
-                runValidators: true
+                runValidators: true,
+                upsert: true
             }
         );
-
-        // console.log("6. MongoDB update completed");
-
-        if (!updatedData) {
-            return res.status(404).json({
-                message: "File data not found for this user",
-                email: req.email
-            });
-        }
-
-        // console.log("7. Sending success response");
 
         return res.status(200).json({
             message: "File data updated successfully",
@@ -105,4 +95,31 @@ const updatefiledata = async (req, res) => {
     }
 };
 
-module.exports = { createfiledata ,updatefiledata};
+const getfiledata = async (req, res) => {
+    try {
+        if (!req.email) {
+            return res.status(400).json({
+                message: "Email was not found in the request"
+            });
+        }
+
+        const data = await filedata.findOne({ email: req.email });
+
+        if (!data) {
+            return res.status(200).json({
+                email: req.email,
+                filedetails: []
+            });
+        }
+
+        return res.status(200).json(data);
+    } catch (error) {
+        console.error("Get filedata error:", error);
+        return res.status(500).json({
+            message: "Failed to fetch file data",
+            error: error.message
+        });
+    }
+};
+
+module.exports = { createfiledata, updatefiledata, getfiledata };

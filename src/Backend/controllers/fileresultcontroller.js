@@ -1,97 +1,67 @@
-const {fileResultData}=require("../Models/fileresultmodel")
+// src/Backend/Controllers/fileResultController.js
+// Handles: getFileResult, createFileResult, updateFileResult
 
+const mongoose = require("mongoose");
+const FileResult = require("../Models/FileResult");
+const { formatDoc } = require("../Middleware/auth");
 
-const createfileresult=async (req,res)=>{
-    try {
-        const { email, filesprocesed } = req.body;
-
-        console.log(req.body);
-
-        const std = await fileResultData.create({
-            email,
-            filesprocesed
-        });
-
-        return res.status(201).json({
-            message: "File structure created successfully",
-            data: {
-                id: std._id,
-                email: std.email,
-                filesprocesed: std.filesprocesed
-            }
-        });
-
-    } catch (error) {
-        console.error(error);
-
-        if (error.code === 11000) {
-            return res.status(409).json({
-                message: "This email already exists."
-            });
-        }
-
-        return res.status(500).json({
-            message: "Failed to create file structure"
-        });
+// GET /fileresult
+const getFileResult = async (req, res) => {
+  try {
+    const query = {};
+    if (req.user.role === "student") {
+      query.email = req.user.email.toLowerCase();
+    } else if (req.query.email) {
+      query.email = req.query.email.toLowerCase().trim();
     }
-}
 
+    const data = await FileResult.find(query).lean();
+    res.json(data.map(formatDoc));
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+};
 
+// POST /fileresult
+const createFileResult = async (req, res) => {
+  try {
+    const item = { ...req.body };
+    item.customId = req.body.id || new mongoose.Types.ObjectId().toString();
+    item.email = req.user.email.toLowerCase();
 
-const updatefileresult=async (req,res)=>{
-    
-    try{
-        const {fileresult}=req.body;
-        console.log("2. Request body received");
-        console.log("3. Email:", req.email);
-        if (!req.email) {
-            return res.status(400).json({
-                message: "Email was not found in the request"
-            });
-        }
-        if (!Array.isArray(fileresult)) {
-            return res.status(400).json({
-                message: "fileresult must be an array"
-            });
-        }
+    const created = await FileResult.create(item);
+    res.status(201).json(formatDoc(created));
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+};
 
-        const updatedresult=await fileResultData.findOneAndUpdate(
-            {email:req.email},
-            {$push:{
-                filesprocesed:fileresult
-            }},
+// PUT /fileresult/:id
+const updateFileResult = async (req, res) => {
+  try {
+    const id = req.params.id;
+    const filter = mongoose.Types.ObjectId.isValid(id)
+      ? { $or: [{ _id: id }, { customId: id }] }
+      : { customId: id };
 
-            {
-                returnDocument:"after",
-                runValidators:true
-            }
-        )    
-
-        console.log("6. MongoDB update completed");
-
-        if (!updatedresult) {
-            return res.status(404).json({
-                message: "File data not found for this user",
-                email: req.email
-            });
-        }
-
-        console.log("7. Sending success response");
-
-        return res.status(200).json({
-            message: "File data updated successfully",
-            data: updatedresult
-        });
-
-
+    const existing = await FileResult.findOne(filter);
+    if (!existing) {
+      return res.status(404).json({ error: "FileResult not found" });
     }
-    catch(error){
-        console.error("Update controller error:", error);
 
-        return res.status(500).json({
-            message: "Failed to update file data",
-            error: error.message
-        });
+    if (existing.email.toLowerCase() !== req.user.email.toLowerCase() && req.user.role !== "admin") {
+      return res.status(403).json({ error: "Unauthorized: You do not own this file result" });
     }
-}
-module.exports={createfileresult,updatefileresult}
+
+    const updated = await FileResult.findOneAndUpdate(filter, req.body, { new: true });
+    res.json(formatDoc(updated));
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+};
+
+module.exports = {
+  getFileResult,
+  createFileResult,
+  updateFileResult
+};

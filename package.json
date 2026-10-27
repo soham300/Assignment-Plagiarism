@@ -1,31 +1,29 @@
 {
   "name": "assignment-plagiarism",
-  "version": "1.0.0",
+  "version": "2.0.0",
+  "description": "Assignment Plagiarism Checker — A full-stack web application for detecting textual similarity between student assignments using symmetric Jaccard shingling.",
   "scripts": {
-    "start": "nodemon server.js"
+    "start": "node server.js",
+    "dev": "node server.js",
+    "test": "node tests/plagiarismEngine.test.js",
+    "test:upload": "node tests/test_upload_flow.js",
+    "test:api": "node tests/api.test.js",
+    "test:all": "node tests/plagiarismEngine.test.js && node tests/test_upload_flow.js && node tests/api.test.js",
+    "db:sanitize": "node scripts/sanitize-db.js"
   },
   "dependencies": {
     "bcrypt": "^6.0.0",
     "cors": "^2.8.6",
-    "dotenv": "^18.0.9",
+    "dictionary-en": "^4.0.0",
+    "dictionary-en-gb": "^3.0.0",
+    "dotenv": "^18.0.7",
     "express": "^5.3.0",
-    "json-server": "^1.0.0-beta.3",
+    "express-rate-limit": "^8.7.1",
     "jsonwebtoken": "^9.0.3",
-    "mongoose": "^9.11.4",
-    "nodemon": "^3.1.14"
+    "mongoose": "^9.11.1",
+    "nspell": "^2.1.5"
   },
-  "description": "The landing page introduces AssignCheck and its plagiarism detection capabilities.",
-  "main": "server.js",
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/soham300/Assignment-Plagiarism.git"
-  },
-  "keywords": [],
-  "author": "",
-  "license": "ISC",
-  "type": "commonjs",
-  "bugs": {
-    "url": "https://github.com/soham300/Assignment-Plagiarism/issues"
-  },
-  "homepage": "https://github.com/soham300/Assignment-Plagiarism#readme"
+  "allowScripts": {
+    "bcrypt@6.0.0": true
+  }
 }

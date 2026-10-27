@@ -35,9 +35,13 @@ export async function handleLogin(event) {
       return;
     }
 
-    // console.log(result);
-    localStorage.setItem("token",result.token);
-
+    // Store auth info in localStorage
+    localStorage.setItem("token", result.token);
+    if (result.user) {
+      localStorage.setItem("loggedIn", result.user.email);
+      localStorage.setItem("userEmail", result.user.email);
+      localStorage.setItem("userName", result.user.username);
+    }
 
     await showCustomAlert("Login successful!");
     await updateNavbar();
